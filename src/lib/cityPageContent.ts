@@ -5600,12 +5600,10 @@ function buildLocalBlock(city: CityPageData, seed: number) {
   const selectedPool = pool.length > 0 ? pool : fallbackPool;
 
   const picked =
-    pool[seededIndex(seed, pool.length, 71)] || {
-      title: "Warum die Online-Abmeldung in {{city}} für viele interessant ist",
-      text: "Viele Fahrzeughalter in {{city}} suchen nach einer klaren und bequemen Lösung. Genau deshalb wird die digitale Abmeldung für viele immer interessanter.",
-    };
+    selectedPool[seededIndex(seed, selectedPool.length, 71)] ||
+    fallbackPool[0];
 
-    const extra = city.localHint?.trim()
+  const extra = city.localHint?.trim()
     ? ` ${city.localHint.trim()}`
     : "";
 
@@ -5853,6 +5851,7 @@ export function buildCityPageModel(input: CityPageModelInput): CityPageModel {
     nearby: input.nearby,
     behoerde: input.behoerde,
     localHint: input.localHint,
+    ...(input.areaType ? { areaType: input.areaType } : {}),
   };
 
   const content = buildCityPageContent(cityPageData);

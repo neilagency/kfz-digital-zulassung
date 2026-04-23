@@ -10,11 +10,9 @@ export function buildCityModelInputForSlug(slug: string): {
   input: CityPageModelInput;
 } {
   const resolvedSlug = getResolvedCitySlug(slug) || slug;
-
   const rawName =
     SLUG_CITY_MAP[resolvedSlug] ||
     resolvedSlug.replace(/-/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase());
-
   const cityName = getCityNameBySlug(resolvedSlug) || rawName;
   const meta = getCityMeta(resolvedSlug);
   const authority = getLokaleBehoerde(cityName, meta?.state);
@@ -29,8 +27,6 @@ export function buildCityModelInputForSlug(slug: string): {
       city: cityName,
       region: meta?.region || cityName,
       state: meta?.state || '',
-      areaType: 'suburban',
-      localHint: '',
       nearby: nearbySlugs
         .map((item) => getCityNameBySlug(item))
         .filter((item): item is string => !!item),
