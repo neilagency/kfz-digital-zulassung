@@ -1,0 +1,33 @@
+{
+  "timestamp": "2026-04-20T16:14:40.797Z",
+  "dryRun": false,
+  "totalAffected": 2,
+  "markedFailed": 1,
+  "softDeleted": 1,
+  "orders": [
+    {
+      "orderNumber": 911,
+      "orderId": "cmmqpav8y02ry0ms3i0e3l52l",
+      "status": "cancelled",
+      "total": 10,
+      "hasPayment": false,
+      "hasInvoice": true,
+      "hasCustomer": false,
+      "hasServiceData": false,
+      "classification": "B_INVALID",
+      "action": "SOFT_DELETED"
+    },
+    {
+      "orderNumber": 1120,
+      "orderId": "cmmqpazqe03f40ms3lsaxowg4",
+      "status": "completed",
+      "total": 10,
+      "hasPayment": true,
+      "hasInvoice": true,
+      "hasCustomer": false,
+      "hasServiceData": true,
+      "classification": "A_RECOVERABLE",
+      "action": "MARKED_FAILED"
+    }
+  ]
+}
