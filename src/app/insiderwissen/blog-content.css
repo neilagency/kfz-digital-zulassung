@@ -1,0 +1,399 @@
+/* Blog content styles */
+.blog-content h2 {
+  @apply text-xl md:text-2xl font-extrabold text-primary mt-10 mb-5 pb-3 border-b-2 border-accent/30 scroll-mt-24;
+}
+
+.blog-content h3 {
+  @apply text-lg md:text-xl font-bold text-gray-900 mt-8 mb-4 scroll-mt-24;
+}
+
+.blog-content h4 {
+  @apply text-base md:text-lg font-bold text-gray-800 mt-6 mb-3;
+}
+
+.blog-content p {
+  @apply text-base leading-[1.8] text-gray-700 mb-5;
+}
+
+.blog-content ul,
+.blog-content ol {
+  @apply pl-0 mb-6 space-y-2.5;
+}
+
+.blog-content ul {
+  @apply list-none;
+}
+
+.blog-content ul li {
+  @apply text-gray-700 leading-relaxed pl-6 relative;
+}
+
+.blog-content ul li::before {
+  content: '';
+  @apply absolute left-0 top-[10px] w-2 h-2 rounded-full bg-accent;
+}
+
+.blog-content ol {
+  @apply list-none;
+  counter-reset: custom-counter;
+}
+
+.blog-content ol li {
+  @apply text-gray-700 leading-relaxed pl-8 relative;
+  counter-increment: custom-counter;
+}
+
+.blog-content ol li::before {
+  content: counter(custom-counter);
+  @apply absolute left-0 top-0 w-6 h-6 rounded-full bg-primary text-white text-xs font-bold flex items-center justify-center;
+}
+
+.blog-content a {
+  @apply text-primary font-semibold underline decoration-accent/40 underline-offset-2 hover:decoration-accent hover:text-accent transition-colors;
+}
+
+.blog-content strong {
+  @apply font-bold text-gray-900;
+}
+
+.blog-content blockquote {
+  @apply border-l-4 border-accent bg-accent/5 rounded-r-xl px-6 py-4 my-6 italic text-gray-600;
+}
+
+.blog-content hr {
+  @apply my-10 border-0 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent;
+}
+
+.blog-content img {
+  @apply rounded-xl shadow-md my-6 w-full;
+}
+
+.blog-content figure {
+  @apply my-6;
+}
+
+.blog-content figcaption {
+  @apply text-sm text-gray-500 text-center mt-2 italic;
+}
+
+.blog-content table {
+  @apply w-full my-6 border-collapse overflow-hidden rounded-xl shadow-sm;
+}
+
+.blog-content table thead {
+  @apply bg-primary text-white;
+}
+
+.blog-content table th {
+  @apply px-4 py-3 text-left text-sm font-bold;
+}
+
+.blog-content table td {
+  @apply px-4 py-3 text-sm text-gray-700 border-b border-gray-100;
+}
+
+.blog-content table tbody tr:nth-child(even) {
+  @apply bg-gray-50;
+}
+
+.blog-content table tbody tr:hover {
+  @apply bg-primary-50;
+}
+
+/* WordPress Gutenberg button blocks */
+.blog-content .wp-block-button {
+  @apply my-4;
+}
+
+.blog-content .wp-block-button a,
+.blog-content .wp-block-button__link {
+  @apply inline-flex items-center gap-2 no-underline px-6 py-3 rounded-full font-bold text-sm transition-all;
+}
+
+.blog-content .wp-block-button:not(.is-style-outline) a,
+.blog-content .wp-block-button:not(.is-style-outline) .wp-block-button__link {
+  @apply bg-primary text-white hover:bg-primary-600 hover:shadow-lg;
+}
+
+.blog-content .wp-block-button.is-style-outline a,
+.blog-content .wp-block-button.is-style-outline .wp-block-button__link {
+  @apply bg-transparent text-primary border-2 border-primary hover:bg-primary hover:text-white;
+}
+
+.blog-content .wp-block-buttons {
+  @apply flex flex-wrap gap-3 my-6;
+}
+
+/* WP separator */
+.blog-content .wp-block-separator {
+  @apply my-10 border-0 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent;
+}
+
+/* WP columns */
+.blog-content .wp-block-columns {
+  @apply flex flex-col md:flex-row gap-6 my-6;
+}
+
+.blog-content .wp-block-column {
+  @apply flex-1;
+}
+
+/* WP group / cover blocks */
+.blog-content .wp-block-group {
+  @apply my-6 p-5 bg-gray-50 rounded-xl border border-gray-100;
+}
+
+/* Callout / info style blocks */
+.blog-content .has-background {
+  @apply rounded-xl p-5 my-6;
+}
+
+/* ═══════ WordPress custom OA classes ═══════ */
+
+/* Button row — flex with gap */
+.blog-content .oa-btn-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 16px 0;
+}
+
+/* Buttons — override blog-content a defaults */
+.blog-content a.oa-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 24px;
+  border-radius: 999px;
+  font-weight: 800;
+  font-size: 14px;
+  border: 2px solid transparent;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.blog-content a.oa-btn-primary {
+  background: var(--primary);
+  color: #ffffff !important;
+}
+
+.blog-content a.oa-btn-primary:hover {
+  background: #0a4568;
+  box-shadow: 0 8px 24px rgba(13, 85, 129, 0.25);
+}
+
+.blog-content a.oa-btn-secondary {
+  background: #ffffff;
+  color: var(--primary) !important;
+  border-color: var(--primary);
+}
+
+.blog-content a.oa-btn-secondary:hover {
+  background: var(--primary);
+  color: #ffffff !important;
+}
+
+/* Callout box */
+.blog-content .oa-callout {
+  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+  border: 1px solid #e2ecf5;
+  border-radius: 18px;
+  padding: 20px;
+  margin: 20px 0;
+}
+
+/* Box title badge */
+.blog-content .oa-box-title {
+  display: inline-block;
+  background: var(--primary);
+  color: #ffffff;
+  font-weight: 900;
+  font-size: 15px;
+  padding: 8px 16px;
+  border-radius: 12px;
+  margin: 0 0 12px 0;
+}
+
+/* Intro block */
+.blog-content .oa-post-intro {
+  background: #ffffff;
+  border: 1px solid #eee;
+  border-radius: 16px;
+  padding: 20px;
+  margin: 16px 0;
+}
+
+/* TOC from WordPress */
+.blog-content .oa-toc {
+  background: #ffffff;
+  border: 1px solid #eee;
+  border-radius: 18px;
+  padding: 20px;
+  margin: 20px 0;
+}
+
+.blog-content .oa-toc-list {
+  margin: 0;
+  padding-left: 0;
+  counter-reset: toc-counter;
+}
+
+.blog-content .oa-toc-list li {
+  padding-left: 36px;
+  margin: 8px 0;
+  counter-increment: toc-counter;
+}
+
+.blog-content .oa-toc-list li::before {
+  content: counter(toc-counter);
+  width: 26px;
+  height: 26px;
+  background: var(--accent);
+  color: #ffffff;
+  border-radius: 50%;
+  font-size: 12px;
+}
+
+.blog-content .oa-toc-list a {
+  color: var(--primary);
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.blog-content .oa-toc-list a:hover {
+  color: var(--accent);
+}
+
+/* Check card */
+.blog-content .oa-check-card {
+  background: #ffffff;
+  border: 1px solid #eee;
+  border-radius: 18px;
+  padding: 20px;
+  margin: 16px 0;
+}
+
+.blog-content .oa-checklist {
+  margin: 0;
+  padding-left: 0;
+}
+
+.blog-content .oa-checklist li {
+  padding-left: 28px;
+  margin: 8px 0;
+  position: relative;
+}
+
+.blog-content .oa-checklist li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 20px;
+  height: 20px;
+  background: var(--accent);
+  color: #fff;
+  border-radius: 50%;
+  font-size: 11px;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Grid 2 columns */
+.blog-content .oa-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+  margin: 16px 0;
+}
+
+@media (max-width: 768px) {
+  .blog-content .oa-grid-2 {
+    grid-template-columns: 1fr;
+  }
+  .blog-content a.oa-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* Mini card */
+.blog-content .oa-mini {
+  background: #ffffff;
+  border: 1px solid #eee;
+  border-radius: 16px;
+  padding: 16px;
+}
+
+.blog-content .oa-mini-title {
+  font-weight: 900;
+  color: var(--primary);
+  margin-bottom: 6px;
+  font-size: 15px;
+}
+
+/* Link list */
+.blog-content .oa-linklist {
+  margin: 0;
+  padding-left: 0;
+}
+
+.blog-content .oa-linklist li {
+  margin: 8px 0;
+  padding-left: 20px;
+}
+
+.blog-content .oa-linklist li::before {
+  width: 8px;
+  height: 8px;
+  top: 8px;
+}
+
+.blog-content .oa-linklist a {
+  color: var(--primary);
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.blog-content .oa-linklist a:hover {
+  color: var(--accent);
+}
+
+/* Final CTA */
+.blog-content .oa-final-cta {
+  background: rgba(13, 85, 129, 0.04);
+  border: 1px solid rgba(13, 85, 129, 0.15);
+  border-radius: 18px;
+  padding: 20px;
+  margin: 24px 0;
+}
+
+/* Last CTA */
+.blog-content .oa-last-cta {
+  background: #ffffff;
+  border: 1px solid #e2ecf5;
+  border-radius: 18px;
+  padding: 20px;
+  margin: 24px 0;
+}
+
+/* Hide inline WP styles (we override them) */
+.blog-content > style,
+.blog-content style {
+  display: none;
+}
+
+/* Post wrapper */
+.blog-content .oa-post-wrap {
+  max-width: 100%;
+}
+
+.blog-content .oa-post-wrap p {
+  line-height: 1.8;
+}
+
+.blog-content .oa-post-wrap a:not(.oa-btn) {
+  text-decoration: none;
+}

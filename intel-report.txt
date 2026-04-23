@@ -1,0 +1,26 @@
+src/components/CityPageView.tsx:} from '@/lib/city-intelligence';
+src/lib/PROJECT_SUMMARY.md:    dependencies: ['city-intelligence types', 'cityPageContent types'],
+src/lib/PROJECT_SUMMARY.md:    purpose: 'Concrete code changes for city-intelligence.ts',
+src/lib/PROJECT_SUMMARY.md:    '✓ city-intelligence.ts (generators are called here)',
+src/lib/PROJECT_SUMMARY.md:   → Copy code blocks into city-intelligence.ts
+src/lib/city-page-data.ts:import { buildCityPageModel, type CityPageModel, type CityPageModelInput } from './city-intelligence';
+src/lib/city-page-data.ts:/** Öffentliche API für Routes: lieber hier importieren als aus `./city-intelligence`. */
+src/lib/VALIDATION_AND_TESTING.md:import { buildCityPageModel } from '../src/lib/city-intelligence';
+src/lib/VALIDATION_AND_TESTING.md:   - Revert city-intelligence.ts to previous version
+src/lib/DELIVERABLES_MANIFEST.md:        'CityArchetype from city-intelligence.ts types',
+src/lib/DELIVERABLES_MANIFEST.md:        'LocalSignal from city-intelligence.ts types',
+src/lib/DELIVERABLES_MANIFEST.md:        'ResolvedNearbyCity from city-intelligence.ts types',
+src/lib/DELIVERABLES_MANIFEST.md:        'BehoerdeData from city-intelligence.ts types',
+src/lib/DELIVERABLES_MANIFEST.md:        '4. Integration Points (6 locations in city-intelligence.ts)',
+src/lib/DELIVERABLES_MANIFEST.md:      'Integrate into city-intelligence.ts',
+src/lib/DELIVERABLES_MANIFEST.md: ✓ All changes within city-intelligence.ts + generators
+src/lib/IMPLEMENTATION_GUIDE.md: * IMPLEMENTATION: Concrete Changes to city-intelligence.ts
+src/lib/IMPLEMENTATION_GUIDE.md: * Apply these changes to src/lib/city-intelligence.ts
+src/lib/IMPLEMENTATION_GUIDE.md:// ADD TO IMPORTS at the top of city-intelligence.ts:
+src/lib/IMPLEMENTATION_GUIDE.md:// FIND THIS FUNCTION in city-intelligence.ts:
+src/lib/IMPLEMENTATION_GUIDE.md:// Add this at the top of city-intelligence.ts:
+src/lib/city-model-input.ts:import { type CityPageModelInput } from './city-intelligence';
+src/lib/INTEGRATION_GUIDE.md: * STEP 1: Import the dynamic generators in city-intelligence.ts
+src/lib/QUICK_START.md:    '4. Start: Copy-paste code from IMPLEMENTATION_GUIDE into city-intelligence.ts',
+src/lib/QUICK_START.md:    'Zero. Copy-paste ready code from IMPLEMENTATION_GUIDE.md. Total changes: 6 code blocks in city-intelligence.ts',
+src/lib/QUICK_START.md:    'Yes. Feature flag is a single environment variable. Or revert city-intelligence.ts to previous version. Takes 30 minutes max.',

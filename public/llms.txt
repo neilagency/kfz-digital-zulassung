@@ -1,0 +1,44 @@
+# Online Auto Abmelden
+> KFZ online abmelden in 2 Minuten – offiziell über das KBA
+
+## Über uns
+Online Auto Abmelden ist ein digitaler Service für die offizielle Online-Fahrzeugabmeldung in Deutschland.
+Fahrzeughalter können ihr Auto, Motorrad, LKW oder Anhänger bequem online abmelden – ohne Termin bei der
+Zulassungsstelle. Der Service nutzt eine GKS-Anbindung an das Kraftfahrt-Bundesamt (KBA) gemäß § 34 FZV.
+
+## Dienstleistungen
+- **Fahrzeug online abmelden** (bundesweit): 19,70 €
+  URL: https://onlineautoabmelden.com/product/fahrzeugabmeldung
+- **Auto online anmelden**: ab 24,40 €
+  URL: https://onlineautoabmelden.com/product/auto-online-anmelden
+
+## Kontakt
+- Telefon: 01522 4999190
+- WhatsApp: https://wa.me/4915224999190
+- E-Mail: info@onlineautoabmelden.com
+- Website: https://onlineautoabmelden.com
+
+## Wichtige Seiten
+- Startseite: https://onlineautoabmelden.com
+- Fahrzeug abmelden: https://onlineautoabmelden.com/product/fahrzeugabmeldung
+- Auto anmelden: https://onlineautoabmelden.com/product/auto-online-anmelden
+- Blog / Insiderwissen: https://onlineautoabmelden.com/insiderwissen
+- Alle Städte: https://onlineautoabmelden.com/kfz-zulassung-abmeldung-in-deiner-stadt
+- Datenschutzhinweise: https://onlineautoabmelden.com/datenschutzhinweise
+- Impressum: https://onlineautoabmelden.com/impressum
+- AGB: https://onlineautoabmelden.com/geschaftsbedingungen
+- Widerrufsbelehrung: https://onlineautoabmelden.com/widerrufsbelehrung
+
+## Häufige Fragen (FAQ)
+- **Was brauche ich für die Online-Abmeldung?** Zulassungsbescheinigung Teil I (Fahrzeugschein) mit freiliegendem Sicherheitscode.
+- **Wie lange dauert die Abmeldung?** Nur ca. 2 Minuten online. Die offizielle Bestätigung erfolgt sofort per E-Mail.
+- **Ist das rechtlich gültig?** Ja, die Abmeldung erfolgt offiziell über die GKS des Kraftfahrt-Bundesamtes (KBA).
+- **Was passiert mit Versicherung und Steuer?** Beide werden automatisch vom KBA informiert und angepasst.
+- **Funktioniert das bundesweit?** Ja, egal wo das Fahrzeug zugelassen ist.
+- **Gibt es eine Geld-zurück-Garantie?** Ja, 100% Geld-zurück-Garantie wenn die Abmeldung nicht klappt.
+
+## Technische Details
+- Sprache: Deutsch
+- Standort: Deutschland (bundesweit)
+- Sitemap: https://onlineautoabmelden.com/sitemap.xml
+- Robots: https://onlineautoabmelden.com/robots.txt

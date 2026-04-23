@@ -1,0 +1,461 @@
+[
+  {
+    "id": 178,
+    "name": "Abmeldung bei Fahrzeugverkauf",
+    "slug": "abmeldung-bei-fahrzeugverkauf",
+    "description": "Abmeldung bei Fahrzeugverkauf\r\n\r\nLeitfaden zur rechtzeitigen Abmeldung von Fahrzeugen nach dem Verkauf, um Bußgelder zu vermeiden.",
+    "parent": 0,
+    "count": 18,
+    "link": "https://onlineautoabmelden.com/abmeldung-bei-fahrzeugverkauf/",
+    "seo": {
+      "metaTitle": "",
+      "metaDescription": "",
+      "canonicalUrl": "",
+      "ogTitle": "",
+      "ogDescription": "",
+      "ogImage": ""
+    }
+  },
+  {
+    "id": 176,
+    "name": "Abmeldung beim Straßenverkehrsamt",
+    "slug": "abmeldung-beim-strassenverkehrsamt",
+    "description": "Abmeldung beim Straßenverkehrsamt Detaillierte Anleitung zur Fahrzeugabmeldung beim zuständigen Straßenverkehrsamt.",
+    "parent": 0,
+    "count": 17,
+    "link": "https://onlineautoabmelden.com/abmeldung-beim-strassenverkehrsamt/",
+    "seo": {
+      "metaTitle": "",
+      "metaDescription": "",
+      "canonicalUrl": "",
+      "ogTitle": "",
+      "ogDescription": "",
+      "ogImage": ""
+    }
+  },
+  {
+    "id": 179,
+    "name": "Abmeldung ohne Fahrzeugbrief",
+    "slug": "abmeldung-ohne-fahrzeugbrief",
+    "description": "<strong>Abmeldung ohne Fahrzeugbrief</strong>\r\n<ul>\r\n \t<li>Lösungen für die Abmeldung eines Fahrzeugs, auch wenn der Fahrzeugbrief verloren gegangen ist.</li>\r\n</ul>",
+    "parent": 0,
+    "count": 2,
+    "link": "https://onlineautoabmelden.com/abmeldung-ohne-fahrzeugbrief/",
+    "seo": {
+      "metaTitle": "",
+      "metaDescription": "",
+      "canonicalUrl": "",
+      "ogTitle": "",
+      "ogDescription": "",
+      "ogImage": ""
+    }
+  },
+  {
+    "id": 431,
+    "name": "Auto abmelden",
+    "slug": "auto-abmelden",
+    "description": "",
+    "parent": 0,
+    "count": 5,
+    "link": "https://onlineautoabmelden.com/auto-abmelden/",
+    "seo": {
+      "metaTitle": "",
+      "metaDescription": "",
+      "canonicalUrl": "",
+      "ogTitle": "",
+      "ogDescription": "",
+      "ogImage": ""
+    }
+  },
+  {
+    "id": 173,
+    "name": "Auto abmelden online",
+    "slug": "auto-abmelden-online",
+    "description": "<h1>Auto abmelden online Anleitungen und Dienstleistungen für die Online-Abmeldung von Fahrzeugen in Deutschland.</h1>",
+    "parent": 0,
+    "count": 18,
+    "link": "https://onlineautoabmelden.com/auto-abmelden-online/",
+    "seo": {
+      "metaTitle": "",
+      "metaDescription": "",
+      "canonicalUrl": "",
+      "ogTitle": "",
+      "ogDescription": "",
+      "ogImage": ""
+    }
+  },
+  {
+    "id": 177,
+    "name": "Fahrzeugexport Abmeldung",
+    "slug": "fahrzeugexport-abmeldung",
+    "description": "<strong>Fahrzeugexport Abmeldung</strong>\r\n<ul>\r\n \t<li>Spezifische Anweisungen für die Abmeldung von Fahrzeugen, die ins Ausland exportiert werden sollen.</li>\r\n</ul>",
+    "parent": 0,
+    "count": 17,
+    "link": "https://onlineautoabmelden.com/fahrzeugexport-abmeldung/",
+    "seo": {
+      "metaTitle": "",
+      "metaDescription": "",
+      "canonicalUrl": "",
+      "ogTitle": "",
+      "ogDescription": "",
+      "ogImage": ""
+    }
+  },
+  {
+    "id": 175,
+    "name": "Fahrzeugstilllegung",
+    "slug": "fahrzeugstilllegung",
+    "description": "Fahrzeugstilllegung Informationen und Dienstleistungen zur temporären oder endgültigen Stilllegung von Fahrzeugen.",
+    "parent": 0,
+    "count": 17,
+    "link": "https://onlineautoabmelden.com/fahrzeugstilllegung/",
+    "seo": {
+      "metaTitle": "",
+      "metaDescription": "",
+      "canonicalUrl": "",
+      "ogTitle": "",
+      "ogDescription": "",
+      "ogImage": ""
+    }
+  },
+  {
+    "id": 181,
+    "name": "Häufige Fehler bei der Abmeldung",
+    "slug": "fehler-abmeldung",
+    "description": "Häufige Fehler bei der Abmeldung\r\n\r\nAuflistung der häufigsten Fehler, die bei der Fahrzeugabmeldung passieren und wie man sie vermeidet.",
+    "parent": 0,
+    "count": 17,
+    "link": "https://onlineautoabmelden.com/fehler-abmeldung/",
+    "seo": {
+      "metaTitle": "",
+      "metaDescription": "",
+      "canonicalUrl": "",
+      "ogTitle": "",
+      "ogDescription": "",
+      "ogImage": ""
+    }
+  },
+  {
+    "id": 294,
+    "name": "iKfz Kosten &amp; Preise",
+    "slug": "ikfz-kosten-preise",
+    "description": "",
+    "parent": 0,
+    "count": 1,
+    "link": "https://onlineautoabmelden.com/ikfz-kosten-preise/",
+    "seo": {
+      "metaTitle": "",
+      "metaDescription": "",
+      "canonicalUrl": "",
+      "ogTitle": "",
+      "ogDescription": "",
+      "ogImage": ""
+    }
+  },
+  {
+    "id": 1,
+    "name": "Kennzeichen Abmeldung",
+    "slug": "kennzeichen-abmeldung",
+    "description": "Kennzeichen Abmeldung Ratgeber zur Abmeldung von Kennzeichen und Wiederverwendung für neue Fahrzeuge.",
+    "parent": 0,
+    "count": 121,
+    "link": "https://onlineautoabmelden.com/kennzeichen-abmeldung/",
+    "seo": {
+      "metaTitle": "",
+      "metaDescription": "",
+      "canonicalUrl": "",
+      "ogTitle": "",
+      "ogDescription": "",
+      "ogImage": ""
+    }
+  },
+  {
+    "id": 174,
+    "name": "KFZ Abmeldung",
+    "slug": "kfz-abmeldung",
+    "description": "kfz-abmeldung Alles rund um die Abmeldung von Kraftfahrzeugen, inklusive Gebühren und notwendige Dokumente.",
+    "parent": 0,
+    "count": 18,
+    "link": "https://onlineautoabmelden.com/kfz-abmeldung/",
+    "seo": {
+      "metaTitle": "",
+      "metaDescription": "",
+      "canonicalUrl": "",
+      "ogTitle": "",
+      "ogDescription": "",
+      "ogImage": ""
+    }
+  },
+  {
+    "id": 429,
+    "name": "KFZ-Abmeldung",
+    "slug": "kfz-abmeldung-2",
+    "description": "",
+    "parent": 0,
+    "count": 2,
+    "link": "https://onlineautoabmelden.com/kfz-abmeldung-2/",
+    "seo": {
+      "metaTitle": "",
+      "metaDescription": "",
+      "canonicalUrl": "",
+      "ogTitle": "",
+      "ogDescription": "",
+      "ogImage": ""
+    }
+  },
+  {
+    "id": 180,
+    "name": "Kosten der Fahrzeugabmeldung",
+    "slug": "kosten-der-fahrzeugabmeldung",
+    "description": "Kosten der Fahrzeugabmeldung\r\n\r\nÜberblick über die Gebühren und zusätzlichen Kosten, die bei der Abmeldung eines Fahrzeugs anfallen.",
+    "parent": 0,
+    "count": 2,
+    "link": "https://onlineautoabmelden.com/kosten-der-fahrzeugabmeldung/",
+    "seo": {
+      "metaTitle": "",
+      "metaDescription": "",
+      "canonicalUrl": "",
+      "ogTitle": "",
+      "ogDescription": "",
+      "ogImage": ""
+    }
+  },
+  {
+    "id": 331,
+    "name": "Ratgeber &amp; Abmeldung",
+    "slug": "ratgeber-abmeldung",
+    "description": "",
+    "parent": 0,
+    "count": 2,
+    "link": "https://onlineautoabmelden.com/ratgeber-abmeldung/",
+    "seo": {
+      "metaTitle": "",
+      "metaDescription": "",
+      "canonicalUrl": "",
+      "ogTitle": "",
+      "ogDescription": "",
+      "ogImage": ""
+    }
+  },
+  {
+    "id": 401,
+    "name": "Ratgeber &amp; Entsorgung",
+    "slug": "ratgeber-entsorgung",
+    "description": "",
+    "parent": 0,
+    "count": 1,
+    "link": "https://onlineautoabmelden.com/ratgeber-entsorgung/",
+    "seo": {
+      "metaTitle": "",
+      "metaDescription": "",
+      "canonicalUrl": "",
+      "ogTitle": "",
+      "ogDescription": "",
+      "ogImage": ""
+    }
+  },
+  {
+    "id": 380,
+    "name": "Ratgeber &amp; Erbrecht",
+    "slug": "ratgeber-erbrecht",
+    "description": "",
+    "parent": 0,
+    "count": 1,
+    "link": "https://onlineautoabmelden.com/ratgeber-erbrecht/",
+    "seo": {
+      "metaTitle": "",
+      "metaDescription": "",
+      "canonicalUrl": "",
+      "ogTitle": "",
+      "ogDescription": "",
+      "ogImage": ""
+    }
+  },
+  {
+    "id": 304,
+    "name": "Ratgeber &amp; Gebühren",
+    "slug": "ratgeber-gebuehren",
+    "description": "",
+    "parent": 0,
+    "count": 1,
+    "link": "https://onlineautoabmelden.com/ratgeber-gebuehren/",
+    "seo": {
+      "metaTitle": "",
+      "metaDescription": "",
+      "canonicalUrl": "",
+      "ogTitle": "",
+      "ogDescription": "",
+      "ogImage": ""
+    }
+  },
+  {
+    "id": 330,
+    "name": "Ratgeber &amp; Kauf",
+    "slug": "ratgeber-kauf",
+    "description": "",
+    "parent": 0,
+    "count": 1,
+    "link": "https://onlineautoabmelden.com/ratgeber-kauf/",
+    "seo": {
+      "metaTitle": "",
+      "metaDescription": "",
+      "canonicalUrl": "",
+      "ogTitle": "",
+      "ogDescription": "",
+      "ogImage": ""
+    }
+  },
+  {
+    "id": 343,
+    "name": "Ratgeber &amp; Kennzeichen",
+    "slug": "ratgeber-kennzeichen",
+    "description": "",
+    "parent": 0,
+    "count": 2,
+    "link": "https://onlineautoabmelden.com/ratgeber-kennzeichen/",
+    "seo": {
+      "metaTitle": "",
+      "metaDescription": "",
+      "canonicalUrl": "",
+      "ogTitle": "",
+      "ogDescription": "",
+      "ogImage": ""
+    }
+  },
+  {
+    "id": 420,
+    "name": "Ratgeber &amp; Leasing",
+    "slug": "ratgeber-leasing",
+    "description": "",
+    "parent": 0,
+    "count": 1,
+    "link": "https://onlineautoabmelden.com/ratgeber-leasing/",
+    "seo": {
+      "metaTitle": "",
+      "metaDescription": "",
+      "canonicalUrl": "",
+      "ogTitle": "",
+      "ogDescription": "",
+      "ogImage": ""
+    }
+  },
+  {
+    "id": 391,
+    "name": "Ratgeber &amp; Probleme",
+    "slug": "ratgeber-probleme",
+    "description": "",
+    "parent": 0,
+    "count": 1,
+    "link": "https://onlineautoabmelden.com/ratgeber-probleme/",
+    "seo": {
+      "metaTitle": "",
+      "metaDescription": "",
+      "canonicalUrl": "",
+      "ogTitle": "",
+      "ogDescription": "",
+      "ogImage": ""
+    }
+  },
+  {
+    "id": 337,
+    "name": "Ratgeber &amp; Service",
+    "slug": "ratgeber-service",
+    "description": "",
+    "parent": 0,
+    "count": 2,
+    "link": "https://onlineautoabmelden.com/ratgeber-service/",
+    "seo": {
+      "metaTitle": "",
+      "metaDescription": "",
+      "canonicalUrl": "",
+      "ogTitle": "",
+      "ogDescription": "",
+      "ogImage": ""
+    }
+  },
+  {
+    "id": 312,
+    "name": "Ratgeber &amp; Termine",
+    "slug": "ratgeber-termine",
+    "description": "",
+    "parent": 0,
+    "count": 1,
+    "link": "https://onlineautoabmelden.com/ratgeber-termine/",
+    "seo": {
+      "metaTitle": "",
+      "metaDescription": "",
+      "canonicalUrl": "",
+      "ogTitle": "",
+      "ogDescription": "",
+      "ogImage": ""
+    }
+  },
+  {
+    "id": 410,
+    "name": "Ratgeber &amp; Verkauf",
+    "slug": "ratgeber-verkauf",
+    "description": "",
+    "parent": 0,
+    "count": 1,
+    "link": "https://onlineautoabmelden.com/ratgeber-verkauf/",
+    "seo": {
+      "metaTitle": "",
+      "metaDescription": "",
+      "canonicalUrl": "",
+      "ogTitle": "",
+      "ogDescription": "",
+      "ogImage": ""
+    }
+  },
+  {
+    "id": 360,
+    "name": "Ratgeber &amp; Versicherung",
+    "slug": "ratgeber-versicherung",
+    "description": "",
+    "parent": 0,
+    "count": 1,
+    "link": "https://onlineautoabmelden.com/ratgeber-versicherung/",
+    "seo": {
+      "metaTitle": "",
+      "metaDescription": "",
+      "canonicalUrl": "",
+      "ogTitle": "",
+      "ogDescription": "",
+      "ogImage": ""
+    }
+  },
+  {
+    "id": 320,
+    "name": "Ratgeber &amp; Vollmachten",
+    "slug": "ratgeber-vollmachten",
+    "description": "",
+    "parent": 0,
+    "count": 1,
+    "link": "https://onlineautoabmelden.com/ratgeber-vollmachten/",
+    "seo": {
+      "metaTitle": "",
+      "metaDescription": "",
+      "canonicalUrl": "",
+      "ogTitle": "",
+      "ogDescription": "",
+      "ogImage": ""
+    }
+  },
+  {
+    "id": 344,
+    "name": "Ratgeber &amp; Zubehör",
+    "slug": "ratgeber-zubehoer",
+    "description": "",
+    "parent": 0,
+    "count": 1,
+    "link": "https://onlineautoabmelden.com/ratgeber-zubehoer/",
+    "seo": {
+      "metaTitle": "",
+      "metaDescription": "",
+      "canonicalUrl": "",
+      "ogTitle": "",
+      "ogDescription": "",
+      "ogImage": ""
+    }
+  }
+]
