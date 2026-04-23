@@ -12,6 +12,8 @@ import {
   Phone,
   Shield,
   Star,
+  BadgeEuro,
+  MailCheck,
   type LucideIcon,
 } from 'lucide-react';
 import {
@@ -66,7 +68,7 @@ const FEATURE_CARDS: FeatureCard[] = [
     desc: 'Digitale Abmeldung ohne Bindung an Öffnungszeiten der lokalen Behörde.',
   },
   {
-    icon: FileCheck,
+    icon: MailCheck,
     title: 'Bestätigung per E-Mail',
     desc: 'Klare digitale Rückmeldung, sobald der Vorgang abgeschlossen ist.',
   },
@@ -78,6 +80,74 @@ const PRICE_FEATURES = [
   'Kein Ausweis / AusweisApp nötig',
   'Digitale Abwicklung',
 ] as const;
+
+function normalizeCompareText(value: string): string {
+  return value
+    .toLowerCase()
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/ß/g, 'ss')
+    .replace(/[^\p{L}\p{N}\s]/gu, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function dedupeStrings(values: string[] | undefined): string[] {
+  if (!Array.isArray(values)) return [];
+  const seen = new Set<string>();
+  const result: string[] = [];
+
+  for (const value of values) {
+    if (typeof value !== 'string') continue;
+    const trimmed = value.trim();
+    if (!trimmed) continue;
+    const normalized = normalizeCompareText(trimmed);
+    if (!normalized || seen.has(normalized)) continue;
+    seen.add(normalized);
+    result.push(trimmed);
+  }
+
+  return result;
+}
+
+function dedupeFaq(
+  items: Array<{ q: string; a: string }> | undefined,
+): Array<{ q: string; a: string }> {
+  if (!Array.isArray(items)) return [];
+  const seen = new Set<string>();
+  const result: Array<{ q: string; a: string }> = [];
+
+  for (const item of items) {
+    if (!item?.q?.trim() || !item?.a?.trim()) continue;
+    const key = normalizeCompareText(item.q);
+    if (!key || seen.has(key)) continue;
+    seen.add(key);
+    result.push({ q: item.q.trim(), a: item.a.trim() });
+  }
+
+  return result;
+}
+
+function dedupeTextObjects<T extends { slug: string; name: string }>(items: T[] | undefined): T[] {
+  if (!Array.isArray(items)) return [];
+  const seen = new Set<string>();
+  const result: T[] = [];
+
+  for (const item of items) {
+    if (!item?.slug || !item?.name) continue;
+    const key = `${item.slug}::${normalizeCompareText(item.name)}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    result.push(item);
+  }
+
+  return result;
+}
+
+function excludeExisting(values: string[], existing: string[]): string[] {
+  const blocked = new Set(existing.map((item) => normalizeCompareText(item)).filter(Boolean));
+  return values.filter((item) => !blocked.has(normalizeCompareText(item)));
+}
 
 function renderInlineLinkedText(text: string) {
   const tokens = [...text.matchAll(/\[\[([^|\]]+)\|([^\]]+)\]\]/g)];
@@ -138,6 +208,28 @@ function withPrice(label: string, price: string): string {
   return label.includes('€') ? label : `${label} – ${price}`;
 }
 
+function buildStrongHeroSummary(cityName: string, existing?: string): string {
+  const strongLead = `Auto online abmelden in ${cityName} – offiziell, bundesweit und ohne Termin.`;
+  if (!existing?.trim()) {
+    return `${strongLead} Starten Sie jetzt digital ab 19,70 € und erhalten Sie die Bestätigung per E-Mail.`;
+  }
+
+  const normalized = normalizeCompareText(existing);
+  if (normalized.includes('19 70') || normalized.includes('19 70 eur') || normalized.includes('ohne termin')) {
+    return existing.trim();
+  }
+
+  return `${existing.trim()} Offizielle Bestätigung per E-Mail, bundesweit nutzbar und ab 19,70 €.`;
+}
+
+function buildStrongHeroDetail(cityName: string, existing?: string): string {
+  if (existing?.trim()) {
+    return existing.trim();
+  }
+
+  return `Viele Kunden aus ${cityName} nutzen den digitalen Weg, um Anfahrt, Termin und Wartezeit zu vermeiden. Unser Service begleitet Sie Schritt für Schritt bis zur offiziellen Bestätigung per E-Mail.`;
+}
+
 function buildCityInput(page: LocalPage): {
   cityName: string;
   authority: ReturnType<typeof getLokaleBehoerde>;
@@ -190,33 +282,44 @@ export default function CityPageView({
   const { cityName, authority, input } = buildCityInput(page);
   const model = buildCityPageModel(input) as any;
 
-  // Backward-compatible fallback shape while city model sources are being unified.
   const legacyContent = model.content ?? {};
   model.content ??= {};
   model.content.intro = Array.isArray(model.content.intro)
-    ? model.content.intro
+    ? dedupeStrings(model.content.intro)
     : typeof legacyContent.intro === 'string' && legacyContent.intro.trim().length > 0
-      ? [legacyContent.intro]
+      ? [legacyContent.intro.trim()]
       : [];
-  model.content.intent = Array.isArray(model.content.intent) ? model.content.intent : [];
-  model.content.faq = Array.isArray(model.content.faq) ? model.content.faq : [];
+  model.content.intent = Array.isArray(model.content.intent) ? dedupeStrings(model.content.intent) : [];
+  model.content.faq = Array.isArray(model.content.faq) ? dedupeFaq(model.content.faq) : [];
   model.content.nearbyIntro =
     typeof model.content.nearbyIntro === 'string' ? model.content.nearbyIntro : '';
 
   model.hero ??= {
     badge: 'Offiziell & digital',
     summary: legacyContent.preparation || `Fahrzeug online in ${cityName} abmelden.`,
-    detail: legacyContent.trust || 'Ohne Termin und mit offizieller Bestaetigung per E-Mail.',
+    detail: legacyContent.trust || 'Ohne Termin und mit offizieller Bestätigung per E-Mail.',
     chips: ['Ohne Termin', 'Bundesweit', 'Ab 19,70 EUR'],
     primaryCtaLabel: legacyContent.ctaButton || 'Jetzt online abmelden',
   };
+
+  model.hero.badge = 'Offiziell & digital';
+  model.hero.summary = buildStrongHeroSummary(cityName, model.hero.summary);
+  model.hero.detail = buildStrongHeroDetail(cityName, model.hero.detail);
+  model.hero.chips = dedupeStrings([
+    'Ohne Termin',
+    'Bundesweit',
+    'Ab 19,70 €',
+    'Offizielle Bestätigung',
+    ...(Array.isArray(model.hero.chips) ? model.hero.chips : []),
+  ]).slice(0, 4);
+  model.hero.primaryCtaLabel = 'Jetzt loslegen';
 
   model.intro ??= {
     heading: 'So funktioniert die Online-Abmeldung',
     paragraphs: model.content.intro,
   };
 
-  model.intentBullets = Array.isArray(model.intentBullets) ? model.intentBullets : [];
+  model.intentBullets = Array.isArray(model.intentBullets) ? dedupeStrings(model.intentBullets) : [];
   model.localInsights = Array.isArray(model.localInsights) ? model.localInsights : [];
   model.sectionOrder = Array.isArray(model.sectionOrder)
     ? model.sectionOrder
@@ -241,8 +344,8 @@ export default function CityPageView({
   model.seoGate ??= { indexable: true };
   model.authority ??= {
     narrative: authority
-      ? `${authority.name} ist die zustaendige Behoerde fuer die Kfz-Abmeldung in ${cityName}.`
-      : `Die zustaendige Behoerde fuer ${cityName} wird je nach Kennzeichenbezirk ermittelt.`,
+      ? `${authority.name} ist die zuständige Behörde für die Kfz-Abmeldung in ${cityName}.`
+      : `Die zuständige Behörde für ${cityName} wird je nach Kennzeichenbezirk ermittelt.`,
     processNote:
       'Unser digitaler Prozess begleitet Sie durch alle Schritte, ohne dass ein Vor-Ort-Termin notwendig ist.',
   };
@@ -327,18 +430,28 @@ export default function CityPageView({
     buttonLabel: legacyContent.ctaButton || 'Jetzt online abmelden',
   };
 
-  const contentIntro = Array.isArray(model.content?.intro) ? model.content.intro : [];
+  model.sections.benefits.items = dedupeStrings(model.sections.benefits.items);
+  model.sections.preparation.paragraphs = dedupeStrings(model.sections.preparation.paragraphs);
+  model.sections.trust.paragraphs = dedupeStrings(model.sections.trust.paragraphs);
+  model.sections.documents.items = dedupeStrings(model.sections.documents.items);
+  model.sections.process.steps = dedupeStrings(model.sections.process.steps);
+  model.sections.target.items = dedupeStrings(model.sections.target.items);
+  model.sections.note.paragraphs = dedupeStrings(model.sections.note.paragraphs);
+  model.sections.faq.items = dedupeFaq(model.sections.faq.items);
+  model.sections.links.links = dedupeTextObjects(model.sections.links.links);
+
+  const contentIntro = Array.isArray(model.content?.intro) ? dedupeStrings(model.content.intro) : [];
   const fallbackIntro = Array.isArray(model.intro?.paragraphs)
-    ? model.intro.paragraphs
+    ? dedupeStrings(model.intro.paragraphs)
     : [model.hero?.detail].filter((value): value is string => !!value);
   const introParagraphs = contentIntro.length > 0 ? contentIntro : fallbackIntro;
 
-  const contentIntent = Array.isArray(model.content?.intent) ? model.content.intent : [];
-  const fallbackIntent = Array.isArray(model.intentBullets) ? model.intentBullets : [];
+  const contentIntent = Array.isArray(model.content?.intent) ? dedupeStrings(model.content.intent) : [];
+  const fallbackIntent = Array.isArray(model.intentBullets) ? dedupeStrings(model.intentBullets) : [];
   const intentLines = contentIntent.length > 0 ? contentIntent : fallbackIntent;
 
-  const contentFaq = Array.isArray(model.content?.faq) ? model.content.faq : [];
-  const fallbackFaq = Array.isArray(model.sections?.faq?.items) ? model.sections.faq.items : [];
+  const contentFaq = Array.isArray(model.content?.faq) ? dedupeFaq(model.content.faq) : [];
+  const fallbackFaq = Array.isArray(model.sections?.faq?.items) ? dedupeFaq(model.sections.faq.items) : [];
   const faqItems = contentFaq.length > 0 ? contentFaq : fallbackFaq;
 
   const contentNearbyIntro =
@@ -346,10 +459,26 @@ export default function CityPageView({
   const nearbyIntro =
     contentNearbyIntro.trim().length > 0 ? contentNearbyIntro : (model.sections?.links?.intro ?? '');
 
+  const prepParagraphs = model.sections.preparation.paragraphs;
+  const trustParagraphs = excludeExisting(
+    model.sections.trust.paragraphs,
+    prepParagraphs,
+  );
+  const noteParagraphs = excludeExisting(
+    model.sections.note.paragraphs,
+    [...prepParagraphs, ...trustParagraphs, model.sections.compare.note || ''],
+  );
+  const localParagraphs = excludeExisting(
+    dedupeStrings(model.sections.local.paragraphs),
+    [model.sections.local.intro || ''],
+  );
+
   const baseUrl = stripTrailingSlash(settings.siteUrl);
 
-  const heroCtaText = withPrice(model.hero.primaryCtaLabel, pricing.abmeldungPriceFormatted);
-  const closingCtaText = withPrice(model.sections.cta.buttonLabel, pricing.abmeldungPriceFormatted);
+  const heroCtaText = withPrice('Jetzt loslegen', pricing.abmeldungPriceFormatted);
+  const compareCtaText = withPrice('Jetzt online abmelden', pricing.abmeldungPriceFormatted);
+  const targetCtaText = withPrice('Jetzt online starten', pricing.abmeldungPriceFormatted);
+  const closingCtaText = withPrice('Jetzt online abmelden', pricing.abmeldungPriceFormatted);
 
   const faqSchema = buildFaqSchema(faqItems);
   const serviceSchema = {
@@ -432,7 +561,9 @@ export default function CityPageView({
       <section className="mx-auto mt-16 max-w-5xl px-4 sm:px-6" key="benefits">
         <div className="rounded-2xl bg-gradient-to-br from-primary to-primary-800 p-8 text-white md:p-10">
           <h2 className="mb-3 text-2xl font-extrabold md:text-3xl">{model.sections.benefits.heading}</h2>
-          <p className="mb-8 text-sm leading-relaxed text-white/75">{model.sections.benefits.intro}</p>
+          <p className="mb-8 text-sm leading-relaxed text-white/75">
+            {model.sections.benefits.intro || `Viele Kunden aus ${cityName} entscheiden sich für den digitalen Weg, weil er klar, schnell und ohne Termin vorbereitet werden kann.`}
+          </p>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             {model.sections.benefits.items.map((item: string) => (
@@ -454,7 +585,7 @@ export default function CityPageView({
         <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm md:p-10">
           <h2 className="mb-4 text-2xl font-extrabold text-primary">{model.sections.preparation.heading}</h2>
           <div className="space-y-4">
-            {model.sections.preparation.paragraphs.map((paragraph: string) => (
+            {prepParagraphs.map((paragraph: string) => (
               <p key={paragraph} className="leading-relaxed text-gray-600">
                 {paragraph}
               </p>
@@ -473,11 +604,17 @@ export default function CityPageView({
           </div>
           <h2 className="mb-4 text-2xl font-extrabold text-primary">{model.sections.trust.heading}</h2>
           <div className="space-y-4">
-            {model.sections.trust.paragraphs.map((paragraph: string) => ( 
-              <p key={paragraph} className="leading-relaxed text-gray-700">
-                {paragraph}
+            {trustParagraphs.length > 0 ? (
+              trustParagraphs.map((paragraph: string) => (
+                <p key={paragraph} className="leading-relaxed text-gray-700">
+                  {paragraph}
+                </p>
+              ))
+            ) : (
+              <p className="leading-relaxed text-gray-700">
+                Viele Kunden möchten vor dem Start wissen, dass der Ablauf klar, sicher und verständlich ist. Genau deshalb setzen wir auf einfache Schritte, offiziellen Ablauf und direkte Hilfe per WhatsApp oder Telefon.
               </p>
-            ))}
+            )}
           </div>
         </div>
       </section>
@@ -570,12 +707,15 @@ export default function CityPageView({
             </table>
           </div>
 
-          <p className="mt-6 leading-relaxed text-gray-600">{model.sections.compare.note}</p>
+          {model.sections.compare.note ? (
+            <p className="mt-6 leading-relaxed text-gray-600">{model.sections.compare.note}</p>
+          ) : null}
+
           <Link
             href="/product/fahrzeugabmeldung"
             className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-primary hover:underline"
           >
-            {model.sections.compare.ctaLabel}
+            {compareCtaText}
             <ChevronRight className="h-3.5 w-3.5" />
           </Link>
         </div>
@@ -589,12 +729,14 @@ export default function CityPageView({
           <p className="mb-6 leading-relaxed text-gray-600">{model.sections.target.intro}</p>
 
           <div className="mb-6 border-l-4 border-accent/30 pl-4">
-            <p className="text-sm leading-relaxed text-gray-500">{model.sections.target.actionText}</p>
+            <p className="text-sm leading-relaxed text-gray-500">
+              {model.sections.target.actionText || `Wer sein Fahrzeug in ${cityName} bequem, schnell und ohne Vor-Ort-Termin abmelden möchte, kann jetzt direkt digital starten.`}
+            </p>
             <Link
               href="/product/fahrzeugabmeldung"
               className="mt-2 inline-flex items-center gap-1 text-sm font-semibold text-accent hover:underline"
             >
-              {model.sections.target.ctaLabel}
+              {targetCtaText}
               <ArrowRight className="h-3.5 w-3.5" />
             </Link>
           </div>
@@ -636,16 +778,18 @@ export default function CityPageView({
           </div>
 
           <div className="mt-6 space-y-4">
-            {model.sections.local.paragraphs.map((paragraph: string) => (
+            {localParagraphs.map((paragraph: string) => (
               <p key={paragraph} className="leading-relaxed text-gray-700">
                 {renderInlineLinkedText(paragraph)}
               </p>
             ))}
           </div>
 
-          <p className="mt-4 text-sm leading-relaxed text-gray-600">
-            {renderInlineLinkedText(model.sections.local.alternativeText)}
-          </p>
+          {model.sections.local.alternativeText ? (
+            <p className="mt-4 text-sm leading-relaxed text-gray-600">
+              {renderInlineLinkedText(model.sections.local.alternativeText)}
+            </p>
+          ) : null}
         </div>
       </section>
     ),
@@ -658,11 +802,17 @@ export default function CityPageView({
             <span className="text-sm font-bold">Bitte beachten</span>
           </div>
           <h2 className="mb-4 text-2xl font-extrabold text-amber-900">{model.sections.note.heading}</h2>
-          {model.sections.note.paragraphs.map((paragraph: string) => (
-            <p key={paragraph} className="leading-relaxed text-amber-900/80">
-              {paragraph}
+          {noteParagraphs.length > 0 ? (
+            noteParagraphs.map((paragraph: string) => (
+              <p key={paragraph} className="leading-relaxed text-amber-900/80">
+                {paragraph}
+              </p>
+            ))
+          ) : (
+            <p className="leading-relaxed text-amber-900/80">
+              Prüfen Sie Kennzeichen, Fahrzeugschein, Sicherheitscodes und Fahrzeugdaten vor dem Absenden noch einmal sorgfältig. Gut lesbare und vollständige Angaben vermeiden unnötige Rückfragen.
             </p>
-          ))}
+          )}
         </div>
       </section>
     ),
@@ -713,7 +863,7 @@ export default function CityPageView({
     ),
 
     authorityHubs: (
-      <AuthorityHubsSection 
+      <AuthorityHubsSection
         key="authorityHubs"
         cityName={cityName}
         state={input.state}
@@ -725,7 +875,10 @@ export default function CityPageView({
       <section className="mx-auto mt-16 max-w-5xl px-4 sm:px-6" key="links">
         <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm">
           <h2 className="mb-4 text-2xl font-extrabold text-primary">{model.sections.links.heading}</h2>
-          <p className="mb-4 text-gray-600">{nearbyIntro}</p>
+          <p className="mb-4 text-gray-600">
+            {nearbyIntro || 'Diese Seiten können ebenfalls hilfreich sein:'}
+          </p>
+
           {model.sections.links.relationshipExplanation ? (
             <p className="mb-4 text-sm leading-relaxed text-gray-700">
               {renderInlineLinkedText(model.sections.links.relationshipExplanation)}
@@ -738,9 +891,12 @@ export default function CityPageView({
                 : 'Hinweis: Die Auswahl folgt dem lokalen Nachbarschaftsgraph (unmittelbare Behörden-Peers).'}
             </p>
           ) : null}
-          <p className="mb-6 text-sm leading-relaxed text-gray-500">
-            {model.sections.links.contextText}
-          </p>
+
+          {model.sections.links.contextText ? (
+            <p className="mb-6 text-sm leading-relaxed text-gray-500">
+              {model.sections.links.contextText}
+            </p>
+          ) : null}
 
           {model.sections.links.links.length > 0 ? (
             <div className="grid gap-3 md:grid-cols-3">
@@ -760,7 +916,9 @@ export default function CityPageView({
             </p>
           )}
 
-          <p className="mt-6 text-sm text-gray-500">{model.sections.links.closingText}</p>
+          {model.sections.links.closingText ? (
+            <p className="mt-6 text-sm text-gray-500">{model.sections.links.closingText}</p>
+          ) : null}
 
           {model.sections.links.stateHubHref && model.sections.links.stateHubLabel && (
             <div className="mt-4 border-t border-gray-100 pt-4">
@@ -792,7 +950,9 @@ export default function CityPageView({
               {model.sections.cta.heading}
             </h2>
 
-            <p className="mx-auto mb-8 max-w-2xl text-white/70">{model.sections.cta.text}</p>
+            <p className="mx-auto mb-8 max-w-2xl text-white/70">
+              {model.sections.cta.text || `Wer sein Fahrzeug in ${cityName} schnell, offiziell und ohne Termin abmelden möchte, kann jetzt direkt digital starten.`}
+            </p>
 
             <Link
               href="/product/fahrzeugabmeldung"
@@ -872,16 +1032,23 @@ export default function CityPageView({
               {renderInlineLinkedText(model.hero.detail)}
             </p>
 
-            <div className="mb-8 flex flex-wrap gap-3">
-              {model.hero.chips.map((chip: string) => (
-                <div
-                  key={chip}
-                  className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2"
-                >
-                  <CheckCircle className="h-4 w-4 text-accent" />
-                  <span className="text-sm font-medium text-white/90">{chip}</span>
-                </div>
-              ))}
+            <div className="mb-6 grid max-w-4xl grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="inline-flex items-center gap-2 rounded-2xl bg-white/10 px-4 py-3">
+                <CheckCircle className="h-4 w-4 text-accent" />
+                <span className="text-sm font-medium text-white/90">Ohne Termin</span>
+              </div>
+              <div className="inline-flex items-center gap-2 rounded-2xl bg-white/10 px-4 py-3">
+                <Shield className="h-4 w-4 text-accent" />
+                <span className="text-sm font-medium text-white/90">Bundesweit nutzbar</span>
+              </div>
+              <div className="inline-flex items-center gap-2 rounded-2xl bg-white/10 px-4 py-3">
+                <BadgeEuro className="h-4 w-4 text-accent" />
+                <span className="text-sm font-medium text-white/90">Ab {pricing.abmeldungPriceFormatted}</span>
+              </div>
+              <div className="inline-flex items-center gap-2 rounded-2xl bg-white/10 px-4 py-3">
+                <MailCheck className="h-4 w-4 text-accent" />
+                <span className="text-sm font-medium text-white/90">Bestätigung per E-Mail</span>
+              </div>
             </div>
 
             {intentLines.length > 0 && (
@@ -1005,10 +1172,10 @@ export default function CityPageView({
 
         {model.sectionOrder
           .filter(
-          (sectionKey: keyof typeof sectionMap) =>
-            CITY_AUTHORITY_HUBS_ENABLED || sectionKey !== 'authorityHubs'
-            )
-         .map((sectionKey: keyof typeof sectionMap) => sectionMap[sectionKey])
+            (sectionKey: keyof typeof sectionMap) =>
+              CITY_AUTHORITY_HUBS_ENABLED || sectionKey !== 'authorityHubs',
+          )
+          .map((sectionKey: keyof typeof sectionMap) => sectionMap[sectionKey])
           .filter(Boolean)}
 
         <section className="mx-auto mt-16 max-w-5xl px-4 sm:px-6">
