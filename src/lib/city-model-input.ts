@@ -29,8 +29,8 @@ export function buildCityModelInputForSlug(slug: string): {
       city: cityName,
       region: meta?.region || cityName,
       state: meta?.state || '',
-      areaType: meta?.areaType || 'suburban',
-      localHint: meta?.localHint || '',
+      areaType: 'suburban',
+      localHint: '',
       nearby: nearbySlugs
         .map((item) => getCityNameBySlug(item))
         .filter((item): item is string => !!item),

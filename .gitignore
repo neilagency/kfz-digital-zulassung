@@ -1,15 +1,26 @@
-node_modules/
-.next/
+node_modules
+.next
+
+# Keep environment variables out of version control
 .env
 .env.local
-.env.*.local
-dist/
-build/
-*.log
+
+# Database
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
+*.db.backup-*
+
+# Generated Prisma client
+/src/generated/prisma
+# Only ignore document uploads (user-uploaded files), not WP images
+/public/uploads/documents
+/public/uploads/media
+.vercel
+.env.vercel
+.env*.local
+.env.hostinger
+deploy/.env.hostinger
+deploy/server.env
 .DS_Store
-.vscode/
-.idea/
-*.swp
-*.swo
-dev.db
-public/uploads/
