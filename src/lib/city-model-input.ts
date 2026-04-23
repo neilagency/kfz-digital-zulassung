@@ -3,7 +3,7 @@ import { getCityMeta } from './city-metadata';
 import { getCityNameBySlug, getResolvedCitySlug, SLUG_CITY_MAP } from './city-slugs';
 import { type CityPageModelInput } from './cityPageContent';
 
-type AreaType = 'urban' | 'suburban' | 'rural';
+type AreaType = 'urban' | 'suburban' | 'rural' | 'regional_center';
 
 const URBAN_SLUGS = new Set([
   'berlin-zulassungsstelle',
@@ -61,6 +61,59 @@ const URBAN_SLUGS = new Set([
   'potsdam',
   'erfurt',
   'zulassungsservice-erfurt',
+]);
+
+const REGIONAL_CENTER_SLUGS = new Set([
+  'aachen',
+  'augsburg',
+  'bamberg',
+  'bayreuth',
+  'bocholt',
+  'celle',
+  'coburg',
+  'cottbus',
+  'detmold',
+  'flensburg',
+  'fulda',
+  'goettingen',
+  'greifswald',
+  'hagen',
+  'hameln',
+  'hanau',
+  'heilbronn',
+  'hof',
+  'ingolstadt',
+  'iserlohn',
+  'jena',
+  'kaiserslautern',
+  'konstanz',
+  'landshut',
+  'luebeck',
+  'ludwigsburg',
+  'marburg',
+  'memmingen',
+  'muenster',
+  'neubrandenburg',
+  'neumuenster',
+  'oldenburg',
+  'osnabrueck',
+  'paderborn',
+  'passau',
+  'plauen',
+  'ravensburg',
+  'regensburg',
+  'reutlingen',
+  'rostock',
+  'schweinfurt',
+  'siegen',
+  'trier',
+  'tuebingen',
+  'ulm',
+  'villingen-schwenningen',
+  'weiden',
+  'worms',
+  'wuerzburg',
+  'zwickau',
 ]);
 
 const RURAL_REGION_PATTERNS = [
@@ -154,12 +207,12 @@ function inferAreaType(
   }
 
   if (
-    /^stadt\b/.test(regionNorm) ||
     cityNorm === 'berlin' ||
     cityNorm === 'hamburg' ||
-    cityNorm === 'bremen'
+    cityNorm === 'bremen' ||
+    regionNorm.startsWith('stadt ')
   ) {
-    if (nearbyCount >= 4) return 'urban';
+    return 'urban';
   }
 
   if (RURAL_SLUG_HINTS.some((hint) => slugNorm.includes(normalizeText(hint)))) {
@@ -170,19 +223,25 @@ function inferAreaType(
     return 'rural';
   }
 
-  if (nearbyCount <= 1) {
-    return 'rural';
+  if (REGIONAL_CENTER_SLUGS.has(resolvedSlug)) {
+    return 'regional_center';
   }
 
-  if (nearbyCount >= 4) {
-    return 'suburban';
+  if (nearbyCount >= 5) {
+    return 'regional_center';
+  }
+
+  if (nearbyCount <= 1) {
+    return 'rural';
   }
 
   return 'suburban';
 }
 
 function buildLocalHint(cityName: string, region?: string, state?: string): string {
-  const parts = [cityName, region, state].filter((value): value is string => !!value && value.trim().length > 0);
+  const parts = [cityName, region, state].filter(
+    (value): value is string => !!value && value.trim().length > 0,
+  );
   return parts.join(', ');
 }
 
