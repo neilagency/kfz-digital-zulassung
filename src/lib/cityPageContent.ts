@@ -5589,23 +5589,27 @@ function sanitizeSectionOrder(input?: SectionKey[]): SectionKey[] {
 }
 
 function buildLocalBlock(city: CityPageData, seed: number) {
-  // Simple system: always use urban pool (no archetype differentiation)
-  const pool = cityPageContentConfig.localBlocks.urban || [];
+  const areaType: AreaType = city.areaType || "urban";
+
+  const pool =
+    cityPageContentConfig.localBlocks[areaType] ||
+    cityPageContentConfig.localBlocks.urban ||
+    [];
+
   const fallbackPool = [
     {
       title: "Warum die Online-Abmeldung in {{city}} für viele interessant ist",
-      text: "In {{city}} ist die Kfz-Abmeldung online eine interessante Alternative zum klassischen Behördengang.",
+      text: "Viele Fahrzeughalter in {{city}} suchen nach einer klaren und bequemen Lösung. Genau deshalb wird die digitale Abmeldung für viele immer interessanter.",
     },
   ];
+
   const selectedPool = pool.length > 0 ? pool : fallbackPool;
 
   const picked =
-    pool[seededIndex(seed, pool.length, 71)] || {
-      title: "Warum die Online-Abmeldung in {{city}} für viele interessant ist",
-      text: "Viele Fahrzeughalter in {{city}} suchen nach einer klaren und bequemen Lösung. Genau deshalb wird die digitale Abmeldung für viele immer interessanter.",
-    };
+    selectedPool[seededIndex(seed, selectedPool.length, 71)] ||
+    fallbackPool[0];
 
-    const extra = city.localHint?.trim()
+  const extra = city.localHint?.trim()
     ? ` ${city.localHint.trim()}`
     : "";
 
@@ -5853,6 +5857,7 @@ export function buildCityPageModel(input: CityPageModelInput): CityPageModel {
     nearby: input.nearby,
     behoerde: input.behoerde,
     localHint: input.localHint,
+    areaType: input.areaType,
   };
 
   const content = buildCityPageContent(cityPageData);
