@@ -5,131 +5,185 @@ import { type CityPageModelInput } from './cityPageContent';
 
 type AreaType = 'urban' | 'suburban' | 'rural';
 
-const URBAN_STATE_CITIES = new Set([
-  'Berlin',
-  'Hamburg',
-  'Bremen',
-]);
-
-const LARGE_CITY_SLUGS = new Set([
+const URBAN_SLUGS = new Set([
   'berlin-zulassungsstelle',
+  'kfz-online-abmelden-in-hamburg',
   'auto-online-abmelden-muenchen',
   'kfz-online-abmelden-koeln',
-  'kfz-online-abmelden-dortmund',
-  'kfz-online-abmelden-essen',
-  'kfz-online-abmelden-in-hamburg',
+  'zulassungsservice-stuttgart',
+  'frankfurt',
+  'frankfurt-am-main',
   'duesseldorf',
   'duisburg',
-  'frankfurt',
   'leipzig',
-  'aachen',
-  'bonn',
-  'bielefeld',
-  'muenster',
-  'karlsruhe',
-  'mannheim',
-  'wiesbaden',
-  'augsburg',
-  'chemnitz',
   'dresden-kfz-zulassungsstelle',
-  'zulassungsservice-stuttgart',
+  'hannover-muenden',
   'zulassungsservice-hannover',
+  'bremen',
+  'kfz-online-abmelden-bremen',
+  'essen',
+  'kfz-online-abmelden-essen',
+  'dortmund',
+  'kfz-online-abmelden-dortmund',
+  'bochum',
+  'auto-online-abmelden-in-bochum',
+  'bonn',
+  'muenster',
+  'bielefeld',
+  'mannheim',
+  'nuernberg',
+  'nuernberg-zulassungsstelle',
+  'augsburg',
+  'wiesbaden',
+  'karlsruhe',
+  'aachen',
+  'wuppertal',
+  'auto-online-abmelden-in-wuppertal',
+  'moenchengladbach',
+  'solingen',
+  'remscheid',
+  'chemnitz',
+  'rostock',
+  'freiburg',
+  'freiburg-breisgau',
+  'regensburg',
+  'ingolstadt',
+  'heilbronn',
+  'auto-online-abmelden-heilbronn',
+  'krefeld',
+  'oberhausen',
+  'gelsenkirchen',
+  'auto-abmelden-online-in-gelsenkirchen',
+  'mainz',
+  'saarbruecken',
+  'luebeck',
+  'kassel',
+  'potsdam',
+  'erfurt',
+  'zulassungsservice-erfurt',
 ]);
 
-function buildFallbackCityName(slug: string): string {
-  return slug
-    .replace(/-/g, ' ')
-    .replace(/\b\w/g, (char) => char.toUpperCase());
+const RURAL_REGION_PATTERNS = [
+  /^landkreis\b/i,
+  /\bkreis\b/i,
+  /\bkreisfreie\b/i,
+  /\bamberg-sulzbach\b/i,
+  /\bbitburg-pruem\b/i,
+  /\bbreisgau-hochschwarzwald\b/i,
+  /\bberchtesgadener land\b/i,
+  /\bmain-tauber\b/i,
+  /\bneckar-odenwald\b/i,
+  /\boberbergischer\b/i,
+  /\brhein-sieg\b/i,
+  /\brhein-erft\b/i,
+  /\brhein-lahn\b/i,
+  /\brhein-hunsrueck\b/i,
+  /\brhein-pfalz\b/i,
+  /\bsaale-orla\b/i,
+  /\bsaale-holzland\b/i,
+  /\bwerra-meissner\b/i,
+  /\bweimarer land\b/i,
+  /\bvogelsbergkreis\b/i,
+  /\bwartburgkreis\b/i,
+  /\bunterallgaeu\b/i,
+  /\boberallgaeu\b/i,
+  /\bzollernalbkreis\b/i,
+  /\boerden\w*\b/i,
+];
+
+const RURAL_SLUG_HINTS = [
+  'landkreis-',
+  '-kreis',
+  'kreis-',
+  'kreis',
+  'oberbergischer-kreis',
+  'rhein-sieg-kreis',
+  'rhein-erft-kreis',
+  'rhein-lahn-kreis',
+  'rhein-hunsrueck-kreis',
+  'rhein-pfalz-kreis',
+  'saale-orla-kreis',
+  'saale-holzland-kreis',
+  'main-tauber-kreis',
+  'main-tauber',
+  'neckar-odenwald-kreis',
+  'zollernalbkreis',
+  'vogelsbergkreis',
+  'wartburgkreis',
+  'weimarer-land',
+  'hochsauerlandkreis',
+  'burgenlandkreis',
+  'ennepe-ruhr-kreis',
+  'kyffhaeuserkreis',
+  'oberallgaeu',
+  'unterallgaeu',
+  'berchtesgadener-land',
+];
+
+function normalizeText(value: string): string {
+  return value
+    .toLowerCase()
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/ß/g, 'ss')
+    .replace(/[^a-z0-9\s-]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
 }
 
-function normalizeNearby(nearbySlugs: string[]): string[] {
-  return Array.from(
-    new Set(
-      nearbySlugs
-        .map((item) => getResolvedCitySlug(item) || item)
-        .filter(Boolean),
-    ),
-  );
+function resolveCityNameFromSlug(resolvedSlug: string): string {
+  const mapped =
+    SLUG_CITY_MAP[resolvedSlug] ||
+    resolvedSlug.replace(/-/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase());
+
+  return getCityNameBySlug(resolvedSlug) || mapped;
 }
 
-function deriveAreaType(params: {
-  slug: string;
-  cityName: string;
-  state?: string;
-  region?: string;
-  nearbyCount: number;
-}): AreaType {
-  const { slug, cityName, state, region, nearbyCount } = params;
-  const regionText = (region || '').toLowerCase();
-  const cityText = cityName.toLowerCase();
+function inferAreaType(
+  resolvedSlug: string,
+  cityName: string,
+  region?: string,
+  nearbyCount = 0,
+): AreaType {
+  const slugNorm = normalizeText(resolvedSlug);
+  const cityNorm = normalizeText(cityName);
+  const regionNorm = normalizeText(region || '');
 
-  if (LARGE_CITY_SLUGS.has(slug)) return 'urban';
-  if (URBAN_STATE_CITIES.has(cityName)) return 'urban';
-
-  if (
-    regionText.startsWith('stadt ') ||
-    cityText.includes('berlin') ||
-    cityText.includes('hamburg') ||
-    cityText.includes('münchen') ||
-    cityText.includes('koeln') ||
-    cityText.includes('köln') ||
-    cityText.includes('frankfurt') ||
-    cityText.includes('dortmund') ||
-    cityText.includes('duesseldorf') ||
-    cityText.includes('düsseldorf') ||
-    cityText.includes('stuttgart') ||
-    cityText.includes('essen') ||
-    cityText.includes('bremen') ||
-    cityText.includes('hannover') ||
-    cityText.includes('leipzig')
-  ) {
+  if (URBAN_SLUGS.has(resolvedSlug)) {
     return 'urban';
   }
 
   if (
-    regionText.includes('kreis') ||
-    regionText.includes('landkreis') ||
-    regionText.includes('region') ||
-    regionText.includes('verband')
+    /^stadt\b/.test(regionNorm) ||
+    cityNorm === 'berlin' ||
+    cityNorm === 'hamburg' ||
+    cityNorm === 'bremen'
   ) {
-    if (nearbyCount <= 2) return 'rural';
-    return 'suburban';
+    if (nearbyCount >= 4) return 'urban';
   }
 
-  if (state === 'Brandenburg' || state === 'Mecklenburg-Vorpommern' || state === 'Thüringen') {
-    if (nearbyCount <= 2) return 'rural';
+  if (RURAL_SLUG_HINTS.some((hint) => slugNorm.includes(normalizeText(hint)))) {
+    return 'rural';
+  }
+
+  if (RURAL_REGION_PATTERNS.some((pattern) => pattern.test(regionNorm))) {
+    return 'rural';
+  }
+
+  if (nearbyCount <= 1) {
+    return 'rural';
+  }
+
+  if (nearbyCount >= 4) {
+    return 'suburban';
   }
 
   return 'suburban';
 }
 
-function buildLocalHint(params: {
-  cityName: string;
-  state?: string;
-  region?: string;
-  authorityName?: string;
-  nearbyNames: string[];
-  areaType: AreaType;
-}): string {
-  const { cityName, state, region, authorityName, nearbyNames, areaType } = params;
-
-  if (authorityName) {
-    if (areaType === 'urban') {
-      return `${cityName} gehört zu den stärker nachgefragten Standorten. Zuständig ist ${authorityName}${state ? ` in ${state}` : ''}.`;
-    }
-
-    if (areaType === 'rural') {
-      return `${cityName} gehört eher zu den kleineren bzw. regional angebundenen Standorten. Zuständig ist ${authorityName}${region ? ` im Bereich ${region}` : ''}.`;
-    }
-
-    return `${cityName} wird verwaltungstechnisch über ${authorityName}${region ? ` im Bereich ${region}` : ''} betreut.`;
-  }
-
-  if (nearbyNames.length >= 2) {
-    return `Für ${cityName} sind regionale Bezüge wichtig, unter anderem zu ${nearbyNames[0]} und ${nearbyNames[1]}.`;
-  }
-
-  return `Für ${cityName}${state ? ` in ${state}` : ''} wird die lokale Zuständigkeit regional zugeordnet.`;
+function buildLocalHint(cityName: string, region?: string, state?: string): string {
+  const parts = [cityName, region, state].filter((value): value is string => !!value && value.trim().length > 0);
+  return parts.join(', ');
 }
 
 export function buildCityModelInputForSlug(slug: string): {
@@ -139,37 +193,20 @@ export function buildCityModelInputForSlug(slug: string): {
   input: CityPageModelInput;
 } {
   const resolvedSlug = getResolvedCitySlug(slug) || slug;
-
-  const rawName =
-    SLUG_CITY_MAP[resolvedSlug] ||
-    buildFallbackCityName(resolvedSlug);
-
-  const cityName = getCityNameBySlug(resolvedSlug) || rawName;
+  const cityName = resolveCityNameFromSlug(resolvedSlug);
   const meta = getCityMeta(resolvedSlug);
 
-  const nearbySlugs = normalizeNearby(meta?.nearby || []);
+  const state = meta?.state || '';
+  const region = meta?.region || cityName;
+
+  const authority = getLokaleBehoerde(cityName, state);
+  const nearbySlugs = meta?.nearby || [];
   const nearbyNames = nearbySlugs
     .map((item) => getCityNameBySlug(item))
     .filter((item): item is string => !!item);
 
-  const authority = getLokaleBehoerde(cityName, meta?.state);
-
-  const areaType = deriveAreaType({
-    slug: resolvedSlug,
-    cityName,
-    state: meta?.state,
-    region: meta?.region,
-    nearbyCount: nearbySlugs.length,
-  });
-
-  const localHint = buildLocalHint({
-    cityName,
-    state: meta?.state,
-    region: meta?.region,
-    authorityName: authority?.name,
-    nearbyNames,
-    areaType,
-  });
+  const areaType = inferAreaType(resolvedSlug, cityName, region, nearbyNames.length);
+  const localHint = buildLocalHint(cityName, region, state);
 
   return {
     cityName,
@@ -178,8 +215,8 @@ export function buildCityModelInputForSlug(slug: string): {
     input: {
       slug: resolvedSlug,
       city: cityName,
-      region: meta?.region || cityName,
-      state: meta?.state || '',
+      region,
+      state,
       areaType,
       localHint,
       nearby: nearbyNames,
