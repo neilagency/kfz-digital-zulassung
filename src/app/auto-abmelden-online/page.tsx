@@ -16,26 +16,27 @@ export const revalidate = 60;
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSiteSettings();
 
+  const title = 'Auto abmelden online – offiziell & schnell ab 19,70 €';
+  const description =
+    'Auto abmelden online ohne Termin und ohne Wartezeit. Offizielle digitale Abmeldung mit Bestätigung per E-Mail. Jetzt starten ab 19,70 €.';
+
   return {
-    title: 'Auto abmelden online – schnell & offiziell ab 19,70 €',
-    description:
-      'Auto abmelden online in wenigen Minuten. Ohne Termin, ohne Wartezeit und offiziell über das KBA. Jetzt starten ab 19,70 €.',
+    title,
+    description,
     alternates: {
       canonical: `${settings.siteUrl}/auto-abmelden-online`,
     },
     openGraph: {
-      title: 'Auto abmelden online – schnell & offiziell ab 19,70 €',
-      description:
-        'Auto abmelden online in wenigen Minuten. Ohne Termin, ohne Wartezeit und offiziell über das KBA. Jetzt starten ab 19,70 €.',
+      title,
+      description,
       url: `${settings.siteUrl}/auto-abmelden-online`,
       siteName: settings.siteName,
       type: 'website',
     },
     twitter: {
       card: 'summary_large_image',
-      title: 'Auto abmelden online – schnell & offiziell ab 19,70 €',
-      description:
-        'Auto abmelden online in wenigen Minuten. Ohne Termin, ohne Wartezeit und offiziell über das KBA. Jetzt starten ab 19,70 €.',
+      title,
+      description,
     },
   };
 }
@@ -135,18 +136,20 @@ export default async function AutoAbmeldenOnlinePage() {
               <div className="inline-flex items-center gap-2 bg-white/10 rounded-full px-4 py-1.5 mb-5">
                 <Shield className="w-4 h-4 text-accent" />
                 <span className="text-white/90 text-sm font-medium">
-                  Offiziell, sicher und ohne Termin
+                  Offiziell, digital und ohne Termin
                 </span>
               </div>
 
               <h1 className="text-3xl md:text-5xl lg:text-[3.25rem] font-extrabold text-white leading-[1.1] mb-6">
-                Auto abmelden online – schnell und einfach erledigt
+                Auto abmelden online – schnell, offiziell und ohne Wartezeit
               </h1>
 
               <p className="text-white/70 text-lg md:text-xl leading-8 max-w-3xl mb-8">
-                Auto abmelden online spart Zeit, vermeidet Wartezeiten und macht
-                den Gang zur Zulassungsstelle überflüssig. Sie senden uns einfach
-                Ihre Daten und Fotos, wir kümmern uns um die Bearbeitung.
+                Auto abmelden online ist für viele der einfachste Weg, das
+                Fahrzeug bequem von zu Hause abzumelden. Kein Termin, keine
+                Anfahrt, keine unnötige Wartezeit. Sie senden Ihre Daten und
+                Fotos digital und erhalten nach erfolgreicher Bearbeitung die
+                offizielle Bestätigung per E-Mail.
               </p>
 
               <div className="flex flex-wrap items-center gap-4 mb-8">
@@ -171,9 +174,9 @@ export default async function AutoAbmeldenOnlinePage() {
 
               <div className="flex flex-wrap gap-3">
                 {[
-                  'Kein Termin nötig',
-                  'Sofortige Bestätigung per E-Mail',
-                  '24/7 verfügbar',
+                  'Ohne Termin',
+                  'Offizielle Bestätigung per E-Mail',
+                  '24/7 digital vorbereitbar',
                 ].map((item) => (
                   <span
                     key={item}
@@ -193,36 +196,44 @@ export default async function AutoAbmeldenOnlinePage() {
             <article className="flex-1 min-w-0 space-y-8">
               <section className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-10">
                 <h2 className="text-2xl md:text-3xl font-extrabold text-primary mb-5">
-                  Warum Auto abmelden online sinnvoll ist
+                  Warum Auto abmelden online für viele die beste Lösung ist
                 </h2>
                 <div className="prose prose-lg max-w-none">
                   <p>
-                    Wer sein Auto online abmelden möchte, will vor allem eins:
-                    schnell fertig sein. Genau dafür ist die digitale Abmeldung
-                    ideal. Statt Termin suchen, zur Zulassungsstelle fahren und
-                    warten, erledigen Sie alles bequem von zu Hause.
+                    Wer sein Auto online abmelden möchte, will den Vorgang
+                    einfach, schnell und sicher erledigen. Genau dafür ist die
+                    digitale Abmeldung gemacht. Statt einen Termin bei der
+                    Zulassungsstelle zu suchen und vor Ort zu warten, starten
+                    Sie direkt online.
                   </p>
                   <p>
-                    Auto abmelden online bedeutet für Sie weniger Aufwand,
-                    weniger Papierkram und eine klare, schnelle Lösung. Unser
-                    Service ist einfach aufgebaut und eignet sich für alle, die
-                    ihr Fahrzeug unkompliziert und offiziell abmelden möchten.
+                    Auto abmelden online spart vielen Fahrzeughaltern Zeit,
+                    Wege und unnötigen Aufwand. Sie können alles in Ruhe von zu
+                    Hause vorbereiten, die benötigten Daten digital senden und
+                    erhalten nach erfolgreicher Bearbeitung Ihre offizielle
+                    Bestätigung per E-Mail.
+                  </p>
+                  <p>
+                    Besonders wichtig: Der Ablauf ist klar aufgebaut und für
+                    viele deutlich angenehmer als der klassische Weg vor Ort.
+                    Genau deshalb wird Auto abmelden online immer häufiger
+                    genutzt.
                   </p>
                 </div>
               </section>
 
               <section className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-10">
                 <h2 className="text-2xl md:text-3xl font-extrabold text-primary mb-6">
-                  Ihre Vorteile
+                  Ihre Vorteile bei der Online-Abmeldung
                 </h2>
                 <div className="grid md:grid-cols-2 gap-4">
                   {[
-                    'Auto online abmelden ohne Behördentermin',
-                    'Schnelle Bearbeitung und klare Schritte',
-                    'Bestätigung direkt per E-Mail',
-                    'Kein unnötiger Papierkram',
-                    'Persönlicher Support per WhatsApp',
-                    'Fester Preis ohne versteckte Kosten',
+                    'Auto online abmelden ohne Termin bei der Zulassungsstelle',
+                    'Keine unnötige Anfahrt und keine Wartezeit',
+                    'Offizielle Bestätigung direkt per E-Mail',
+                    'Einfacher digitaler Ablauf mit klaren Schritten',
+                    'Persönlicher Support per WhatsApp und Telefon',
+                    'Fester Preis von nur ' + pricing.abmeldungPriceFormatted,
                   ].map((item) => (
                     <div
                       key={item}
@@ -237,29 +248,29 @@ export default async function AutoAbmeldenOnlinePage() {
 
               <section className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-10">
                 <h2 className="text-2xl md:text-3xl font-extrabold text-primary mb-6">
-                  So läuft die Online-Abmeldung ab
+                  So funktioniert Auto abmelden online
                 </h2>
                 <div className="grid md:grid-cols-2 gap-5">
                   {[
                     {
                       step: '1',
                       title: 'Sicherheitscodes freilegen',
-                      text: 'Rubbeln Sie die Sicherheitscodes auf Fahrzeugschein und Kennzeichen frei.',
+                      text: 'Legen Sie die Sicherheitscodes auf Fahrzeugschein und Kennzeichen frei.',
                     },
                     {
                       step: '2',
-                      title: 'Fotos schicken',
-                      text: 'Senden Sie uns die benötigten Unterlagen und Fotos digital zu.',
+                      title: 'Fotos und Daten senden',
+                      text: 'Senden Sie uns die benötigten Unterlagen und Angaben digital zu.',
                     },
                     {
                       step: '3',
                       title: 'Zahlung abschließen',
-                      text: 'Nach der Prüfung erhalten Sie Ihren Zahlungslink und können direkt abschließen.',
+                      text: 'Sie schließen die Zahlung einfach online ab und wir bearbeiten den Vorgang.',
                     },
                     {
                       step: '4',
-                      title: 'Bestätigung erhalten',
-                      text: 'Nach erfolgreicher Bearbeitung bekommen Sie die Bestätigung per E-Mail.',
+                      title: 'Bestätigung per E-Mail erhalten',
+                      text: 'Nach erfolgreicher Bearbeitung erhalten Sie Ihre offizielle Bestätigung direkt per E-Mail.',
                     },
                   ].map((item) => (
                     <div
@@ -280,18 +291,19 @@ export default async function AutoAbmeldenOnlinePage() {
 
               <section className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-10">
                 <h2 className="text-2xl md:text-3xl font-extrabold text-primary mb-5">
-                  Kosten für Auto abmelden online
+                  Was kostet Auto abmelden online?
                 </h2>
                 <div className="prose prose-lg max-w-none">
                   <p>
                     Auto abmelden online kostet bei uns nur{' '}
-                    <strong>{pricing.abmeldungPriceFormatted}</strong>. Damit
-                    erhalten Sie eine klare Preisstruktur ohne Überraschungen.
+                    <strong>{pricing.abmeldungPriceFormatted}</strong>. Der Preis
+                    ist klar, transparent und ohne versteckte Zusatzkosten.
                   </p>
                   <p>
-                    Sie zahlen einmalig und wissen sofort, woran Sie sind. Das
-                    macht die digitale Abmeldung nicht nur bequem, sondern auch
-                    planbar und transparent.
+                    Viele Nutzer möchten vor dem Start genau wissen, was sie
+                    zahlen. Genau deshalb setzen wir auf eine einfache und
+                    verständliche Preisstruktur. Sie wissen sofort, woran Sie
+                    sind, und können den Vorgang direkt online starten.
                   </p>
                 </div>
 
@@ -312,15 +324,48 @@ export default async function AutoAbmeldenOnlinePage() {
               </section>
 
               <section className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-10">
+                <h2 className="text-2xl md:text-3xl font-extrabold text-primary mb-5">
+                  Welche Unterlagen brauchen Sie?
+                </h2>
+                <div className="prose prose-lg max-w-none">
+                  <p>
+                    Damit Sie Ihr Auto online abmelden können, sollten die
+                    wichtigsten Unterlagen vor dem Start bereitliegen. Je
+                    vollständiger die Angaben sind, desto einfacher läuft der
+                    gesamte Ablauf.
+                  </p>
+                </div>
+
+                <ul className="mt-6 space-y-3">
+                  {[
+                    'Fahrzeugschein',
+                    'Kennzeichen',
+                    'Sicherheitscodes',
+                    'Gut lesbare Fotos der benötigten Unterlagen',
+                  ].map((item) => (
+                    <li key={item} className="flex items-start gap-3">
+                      <CheckCircle className="w-5 h-5 text-accent mt-0.5 flex-shrink-0" />
+                      <span className="text-gray-700">{item}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                <p className="mt-6 text-gray-600 leading-7">
+                  Wenn alles bereitliegt, können Sie den Vorgang direkt online
+                  beginnen und vermeiden unnötige Rückfragen oder Verzögerungen.
+                </p>
+              </section>
+
+              <section className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-10">
                 <h2 className="text-2xl md:text-3xl font-extrabold text-primary mb-6">
-                  Häufige Fragen
+                  Häufige Fragen zu Auto abmelden online
                 </h2>
 
                 <div className="space-y-4">
                   {[
                     {
                       q: 'Wie funktioniert Auto abmelden online?',
-                      a: 'Sie rubbeln die Sicherheitscodes frei, senden Ihre Daten und Fotos, schließen die Zahlung ab und erhalten danach Ihre Bestätigung per E-Mail.',
+                      a: 'Sie legen die Sicherheitscodes frei, senden Ihre Daten und Fotos, schließen die Zahlung ab und erhalten danach Ihre Bestätigung per E-Mail.',
                     },
                     {
                       q: 'Brauche ich einen Termin?',
@@ -347,62 +392,67 @@ export default async function AutoAbmeldenOnlinePage() {
                   ))}
                 </div>
               </section>
+
               <section className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-10">
-  <h2 className="text-2xl md:text-3xl font-extrabold text-primary mb-6">
-    Weitere wichtige Seiten rund um die Online-Abmeldung
-  </h2>
+                <h2 className="text-2xl md:text-3xl font-extrabold text-primary mb-6">
+                  Weitere wichtige Seiten rund um die Online-Abmeldung
+                </h2>
 
-  <div className="grid md:grid-cols-2 gap-6">
-    <div>
-      <h3 className="text-lg font-bold text-gray-900 mb-4">Beliebte Abmeldeseiten</h3>
-      <ul className="space-y-3">
-        {[
-          { href: '/auto-sofort-abmelden', label: 'Auto sofort abmelden' },
-          { href: '/auto-schnell-abmelden', label: 'Auto schnell abmelden' },
-          { href: '/auto-fix-abmelden', label: 'Auto fix abmelden' },
-          { href: '/auto-abmelden-in-2-minuten', label: 'Auto abmelden in 2 Minuten' },
-          { href: '/auto-abmelden-ohne-ausweis', label: 'Auto abmelden ohne Ausweis' },
-          { href: '/kosten-autoabmeldung-online', label: 'Kosten Autoabmeldung online' },
-        ].map((item) => (
-          <li key={item.href}>
-            <Link
-              href={item.href}
-              className="inline-flex items-center gap-2 text-primary hover:text-primary-700 font-medium"
-            >
-              <ChevronRight className="w-4 h-4" />
-              {item.label}
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </div>
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div>
+                    <h3 className="text-lg font-bold text-gray-900 mb-4">
+                      Beliebte Abmeldeseiten
+                    </h3>
+                    <ul className="space-y-3">
+                      {[
+                        { href: '/auto-sofort-abmelden', label: 'Auto sofort abmelden' },
+                        { href: '/auto-schnell-abmelden', label: 'Auto schnell abmelden' },
+                        { href: '/auto-fix-abmelden', label: 'Auto fix abmelden' },
+                        { href: '/auto-abmelden-in-2-minuten', label: 'Auto abmelden in 2 Minuten' },
+                        { href: '/auto-abmelden-ohne-ausweis', label: 'Auto abmelden ohne Ausweis' },
+                        { href: '/kosten-autoabmeldung-online', label: 'Kosten Autoabmeldung online' },
+                      ].map((item) => (
+                        <li key={item.href}>
+                          <Link
+                            href={item.href}
+                            className="inline-flex items-center gap-2 text-primary hover:text-primary-700 font-medium"
+                          >
+                            <ChevronRight className="w-4 h-4" />
+                            {item.label}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
 
-    <div>
-      <h3 className="text-lg font-bold text-gray-900 mb-4">Weitere Themen & Sprachen</h3>
-      <ul className="space-y-3">
-        {[
-          { href: '/anhaenger-abmelden', label: 'Anhänger abmelden' },
-          { href: '/anhaenger-online-abmelden', label: 'Anhänger online abmelden' },
-          { href: '/motorrad-abmelden-online', label: 'Motorrad online abmelden' },
-          { href: '/kurzzeitkennzeichen', label: 'Kurzzeitkennzeichen' },
-          { href: '/kurzzeitkennzeichen-lkw', label: 'Kurzzeitkennzeichen LKW' },
-          { href: '/kostenlose-kennzeichenreservierung', label: 'Kostenlose Kennzeichenreservierung' },
+                  <div>
+                    <h3 className="text-lg font-bold text-gray-900 mb-4">
+                      Weitere Themen
+                    </h3>
+                    <ul className="space-y-3">
+                      {[
+                        { href: '/anhaenger-abmelden', label: 'Anhänger abmelden' },
+                        { href: '/anhaenger-online-abmelden', label: 'Anhänger online abmelden' },
+                        { href: '/motorrad-abmelden-online', label: 'Motorrad online abmelden' },
+                        { href: '/kurzzeitkennzeichen', label: 'Kurzzeitkennzeichen' },
+                        { href: '/kurzzeitkennzeichen-lkw', label: 'Kurzzeitkennzeichen LKW' },
+                        { href: '/kostenlose-kennzeichenreservierung', label: 'Kostenlose Kennzeichenreservierung' },
+                      ].map((item) => (
+                        <li key={item.href}>
+                          <Link
+                            href={item.href}
+                            className="inline-flex items-center gap-2 text-primary hover:text-primary-700 font-medium"
+                          >
+                            <ChevronRight className="w-4 h-4" />
+                            {item.label}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </section>
 
-        ].map((item) => (
-          <li key={item.href}>
-            <Link
-              href={item.href}
-              className="inline-flex items-center gap-2 text-primary hover:text-primary-700 font-medium"
-            >
-              <ChevronRight className="w-4 h-4" />
-              {item.label}
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </div>
-  </div>
-</section>
               <section className="relative overflow-hidden bg-gradient-to-br from-primary via-primary-800 to-dark rounded-2xl p-8 md:p-10 text-center">
                 <div className="absolute inset-0 pointer-events-none">
                   <div className="absolute -top-20 -right-20 w-60 h-60 bg-accent/10 rounded-full blur-3xl" />
@@ -422,7 +472,7 @@ export default async function AutoAbmeldenOnlinePage() {
                   </h2>
                   <p className="text-white/60 mb-8 max-w-2xl mx-auto">
                     Schnell, einfach und ohne Termin. Starten Sie jetzt und
-                    erhalten Sie Ihre Bestätigung direkt per E-Mail.
+                    erhalten Sie Ihre offizielle Bestätigung direkt per E-Mail.
                   </p>
 
                   <div className="flex flex-wrap justify-center gap-4">
@@ -456,7 +506,9 @@ export default async function AutoAbmeldenOnlinePage() {
                   </div>
                   <div>
                     <p className="font-bold text-sm">Direkt starten</p>
-                    <p className="text-white/60 text-xs">In 5 Minuten erledigt</p>
+                    <p className="text-white/60 text-xs">
+                      Auto online abmelden in wenigen Minuten
+                    </p>
                   </div>
                 </div>
 
@@ -523,18 +575,18 @@ export default async function AutoAbmeldenOnlinePage() {
                   {[
                     {
                       icon: Shield,
-                      label: 'KBA-registrierter Service',
-                      sub: 'Offiziell & rechtssicher',
+                      label: 'Offiziell & rechtssicher',
+                      sub: 'Digitale Bearbeitung',
                     },
                     {
                       icon: Clock,
-                      label: '24/7 verfügbar',
+                      label: '24/7 vorbereitbar',
                       sub: 'Auch am Wochenende',
                     },
                     {
                       icon: CheckCircle,
-                      label: 'Sofortbestätigung',
-                      sub: 'Per E-Mail als PDF',
+                      label: 'Bestätigung per E-Mail',
+                      sub: 'Nach erfolgreicher Bearbeitung',
                     },
                   ].map(({ icon: Icon, label, sub }) => (
                     <div key={label} className="flex items-start gap-3">
