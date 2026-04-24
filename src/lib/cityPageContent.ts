@@ -156,6 +156,19 @@ export const cityPageContentConfig = {
 "Wer Auto online abmelden in {{city}} möchte, findet hier einen digitalen Weg, der klar aufgebaut ist und für viele besser in den Alltag passt als die klassische Abmeldung vor Ort."
   ],
 
+    introsDistrict: [
+    "Wer sein Auto online abmelden in {{city}} möchte, will oft längere Wege zur zuständigen Behörde vermeiden und lieber direkt digital starten.",
+    "Gerade in {{city}} ist die Online-Abmeldung für viele praktisch, wenn der klassische Weg zur Behörde mehr Aufwand bedeutet.",
+    "In {{city}} wird die Online-Abmeldung häufig genutzt, weil viele den Behördengang sparen und den Ablauf lieber klar digital vorbereiten möchten.",
+    "Wer in {{city}} sein Fahrzeug online abmelden möchte, sucht meist einen verständlichen Ablauf ohne zusätzliche Wege zur zuständigen Stelle.",
+    "In {{city}} bevorzugen viele Fahrzeughalter den digitalen Weg, wenn die Abmeldung ohne Vor-Ort-Termin und ohne unnötige Fahrten starten soll.",
+    "Gerade in {{city}} ist der Online-Weg für viele attraktiv, wenn der Weg zur Behörde Zeit kostet und der Ablauf lieber digital vorbereitet werden soll.",
+    "Wer die Abmeldung in {{city}} möglichst einfach halten möchte, nutzt oft lieber den digitalen Weg statt eines klassischen Behördengangs.",
+    "In {{city}} achten viele darauf, unnötige Wege und Wartezeiten zu vermeiden. Genau deshalb wird die Online-Abmeldung dort besonders oft genutzt.",
+    "Für viele ist Auto online abmelden in {{city}} die praktischere Lösung, wenn der Ablauf ohne zusätzlichen Termin und ohne Anfahrt vorbereitet werden soll.",
+    "Wer in {{city}} sein Fahrzeug abmelden möchte, sucht oft eine Lösung, die klar aufgebaut ist und ohne unnötigen Aufwand digital startet."
+  ],
+
   preparations: [
   "Bevor Sie Ihr Auto online abmelden in {{city}}, sollten Kennzeichen, Fahrzeugschein und wichtige Fahrzeugdaten griffbereit sein.",
   "Eine gute Vorbereitung spart bei der Online-Abmeldung oft Zeit. Kennzeichen, Fahrzeugschein und Codes sollten vorher bereitliegen.",
@@ -4869,7 +4882,81 @@ export function buildFaqSchema(items: FaqItem[]) {
 export function getCanonicalUrl(slug: string) {
   return `https://onlineautoabmelden.com/${slug.replace(/^\/|\/$/g, "")}`;
 }
+function isDistrictPage(name: string): boolean {
+  const v = name.toLowerCase().trim();
 
+  return (
+    v.includes('kreis') ||
+    v.includes('landkreis') ||
+    v.startsWith('lk ') ||
+    [
+      'ammerland',
+      'barnim',
+      'bergstraße',
+      'coesfeld',
+      'dithmarschen',
+      'eichsfeld',
+      'emsland',
+      'euskirchen',
+      'friesland',
+      'harburg',
+      'harz',
+      'havelland',
+      'heinsberg',
+      'hohenlohe',
+      'lippe',
+      'mettmann',
+      'pinneberg',
+      'plön',
+      'prignitz',
+      'schaumburg',
+      'segeberg',
+      'steinburg',
+      'steinfurt',
+      'stormarn',
+      'uckermark',
+      'warendorf',
+      'wesermarsch',
+      'wittmund',
+    ].includes(v)
+  );
+}
+
+function isStatePage(name: string): boolean {
+  const v = name.toLowerCase().trim();
+
+  return [
+    'baden-württemberg',
+    'nordrhein-westfalen',
+    'rheinland-pfalz',
+    'bayern',
+    'berlin',
+    'brandenburg',
+    'bremen',
+    'hamburg',
+    'hessen',
+    'mecklenburg-vorpommern',
+    'niedersachsen',
+    'saarland',
+    'sachsen',
+    'sachsen-anhalt',
+    'schleswig-holstein',
+    'thüringen',
+  ].includes(v);
+}
+
+function isSpecialPage(name: string): boolean {
+  const v = name.toLowerCase().trim();
+
+  return (
+    v.includes('auto online abmelden ') ||
+    v.includes('zulassungsservice') ||
+    v.includes('kfz-zulassung') ||
+    v.includes('kfz-zulassungsstelle') ||
+    v.includes('alle seiten') ||
+    v.includes(' / ')
+  );
+}
 // ═══════════════════════════════════════════════════════════════════════════
 // SIMPLE CITY PAGE MODEL — No Intelligence, No Archetypes
 // ═══════════════════════════════════════════════════════════════════════════
@@ -4896,11 +4983,26 @@ export type CityPageModel = {
 const DATENSCHUTZ_JOKER =
   "Gut zu wissen: Jeder kann ein Auto abmelden! Für die offizielle Abmeldung verlangen die Behörden (Stadt/Landkreis) keine persönlichen Daten von Ihnen. Wir benötigen Ihre E-Mail-Adresse und Telefonnummer lediglich, um Sie im Falle eines Fehlers schnell kontaktieren zu können.";
 export function buildCityPageContent(city: CityPageData): BuiltCityPageContent {
+    const pageName = city.city || '';
+  const regionName = city.region || '';
+
+  const pageType = isSpecialPage(pageName)
+    ? 'special'
+    : isStatePage(pageName)
+      ? 'state'
+      : isDistrictPage(pageName) || isDistrictPage(regionName)
+        ? 'district'
+        : 'city';
   const seed = hashString(`${city.slug}-${city.city}-${city.region}-${city.state}`);
 
   const metaTitle = pickSeededString(cityPageContentConfig.metaTitles, city, seed, 1);
   const metaDescription = pickSeededString(cityPageContentConfig.metaDescriptions, city, seed, 2);
-  const intro = pickSeededString(cityPageContentConfig.intros, city, seed, 3);
+    const introPool =
+    pageType === 'district'
+      ? cityPageContentConfig.introsDistrict
+      : cityPageContentConfig.intros;
+
+  const intro = pickSeededString(introPool, city, seed, 3);
   const preparation = pickSeededString(cityPageContentConfig.preparations, city, seed, 4);
   const trust = pickSeededString(cityPageContentConfig.trust, city, seed, 5);
   const documentsIntro = pickSeededString(cityPageContentConfig.documentsIntro, city, seed, 6);
