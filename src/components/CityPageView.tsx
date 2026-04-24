@@ -80,7 +80,38 @@ const PRICE_FEATURES = [
   'Kein Ausweis / AusweisApp nötig',
   'Digitale Abwicklung',
 ] as const;
-
+  const CITY_GUIDE_LINKS = [
+  {
+    href: "/insiderwissen/kfz-abmeldung-fehler-sicherheitscode",
+    title: "Kfz-Abmeldung Fehler Sicherheitscode",
+    text: "Wenn der Sicherheitscode nicht klappt oder eine Fehlermeldung erscheint, hilft diese Anleitung oft sofort weiter.",
+  },
+  {
+    href: "/insiderwissen/auto-abmelden-ohne-tuev-anleitung",
+    title: "Auto abmelden ohne TÜV",
+    text: "Hier sehen Nutzer schnell, ob und wie die Abmeldung auch ohne gültigen TÜV möglich ist.",
+  },
+  {
+    href: "/insiderwissen/kfz-online-abmeldung-funktioniert-nicht",
+    title: "Kfz online abmelden funktioniert nicht",
+    text: "Hilfreich bei technischen Problemen, Fehlermeldungen oder wenn die Online-Abmeldung nicht richtig startet.",
+  },
+  {
+    href: "/insiderwissen/ikfz-funktioniert-nicht",
+    title: "iKFZ funktioniert nicht",
+    text: "Dieser Ratgeber hilft weiter, wenn iKFZ Probleme macht oder der digitale Ablauf unerwartet abbricht.",
+  },
+  {
+    href: "/kosten-autoabmeldung-online/",
+    title: "Kosten Autoabmeldung online",
+    text: "Wer vor dem Start die Kosten wissen möchte, findet hier eine einfache und klare Übersicht.",
+  },
+  {
+    href: "/wo-ist-der-7-stellige-sicherheitscode-im-fahrzeugschein/",
+    title: "Wo ist der 7-stellige Sicherheitscode im Fahrzeugschein",
+    text: "Besonders hilfreich, wenn Nutzer nicht wissen, wo der benötigte Code auf den Unterlagen zu finden ist.",
+  },
+];
 function normalizeCompareText(value: string): string {
   return value
     .toLowerCase()
@@ -1209,7 +1240,40 @@ export default function CityPageView({
             ))}
           </div>
         </section>
+        <section className="mx-auto mt-16 max-w-5xl px-4 sm:px-6">
+  <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm md:p-10">
+    <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-primary">
+      <HelpCircle className="h-4 w-4" />
+      <span className="text-sm font-bold">Insider-Wissen</span>
+    </div>
 
+    <h2 className="mb-4 text-2xl font-extrabold text-primary">
+      Hilfreiche Anleitungen zur Online-Abmeldung
+    </h2>
+
+    <p className="mb-8 leading-relaxed text-gray-600">
+      Viele Fragen lassen sich vor dem Start schnell klären. Diese Beiträge helfen oft weiter, wenn Codes,
+      Kosten, Unterlagen oder technische Probleme unklar sind.
+    </p>
+
+    <div className="grid gap-4 md:grid-cols-2">
+      {CITY_GUIDE_LINKS.map((item) => (
+        <Link
+          key={item.href}
+          href={item.href}
+          className="rounded-2xl border border-gray-100 bg-gray-50 p-5 transition hover:border-primary/20 hover:bg-white"
+        >
+          <h3 className="mb-2 text-base font-bold text-gray-900">{item.title}</h3>
+          <p className="text-sm leading-relaxed text-gray-600">{item.text}</p>
+          <span className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-primary">
+            Jetzt lesen
+            <ChevronRight className="h-3.5 w-3.5" />
+          </span>
+        </Link>
+      ))}
+    </div>
+  </div>
+</section>
         <section className="mx-auto mt-16 max-w-5xl px-4 sm:px-6">
           <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
             <div className="grid items-center md:grid-cols-2">
