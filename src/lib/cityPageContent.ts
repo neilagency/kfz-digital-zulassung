@@ -4944,9 +4944,109 @@ function sanitizeSectionOrder(input?: SectionKey[]): SectionKey[] {
   return cleaned;
 }
 
+const BEHOERDE_TOKEN_REGEX =
+  /\{\{behoerde_(name|adresse|plz|ort|telefon|email)\}\}/g;
+
+function hasValue(value?: string): boolean {
+  return typeof value === "string" && value.trim().length > 0;
+}
+
+function hasUsableBehoerdeData(city: CityPageData): boolean {
+  const b = city.behoerde;
+  if (!b) return false;
+
+  return (
+    hasValue(b.name) ||
+    hasValue(b.adresse) ||
+    hasValue(b.plz) ||
+    hasValue(b.ort) ||
+    hasValue(b.telefon) ||
+    hasValue(b.email)
+  );
+}
+
+function textUsesBehoerdeTokens(text: string): boolean {
+  if (!text) return false;
+  return BEHOERDE_TOKEN_REGEX.test(text);
+}
+
+function filterStringPoolForCity(pool: readonly string[], city: CityPageData): string[] {
+  const base = pool.filter((item): item is string => typeof item === "string" && item.trim().length > 0);
+
+  if (base.length === 0) return [];
+
+  if (hasUsableBehoerdeData(city)) {
+    return [...base];
+  }
+
+  const filtered = base.filter((item) => !textUsesBehoerdeTokens(item));
+  return filtered.length > 0 ? filtered : [...base];
+}
+
+function filterObjectPoolForCity<T extends { title: string; text: string }>(
+  pool: readonly T[],
+  city: CityPageData
+): T[] {
+  const base = pool.filter(
+    (item): item is T =>
+      !!item &&
+      typeof item.title === "string" &&
+      typeof item.text === "string" &&
+      (item.title.trim().length > 0 || item.text.trim().length > 0)
+  );
+
+  if (base.length === 0) return [];
+
+  if (hasUsableBehoerdeData(city)) {
+    return [...base];
+  }
+
+  const filtered = base.filter(
+    (item) =>
+      !textUsesBehoerdeTokens(item.title) &&
+      !textUsesBehoerdeTokens(item.text)
+  );
+
+  return filtered.length > 0 ? filtered : [...base];
+}
+
+function pickSeededString(
+  pool: readonly string[],
+  city: CityPageData,
+  seed: number,
+  offset: number
+): string {
+  const safePool = filterStringPoolForCity(pool, city);
+  if (safePool.length === 0) return "";
+  return replaceTokens(
+    safePool[seededIndex(seed, safePool.length, offset)] || "",
+    city
+  );
+}
+
+function pickSeededStringList(
+  pool: readonly string[][],
+  city: CityPageData,
+  seed: number,
+  offset: number
+): string[] {
+  const safePool = pool.filter(
+    (entry): entry is string[] => Array.isArray(entry) && entry.length > 0
+  );
+
+  if (safePool.length === 0) return [];
+
+  const picked = safePool[seededIndex(seed, safePool.length, offset)] || [];
+  return picked.map((item) => replaceTokens(item, city));
+}
+
 function buildLocalBlock(city: CityPageData, seed: number) {
-  const areaType = city.areaType || 'suburban';
-  const pool = cityPageContentConfig.localBlocks[areaType] || cityPageContentConfig.localBlocks.suburban || [];
+  const areaType = city.areaType || "suburban";
+  const pool =
+    cityPageContentConfig.localBlocks[areaType] ||
+    cityPageContentConfig.localBlocks.suburban ||
+    [];
+
   const fallbackPool = [
     {
       title: "Warum die Online-Abmeldung in {{city}} besonders praktisch ist",
@@ -4955,11 +5055,220 @@ function buildLocalBlock(city: CityPageData, seed: number) {
   ];
 
   const selectedPool = pool.length > 0 ? pool : fallbackPool;
-  const picked = selectedPool[seededIndex(seed, selectedPool.length, 71)] || fallbackPool[0];
+  const safePool = filterObjectPoolForCity(selectedPool, city);
+  const picked = safePool[seededIndex(seed, safePool.length, 71)] || fallbackPool[0];
 
   return {
     title: replaceTokens(picked.title, city),
     text: replaceTokens(picked.text, city),
+  };
+}
+
+export function buildCityPageContent(city: CityPageData): BuiltCityPageContent {
+  if (CITY_LIVE_PARITY_MODE) {
+    const staticContent = STATIC_CITY_CONTENT_MAP[city.slug];
+    if (staticContent) {
+      return staticContent;
+    }
+  }
+
+  const seed = hashString(`${city.slug}-${city.city}-${city.region}-${city.state}`);
+
+  const metaTitle = pickSeededString(
+    cityPageContentConfig.metaTitles,
+    city,
+    seed,
+    1
+  );
+
+  const metaDescription = pickSeededString(
+    cityPageContentConfig.metaDescriptions,
+    city,
+    seed,
+    2
+  );
+
+  const intro = pickSeededString(
+    cityPageContentConfig.intros,
+    city,
+    seed,
+    3
+  );
+
+  const preparation = pickSeededString(
+    cityPageContentConfig.preparations,
+    city,
+    seed,
+    4
+  );
+
+  const trust = pickSeededString(
+    cityPageContentConfig.trust,
+    city,
+    seed,
+    5
+  );
+
+  const documentsIntro = pickSeededString(
+    cityPageContentConfig.documentsIntro,
+    city,
+    seed,
+    6
+  );
+
+  const documentsList = pickSeededStringList(
+    cityPageContentConfig.documentsLists,
+    city,
+    seed,
+    7
+  );
+
+  const processIntro = pickSeededString(
+    cityPageContentConfig.processIntro,
+    city,
+    seed,
+    8
+  );
+
+  const processList = pickSeededStringList(
+    cityPageContentConfig.processLists,
+    city,
+    seed,
+    9
+  );
+
+  const compareIntro = pickSeededString(
+    cityPageContentConfig.compareIntro,
+    city,
+    seed,
+    10
+  );
+
+  const targetIntro = pickSeededString(
+    cityPageContentConfig.targetIntro,
+    city,
+    seed,
+    11
+  );
+
+  const targetList = pickSeededStringList(
+    cityPageContentConfig.targetLists,
+    city,
+    seed,
+    12
+  );
+
+  const note = pickSeededString(
+    cityPageContentConfig.notes,
+    city,
+    seed,
+    13
+  );
+
+  const local = buildLocalBlock(city, seed);
+
+  const benefitsTitle = pickSeededString(
+    cityPageContentConfig.benefitsTitle,
+    city,
+    seed,
+    14
+  );
+
+  const benefits = pickSeededStringList(
+    cityPageContentConfig.benefitLists,
+    city,
+    seed,
+    15
+  );
+
+  const preferredFaqs = [
+    "Was kostet Auto online abmelden?",
+    "Was braucht man zum Auto online abmelden?",
+    "Wie kann ich mein Auto online abmelden?",
+    "Brauche ich dafür einen Termin?",
+    "Bekomme ich eine Bestätigung?",
+    "Kann auch jemand anders mein Auto abmelden?",
+  ];
+
+  const faqSource = (cityPageContentConfig.faqPool || []).filter((item) =>
+    preferredFaqs.includes(item.q)
+  );
+
+  const faq = (
+    faqSource.length >= 6
+      ? faqSource.slice(0, 6)
+      : uniqueSeededPick(cityPageContentConfig.faqPool || [], 6, seed)
+  ).map((item) => ({
+    q: replaceTokens(item.q, city),
+    a: replaceTokens(item.a, city),
+  }));
+
+  const linksIntro = pickSeededString(
+    cityPageContentConfig.linksIntroTexts,
+    city,
+    seed,
+    16
+  );
+
+  const closingText = pickSeededString(
+    cityPageContentConfig.closingTexts,
+    city,
+    seed,
+    17
+  );
+
+  const ctaTitle = pickSeededString(
+    cityPageContentConfig.ctaTitles,
+    city,
+    seed,
+    18
+  );
+
+  const ctaText = pickSeededString(
+    cityPageContentConfig.ctaTexts,
+    city,
+    seed,
+    19
+  );
+
+  const ctaButton = pickSeededString(
+    cityPageContentConfig.ctaButtons,
+    city,
+    seed,
+    20
+  );
+
+  const sectionOrder = sanitizeSectionOrder(
+    cityPageContentConfig.sectionOrders[
+      seededIndex(seed, cityPageContentConfig.sectionOrders.length, 21)
+    ]
+  );
+
+  return {
+    metaTitle,
+    metaDescription,
+    intro,
+    preparation,
+    trust,
+    documentsIntro,
+    documentsList,
+    processIntro,
+    processList,
+    compareIntro,
+    targetIntro,
+    targetList,
+    note,
+    localBlockTitle: local.title,
+    localBlockText: local.text,
+    benefitsTitle,
+    benefits,
+    faq,
+    linksIntro,
+    closingText,
+    ctaTitle,
+    ctaText,
+    ctaButton,
+    sectionOrder,
   };
 }
 
