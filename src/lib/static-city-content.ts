@@ -1,5 +1,9 @@
 import type { BuiltCityPageContent } from './cityPageContent';
 
+/** Same copy as DATENSCHUTZ_JOKER in cityPageContent (kept here to avoid import cycle). */
+const STATIC_DATENSCHUTZ_JOKER =
+  'Gut zu wissen: Jeder kann ein Auto abmelden! Für die offizielle Abmeldung verlangen die Behörden (Stadt/Landkreis) keine persönlichen Daten von Ihnen. Wir benötigen Ihre E-Mail-Adresse und Telefonnummer lediglich, um Sie im Falle eines Fehlers schnell kontaktieren zu können.';
+
 export const STATIC_CITY_CONTENT_MAP: Record<string, BuiltCityPageContent> = {
   zwickau: {
     metaTitle: 'Auto abmelden Zwickau | ab 19,70 €',
@@ -75,6 +79,7 @@ export const STATIC_CITY_CONTENT_MAP: Record<string, BuiltCityPageContent> = {
     ctaTitle: 'Jetzt Fahrzeug online abmelden',
     ctaText: 'Starten Sie die digitale Abmeldung noch heute - einfach, schnell und sicher.',
     ctaButton: 'Zur Abmeldung – 19,70 €',
+    datenschutzJoker: STATIC_DATENSCHUTZ_JOKER,
     sectionOrder: [
       'benefits',
       'preparation',
