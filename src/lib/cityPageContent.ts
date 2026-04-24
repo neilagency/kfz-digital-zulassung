@@ -5148,7 +5148,7 @@ export function buildCityPageContent(city: CityPageData): BuiltCityPageContent {
     ]
   );
 
-  return {
+    return {
     metaTitle,
     metaDescription,
     intro,
