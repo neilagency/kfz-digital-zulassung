@@ -221,7 +221,18 @@ export const cityPageContentConfig = {
   "Für viele in {{city}} beginnt ein sauberer Ablauf damit, Kennzeichen, Fahrzeugschein und FIN vorher zu prüfen.",
   "Gerade in {{city}}, wo {{behoerde_name}} zuständig ist, wirkt der Online-Antrag mit guter Vorbereitung deutlich einfacher."
 ],
-
+preparationsDistrict: [
+  "Wer sein Auto online abmelden in {{city}} möchte, sollte Kennzeichen, Fahrzeugschein und wichtige Angaben vor dem Start vollständig bereitlegen.",
+  "Gerade in {{city}} hilft eine gute Vorbereitung, unnötige Rückfragen und zusätzliche Wege zur zuständigen Behörde zu vermeiden.",
+  "In {{city}} wirkt die Online-Abmeldung meist deutlich einfacher, wenn Kennzeichen, Fahrzeugschein und Fahrzeugdaten vorher kurz geprüft werden.",
+  "Wer die Abmeldung in {{city}} sauber vorbereiten möchte, sollte die wichtigsten Unterlagen am besten direkt vor dem Start bereithalten.",
+  "Viele vermeiden in {{city}} unnötige Verzögerungen, indem sie Kennzeichen, Fahrzeugschein und relevante Daten vor dem ersten Schritt prüfen.",
+  "Gerade in {{city}} ist eine kurze Vorbereitung sinnvoll, damit der digitale Ablauf klar, vollständig und ohne Unterbrechung starten kann.",
+  "Wer in {{city}} online abmelden möchte, kommt meist schneller voran, wenn alle wichtigen Unterlagen schon griffbereit sind.",
+  "In {{city}} lässt sich die Online-Abmeldung oft deutlich ruhiger starten, wenn die relevanten Daten vorher vollständig kontrolliert werden.",
+  "Damit die Abmeldung in {{city}} ohne unnötige Hektik vorbereitet werden kann, sollten Kennzeichen, Fahrzeugschein und Fahrzeugdaten vorab geprüft werden.",
+  "Viele starten die Online-Abmeldung in {{city}} deutlich entspannter, wenn Unterlagen, Codes und Fahrzeugdaten schon vor dem Antrag bereitliegen."
+],
  trust: [
   "Viele Nutzer fühlen sich sicherer, wenn der Ablauf klar, verständlich und ohne unnötige Schritte aufgebaut ist.",
   "Ein klarer digitaler Ablauf schafft Vertrauen, weil jeder Schritt verständlich und sauber vorbereitet werden kann.",
@@ -273,6 +284,18 @@ export const cityPageContentConfig = {
   "In {{city}} schafft ein verständlicher Online-Ablauf oft schneller Vertrauen als ein klassischer Behördengang zu {{behoerde_name}}.",
   "Viele Fahrzeughalter in {{city}} schätzen die digitale Lösung besonders dann, wenn sie klarer wirkt als der Weg zu {{behoerde_name}}.",
   "Gerade in {{city}}, wo {{behoerde_name}} zuständig ist, überzeugt der Online-Weg viele durch Klarheit und einfache Schritte."
+],
+  trustDistrict: [
+  "Gerade in {{city}} wirkt die Online-Abmeldung für viele vertrauenswürdig, wenn der Ablauf klar aufgebaut ist und ohne unnötige Umwege beginnt.",
+  "Viele Nutzer in {{city}} bevorzugen einen digitalen Ablauf, der verständlich bleibt und Schritt für Schritt durch den Vorgang führt.",
+  "In {{city}} schafft eine klare Struktur Vertrauen, weil Nutzer genau sehen, welche Angaben gebraucht werden und wie der Ablauf weitergeht.",
+  "Wer in {{city}} online abmelden möchte, achtet oft besonders darauf, dass der Prozess verständlich, sauber und ohne unnötige Unsicherheit aufgebaut ist.",
+  "Gerade in {{city}} ist Vertrauen wichtig, wenn die Abmeldung digital vorbereitet wird. Klare Schritte und gut nachvollziehbare Angaben helfen dabei.",
+  "Viele empfinden die Online-Abmeldung in {{city}} dann als sicher, wenn der Ablauf übersichtlich bleibt und keine unnötigen Hürden entstehen.",
+  "In {{city}} vertrauen viele einem digitalen Antrag vor allem dann, wenn Unterlagen, Angaben und Schritte klar erklärt werden.",
+  "Wer die Abmeldung in {{city}} digital startet, möchte meist keine komplizierten Fachbegriffe, sondern einen verständlichen und ruhigen Ablauf.",
+  "Gerade in {{city}} hilft ein klarer digitaler Prozess dabei, Unsicherheit zu vermeiden und den Überblick vom ersten Schritt an zu behalten.",
+  "Viele Nutzer in {{city}} möchten sicher sein, dass die Online-Abmeldung einfach nachvollziehbar bleibt. Genau das schafft Vertrauen in den Ablauf."
 ],
 
  documentsIntro: [
@@ -5003,8 +5026,19 @@ export function buildCityPageContent(city: CityPageData): BuiltCityPageContent {
       : cityPageContentConfig.intros;
 
   const intro = pickSeededString(introPool, city, seed, 3);
-  const preparation = pickSeededString(cityPageContentConfig.preparations, city, seed, 4);
-  const trust = pickSeededString(cityPageContentConfig.trust, city, seed, 5);
+ const preparationPool =
+  pageType === 'district'
+    ? cityPageContentConfig.preparationsDistrict
+    : cityPageContentConfig.preparations;
+
+const preparation = pickSeededString(preparationPool, city, seed, 4);
+
+const trustPool =
+  pageType === 'district'
+    ? cityPageContentConfig.trustDistrict
+    : cityPageContentConfig.trust;
+
+const trust = pickSeededString(trustPool, city, seed, 5);
   const documentsIntro = pickSeededString(cityPageContentConfig.documentsIntro, city, seed, 6);
   const documentsList = pickSeededStringList(cityPageContentConfig.documentsLists, city, seed, 7);
   const processIntro = pickSeededString(cityPageContentConfig.processIntro, city, seed, 8);
