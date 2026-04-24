@@ -429,6 +429,10 @@ export default function CityPageView({
     text: legacyContent.ctaText || '',
     buttonLabel: legacyContent.ctaButton || 'Jetzt online abmelden',
   };
+  const datenschutzJoker =
+  typeof model.content?.datenschutzJoker === 'string'
+    ? model.content.datenschutzJoker
+    : '';
 
   model.sections.benefits.items = dedupeStrings(model.sections.benefits.items);
   model.sections.preparation.paragraphs = dedupeStrings(model.sections.preparation.paragraphs);
@@ -596,29 +600,40 @@ export default function CityPageView({
     ),
 
     trust: (
-      <section className="mx-auto mt-16 max-w-5xl px-4 sm:px-6" key="trust">
-        <div className="rounded-2xl border border-primary/10 bg-primary/5 p-8 md:p-10">
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-primary">
-            <Shield className="h-4 w-4" />
-            <span className="text-sm font-bold">Trust & Sicherheit</span>
+  <section className="mx-auto mt-16 max-w-5xl px-4 sm:px-6" key="trust">
+    <div className="rounded-2xl border border-primary/10 bg-primary/5 p-8 md:p-10">
+      <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-primary">
+        <Shield className="h-4 w-4" />
+        <span className="text-sm font-bold">Trust & Sicherheit</span>
+      </div>
+      <h2 className="mb-4 text-2xl font-extrabold text-primary">
+        {model.sections.trust.heading}
+      </h2>
+
+      <div className="space-y-4">
+        {trustParagraphs.length > 0 ? (
+          trustParagraphs.map((paragraph: string) => (
+            <p key={paragraph} className="leading-relaxed text-gray-700">
+              {paragraph}
+            </p>
+          ))
+        ) : (
+          <p className="leading-relaxed text-gray-700">
+            Viele Kunden möchten vor dem Start wissen, dass der Ablauf klar, sicher und verständlich ist. Genau deshalb setzen wir auf einfache Schritte, offiziellen Ablauf und direkte Hilfe per WhatsApp oder Telefon.
+          </p>
+        )}
+
+        {datenschutzJoker && (
+          <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4">
+            <p className="leading-relaxed text-gray-700">
+              {datenschutzJoker}
+            </p>
           </div>
-          <h2 className="mb-4 text-2xl font-extrabold text-primary">{model.sections.trust.heading}</h2>
-          <div className="space-y-4">
-            {trustParagraphs.length > 0 ? (
-              trustParagraphs.map((paragraph: string) => (
-                <p key={paragraph} className="leading-relaxed text-gray-700">
-                  {paragraph}
-                </p>
-              ))
-            ) : (
-              <p className="leading-relaxed text-gray-700">
-                Jeder kann ein Auto abmelden, auch völlig ohne Angabe persönlicher Daten, da dies von der zuständigen Behörde in {cityName} gar nicht verlangt wird. Wir selbst verlangen für den digitalen Ablauf lediglich eine E-Mail-Adresse und eine Telefonnummer – und zwar nur, um Sie im Falle eines Fehlers bei den Unterlagen sofort kontaktieren zu können. Die eigentliche Abmeldung erfolgt dann amtlich und rechtssicher über unsere GKS-Anbindung.
-              </p>
-            )}
-          </div>
-        </div>
-      </section>
-    ),
+        )}
+      </div>
+    </div>
+  </section>
+),
 
     documents: (
       <section className="mx-auto mt-16 max-w-5xl px-4 sm:px-6" key="documents">
