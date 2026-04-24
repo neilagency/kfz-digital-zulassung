@@ -4862,6 +4862,7 @@ notes: [
   sectionOrders: [
   ["compare", "benefits", "preparation", "trust", "local", "process", "target", "documents", "note", "faq", "authorityHubs", "links", "cta"],
 ] as SectionKey[][],
+  };
   
 export function hashString(input: string): number {
   let hash = 0;
@@ -5106,6 +5107,74 @@ export type CityPageModel = {
     indexable: boolean;
   };
 };
+export function buildCityPageContent(city: CityPageData): BuiltCityPageContent {
+  const seed = hashString(`${city.slug}-${city.city}-${city.region}-${city.state}`);
+
+  const metaTitle = pickSeededString(cityPageContentConfig.metaTitles, city, seed, 1);
+  const metaDescription = pickSeededString(cityPageContentConfig.metaDescriptions, city, seed, 2);
+  const intro = pickSeededString(cityPageContentConfig.intros, city, seed, 3);
+  const preparation = pickSeededString(cityPageContentConfig.preparations, city, seed, 4);
+  const trust = pickSeededString(cityPageContentConfig.trust, city, seed, 5);
+  const documentsIntro = pickSeededString(cityPageContentConfig.documentsIntro, city, seed, 6);
+  const documentsList = pickSeededStringList(cityPageContentConfig.documentsLists, city, seed, 7);
+  const processIntro = pickSeededString(cityPageContentConfig.processIntro, city, seed, 8);
+  const processList = pickSeededStringList(cityPageContentConfig.processLists, city, seed, 9);
+  const compareIntro = pickSeededString(cityPageContentConfig.compareIntro, city, seed, 10);
+  const targetIntro = pickSeededString(cityPageContentConfig.targetIntro, city, seed, 11);
+  const targetList = pickSeededStringList(cityPageContentConfig.targetLists, city, seed, 12);
+  const note = pickSeededString(cityPageContentConfig.notes, city, seed, 13);
+  const benefitsTitle = pickSeededString(cityPageContentConfig.benefitsTitle, city, seed, 14);
+  const benefits = pickSeededStringList(cityPageContentConfig.benefitLists, city, seed, 15);
+  const linksIntro = pickSeededString(cityPageContentConfig.linksIntroTexts, city, seed, 16);
+  const closingText = pickSeededString(cityPageContentConfig.closingTexts, city, seed, 17);
+  const ctaTitle = pickSeededString(cityPageContentConfig.ctaTitles, city, seed, 18);
+  const ctaText = pickSeededString(cityPageContentConfig.ctaTexts, city, seed, 19);
+  const ctaButton = pickSeededString(cityPageContentConfig.ctaButtons, city, seed, 20);
+
+  const localBlock = buildLocalBlock(city, seed);
+
+  const faq = uniqueSeededPick(
+    cityPageContentConfig.faqPool.map((item) => ({
+      q: replaceTokens(item.q, city),
+      a: replaceTokens(item.a, city),
+    })),
+    6,
+    seed + 500
+  );
+
+  const sectionOrder = sanitizeSectionOrder(
+    cityPageContentConfig.sectionOrders[
+      seededIndex(seed, cityPageContentConfig.sectionOrders.length, 21)
+    ]
+  );
+
+  return {
+    metaTitle,
+    metaDescription,
+    intro,
+    preparation,
+    trust,
+    documentsIntro,
+    documentsList,
+    processIntro,
+    processList,
+    compareIntro,
+    targetIntro,
+    targetList,
+    note,
+    localBlockTitle: localBlock.title,
+    localBlockText: localBlock.text,
+    benefitsTitle,
+    benefits,
+    faq,
+    linksIntro,
+    closingText,
+    ctaTitle,
+    ctaText,
+    ctaButton,
+    sectionOrder,
+  };
+}
 export function buildCityPageModel(input: CityPageModelInput): CityPageModel {
   const cityPageData: CityPageData = {
     slug: input.slug,
@@ -5119,7 +5188,7 @@ export function buildCityPageModel(input: CityPageModelInput): CityPageModel {
   };
 
   const content = buildCityPageContent(cityPageData);
-
+  
   return {
     metaTitle: content.metaTitle,
     metaDescription: content.metaDescription,
