@@ -612,7 +612,7 @@ export default function CityPageView({
               ))
             ) : (
               <p className="leading-relaxed text-gray-700">
-                Viele Kunden möchten vor dem Start wissen, dass der Ablauf klar, sicher und verständlich ist. Genau deshalb setzen wir auf einfache Schritte, offiziellen Ablauf und direkte Hilfe per WhatsApp oder Telefon.
+                Jeder kann ein Auto abmelden, auch völlig ohne Angabe persönlicher Daten, da dies von der zuständigen Behörde in {cityName} gar nicht verlangt wird. Wir selbst verlangen für den digitalen Ablauf lediglich eine E-Mail-Adresse und eine Telefonnummer – und zwar nur, um Sie im Falle eines Fehlers bei den Unterlagen sofort kontaktieren zu können. Die eigentliche Abmeldung erfolgt dann amtlich und rechtssicher über unsere GKS-Anbindung.
               </p>
             )}
           </div>
