@@ -4860,10 +4860,24 @@ notes: [
 ],
 
   sectionOrders: [
-  ["compare", "benefits", "preparation", "trust", "local", "process", "target", "documents", "note", "faq", "authorityHubs", "links", "cta"],
-] as SectionKey[][],
-  };
-  
+    [
+      'compare',
+      'benefits',
+      'preparation',
+      'trust',
+      'local',
+      'process',
+      'target',
+      'documents',
+      'note',
+      'faq',
+      'authorityHubs',
+      'links',
+      'cta',
+    ],
+  ] as SectionKey[][],
+};
+
 export function hashString(input: string): number {
   let hash = 0;
   for (let i = 0; i < input.length; i++) {
