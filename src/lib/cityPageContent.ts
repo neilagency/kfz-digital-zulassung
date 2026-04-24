@@ -4846,7 +4846,8 @@ notes: [
   { q: "Ist die Online-Abmeldung in {{city}} für viele schon normal?", a: "Ja, für viele ist sie heute eine naheliegende und praktische Alternative zum klassischen Weg vor Ort." },
   { q: "Kann ich die Abmeldung in {{city}} ohne komplizierte Schritte starten?", a: "Viele empfinden den digitalen Ablauf als übersichtlich. Eine gute Vorbereitung macht den Start noch einfacher." },
   { q: "Warum bevorzugen viele in {{city}} den digitalen Weg?", a: "Weil er bequemer wirkt, Zeit spart und sich oft besser in den Alltag einfügt." },
-
+  { q: "Muss ich für die Abmeldung persönliche Daten angeben?", a: "Nein, jeder kann sein Auto abmelden. Für die offizielle Abmeldung bei der Stadt oder dem Landkreis werden keine persönlichen Daten verlangt. Wir benötigen lediglich Ihre E-Mail-Adresse und Telefonnummer, um Sie im Falle eines Fehlers schnell kontaktieren zu können." },
+  { q: "Werden meine Kontaktdaten an das Amt weitergegeben?", a: "Nein, die Zulassungsstelle benötigt keine persönlichen Daten von Ihnen, um das Auto abzumelden. Ihre Kontaktdaten (E-Mail und Telefon) bleiben bei uns und dienen nur dazu, Ihnen bei Rückfragen oder Problemen sofort helfen zu können." },
   { q: "Welche Unterlagen für Auto abmelden sollte ich bereitlegen?", a: "Am wichtigsten sind meist Kennzeichen, Fahrzeugschein Teil I, Fahrzeugdaten und die relevanten Codes. Alles sollte gut lesbar sein." },
   { q: "Welche Angaben brauche ich für die Fahrzeugabmeldung?", a: "Benötigt werden in vielen Fällen Kennzeichen, Fahrzeugschein, Fahrzeugdaten und die passenden Codes. Eine kurze Prüfung vor dem Absenden ist sinnvoll." },
   { q: "Was brauche ich, um mein Auto abzumelden?", a: "Hilfreich sind alle wichtigen Daten zum Fahrzeug, der Fahrzeugschein und die nötigen Codes. So kann der Ablauf sauber vorbereitet werden." },
