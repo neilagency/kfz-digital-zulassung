@@ -65,6 +65,7 @@ export type BuiltCityPageContent = {
   ctaTitle: string;
   ctaText: string;
   ctaButton: string;
+  datenschutzJoker: string;
   sectionOrder: SectionKey[];
 };
 
@@ -5122,6 +5123,8 @@ export type CityPageModel = {
     indexable: boolean;
   };
 };
+const DATENSCHUTZ_JOKER =
+  "Gut zu wissen: Jeder kann ein Auto abmelden! Für die offizielle Abmeldung verlangen die Behörden (Stadt/Landkreis) keine persönlichen Daten von Ihnen. Wir benötigen Ihre E-Mail-Adresse und Telefonnummer lediglich, um Sie im Falle eines Fehlers schnell kontaktieren zu können.";
 export function buildCityPageContent(city: CityPageData): BuiltCityPageContent {
   const seed = hashString(`${city.slug}-${city.city}-${city.region}-${city.state}`);
 
@@ -5145,6 +5148,7 @@ export function buildCityPageContent(city: CityPageData): BuiltCityPageContent {
   const ctaTitle = pickSeededString(cityPageContentConfig.ctaTitles, city, seed, 18);
   const ctaText = pickSeededString(cityPageContentConfig.ctaTexts, city, seed, 19);
   const ctaButton = pickSeededString(cityPageContentConfig.ctaButtons, city, seed, 20);
+  const datenschutzJoker = DATENSCHUTZ_JOKER;
 
   const localBlock = buildLocalBlock(city, seed);
 
@@ -5187,6 +5191,7 @@ export function buildCityPageContent(city: CityPageData): BuiltCityPageContent {
     ctaTitle,
     ctaText,
     ctaButton,
+    datenschutzJoker,
     sectionOrder,
   };
 }
