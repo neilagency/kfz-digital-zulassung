@@ -25,12 +25,16 @@ export type CityPageData = {
 };
 
 export type FaqItem = { q: string; a: string };
-
+export type ExpertAccordionItem = {
+  title: string;
+  paragraphs: string[];
+};
 export type SectionKey =
   | "benefits"
   | "preparation"
   | "trust"
   | "documents"
+  | "expertHelp"
   | "process"
   | "compare"
   | "target"
@@ -66,9 +70,120 @@ export type BuiltCityPageContent = {
   ctaText: string;
   ctaButton: string;
   datenschutzJoker: string;
+  expertAccordionIntro: string;
+  expertAccordionItems: ExpertAccordionItem[];
+  expertAccordionOutro: string;
   sectionOrder: SectionKey[];
 };
+export const expertAccordionIntro = [
+  "Wer sein Fahrzeug in {{city}} online abmelden möchte, sollte typische Fehler bei Sicherheitscodes und Unterlagen vor dem Start kennen. Gerade rund um {{behoerde_name}} spart das oft unnötige Rückfragen und zusätzliche Wege.",
+  "Viele Fahrzeughalter aus {{city}} möchten sich den Weg zu {{behoerde_name}} in {{state}} sparen. Genau deshalb sind die folgenden Hinweise für die Online-Abmeldung besonders wichtig.",
+  "Bei der Online-Abmeldung in {{city}} entstehen viele Probleme nicht erst im Antrag, sondern schon vorher bei Kennzeichen, Fahrzeugschein und Sicherheitscodes. Wer diese Punkte kennt, startet meist deutlich sicherer.",
+  "Wer in {{city}} unnötige Fehler vermeiden möchte, sollte vor der Online-Abmeldung kurz prüfen, ob Kennzeichen, Fahrzeugschein und Sicherheitscodes wirklich zur digitalen Abmeldung geeignet sind.",
+  "Gerade in {{city}} hilft ein klarer Vorab-Check, damit die Online-Abmeldung nicht an kleinen Fehlern bei Codes, Siegeln oder Unterlagen scheitert."
+];
 
+export const expertAccordionItems: ExpertAccordionItem[] = [
+  {
+    title: "Nicht das Baujahr entscheidet",
+    paragraphs: [
+      "Für die Online-Abmeldung ist nicht das Baujahr des Fahrzeugs entscheidend. Auch ein Fahrzeug von 1950 kann online abgemeldet werden, wenn es später mit onlinefähigen Unterlagen und Kennzeichen zugelassen oder umgemeldet wurde.",
+      "Wichtig ist also nicht Baujahr ab 2015, sondern ob das Fahrzeug onlinefähige Sicherheitscodes hat.",
+      "Viele denken fälschlich, dass nur Fahrzeuge ab Baujahr 2015 online abgemeldet werden können. Das ist falsch."
+    ]
+  },
+  {
+    title: "QR-Code am Kennzeichen zuerst prüfen",
+    paragraphs: [
+      "Kennzeichen mit Online-Funktion haben immer einen QR-Code rechts neben dem Siegel.",
+      "Wenn dort kein QR-Code sichtbar ist, sollte das Siegel nicht freigelegt werden, weil das Fahrzeug dann keine Online-Funktion hat.",
+      "Viele Kunden aus {{city}} legen das Siegel frei und finden dann keinen Code. Der Grund ist oft einfach: Das Kennzeichen war nie für die Online-Abmeldung geeignet."
+    ]
+  },
+  {
+    title: "Auch nach neuer Ummeldung nicht automatisch onlinefähig",
+    paragraphs: [
+      "Auch wenn ein Fahrzeug erst 2025 umgemeldet wurde, ist die Online-Abmeldung nicht automatisch möglich.",
+      "Das passiert zum Beispiel dann, wenn bei der Ummeldung alte Kennzeichen übernommen wurden, die noch aus einer älteren Zulassung stammen. Dann fehlt auf diesen Kennzeichen die passende Online-Funktion.",
+      "Darum reicht die Aussage „Ich habe das Auto letztes Jahr umgemeldet“ nicht automatisch aus."
+    ]
+  },
+  {
+    title: "Häufige Fehler bei Sicherheitscodes",
+    paragraphs: [
+      "Sehr oft werden 0 und O, I (i) und l (L), Zahlen und Buchstaben oder Groß- und Kleinschreibung verwechselt.",
+      "Gerade I (i) und l (L) sehen für viele Menschen fast identisch aus.",
+      "Zusätzlich kommt es vor, dass Kunden den Code aus dem Kopf oder aus einem unscharfen Foto eingeben. Besser ist immer, direkt vom freigelegten Code oder per QR-Code zu prüfen."
+    ]
+  },
+  {
+    title: "Siegel können übereinander geklebt sein",
+    paragraphs: [
+      "Bei Kennzeichen kommt es immer wieder vor, dass Siegel übereinander geklebt wurden. In solchen Fällen kann der Kunde nichts dafür.",
+      "Wer das Siegel freilegt, weiß oft nicht, dass dort zwei Schichten vorhanden sind. Der richtige Code sitzt bei den Kennzeichen immer auf der obersten Schicht.",
+      "Deshalb gilt: Die freigelegte Siegel-Folie nicht sofort entsorgen."
+    ]
+  },
+  {
+    title: "Fahrzeugschein: Es gibt zwei Varianten",
+    paragraphs: [
+      "Beim Fahrzeugschein gibt es immer zwei Varianten: entweder muss die Folie freigerubbelt werden oder sie muss abgezogen werden.",
+      "Wenn der grüne Rahmen auf der Rückseite keinen Pfeil und keine hellgrüne Ecke hat, muss gerubbelt werden.",
+      "Wenn eine hellgrüne Ecke oder ein Pfeil vorhanden ist, muss die Folie abgezogen werden.",
+      "Viele Nutzer geben schon vorher sichtbare Nummern ein. Das ist falsch. Der richtige Sicherheitscode wird immer erst nach dem Freilegen oder nach dem Abziehen sichtbar."
+    ]
+  },
+  {
+    title: "7 Stellen sind Pflicht",
+    paragraphs: [
+      "Für die Online-Abmeldung werden immer 7 Stellen benötigt.",
+      "Wenn nur 6 Stellen sichtbar sind, ist der Code nicht vollständig.",
+      "Die Lösung ist dann nicht weiteres Raten, sondern der QR-Code im freigelegten Zustand. Dieser sollte gescannt werden, damit der vollständige Code korrekt ausgelesen werden kann."
+    ]
+  },
+  {
+    title: "Obere 7-stellige Nummer, nicht die 8-stellige",
+    paragraphs: [
+      "Bei der Abzieh-Variante auf dem Fahrzeugschein sind oft zwei verschiedene Nummern sichtbar.",
+      "Für die Online-Abmeldung wird immer die obere 7-stellige Nummer verwendet.",
+      "Nicht verwendet wird die 8-stellige Nummer. Diese 8-stellige Nummer ist für die digitale Einrichtung des Fahrzeugscheins in der App gedacht und nicht der Sicherheitscode für die Online-Abmeldung."
+    ]
+  },
+  {
+    title: "Wenn der Code beschädigt oder schwer lesbar ist",
+    paragraphs: [
+      "Manchmal werden Codes versehentlich zu stark freigerubbelt oder beschädigt, sodass einzelne Zeichen nicht mehr klar lesbar sind.",
+      "In solchen Fällen sollte immer zusätzlich der QR-Code im freigelegten Zustand geprüft werden. Damit lassen sich viele Eingabefehler vermeiden.",
+      "Gerade bei O und 0 oder I (i) und l (L) hilft der QR-Code oft zuverlässiger als reines Ablesen."
+    ]
+  },
+  {
+    title: "Wenn alles korrekt ist und es trotzdem nicht funktioniert",
+    paragraphs: [
+      "Manchmal sind alle Angaben korrekt eingegeben und die Online-Abmeldung funktioniert trotzdem nicht.",
+      "Dann sollte zuerst geprüft werden, ob der QR-Code und der freigelegte Sicherheitscode wirklich zusammenpassen.",
+      "Wenn auch das übereinstimmt und die Abmeldung trotzdem scheitert, liegt das Problem manchmal nicht beim Kunden, sondern bei der Behörde. In solchen Fällen wurden die Codes beim KBA oder im zuständigen System nicht korrekt registriert.",
+      "Dann ist die Online-Abmeldung leider nicht möglich und es bleibt nur der Weg zur Zulassungsstelle {{behoerde_name}}.",
+      "Sie erreichen {{behoerde_name}} unter {{behoerde_telefon}} oder per E-Mail an {{behoerde_email}}. Falls das nicht ausreicht, bleibt nur der direkte Weg zur Behörde unter {{behoerde_adresse}}, {{behoerde_plz}} {{behoerde_ort}}."
+    ]
+  },
+  {
+    title: "Seltene Sonderfälle mit offenen Gebühren",
+    paragraphs: [
+      "In seltenen Fällen können offene Gebühren oder Rückstände bei der Behörde die Abmeldung blockieren.",
+      "Dann erscheint die Forderung erst im Ablauf oder später in der Rechnung. Eine Abmeldung ist dann erst möglich, wenn diese offenen Gebühren bezahlt wurden.",
+      "Das kommt selten vor, kann aber auch bei Fahrzeughaltern aus {{city}} passieren."
+    ]
+  }
+];
+
+export const expertAccordionOutro = [
+  "Wer diese Punkte vor dem Start prüft, vermeidet in {{city}} viele typische Fehler bei der Online-Abmeldung.",
+  "Gerade vor einem digitalen Antrag bei {{behoerde_name}} lohnt sich dieser kurze Check, damit der Ablauf sauber und ohne unnötige Unterbrechung starten kann.",
+  "Wenn Kennzeichen, Fahrzeugschein und Sicherheitscodes richtig geprüft wurden, läuft die Online-Abmeldung für viele Nutzer aus {{city}} deutlich einfacher.",
+  "Diese Hinweise helfen besonders dann, wenn die Abmeldung in {{city}} ohne unnötige Rückfragen und ohne zusätzlichen Behördengang vorbereitet werden soll.",
+  "Viele Probleme lassen sich schon vor dem Start vermeiden, wenn diese Punkte bei der Online-Abmeldung in {{city}} beachtet werden."
+];
 export const compareTable = {
   headers: ["Vergleich", "Vor Ort", "Online"],
   rows: [
@@ -5055,7 +5170,14 @@ const trust = pickSeededString(trustPool, city, seed, 5);
   const ctaText = pickSeededString(cityPageContentConfig.ctaTexts, city, seed, 19);
   const ctaButton = pickSeededString(cityPageContentConfig.ctaButtons, city, seed, 20);
   const datenschutzJoker = DATENSCHUTZ_JOKER;
+  const expertAccordionIntroText = pickSeededString(expertAccordionIntro, city, seed, 90);
 
+  const expertAccordionItemsBuilt = expertAccordionItems.map((item) => ({
+  title: replaceTokens(item.title, city),
+  paragraphs: item.paragraphs.map((p) => replaceTokens(p, city)),
+    }));
+
+  const expertAccordionOutroText = pickSeededString(expertAccordionOutro, city, seed, 91);
   const localBlock = buildLocalBlock(city, seed);
 
   const faq = uniqueSeededPick(
@@ -5098,6 +5220,9 @@ const trust = pickSeededString(trustPool, city, seed, 5);
     ctaText,
     ctaButton,
     datenschutzJoker,
+    expertAccordionIntro: expertAccordionIntroText,
+    expertAccordionItems: expertAccordionItemsBuilt,
+    expertAccordionOutro: expertAccordionOutroText,
     sectionOrder,
   };
 }
