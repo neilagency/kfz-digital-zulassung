@@ -12,6 +12,8 @@ import {
 import { sanitizeHtml } from '@/lib/sanitize';
 import Image from 'next/image';
 import Link from 'next/link';
+import { existsSync } from 'fs';
+import path from 'path';
 import { notFound } from 'next/navigation';
 import {
   Calendar,
@@ -104,6 +106,16 @@ function BlogPostView({
   const readingTime = Math.ceil(wordCount / 200);
 
   const headings: { level: number; id: string; text: string }[] = [];
+
+  const normalizedFeaturedImage = post.featuredImage
+    ? post.featuredImage.replace(/^https?:\/\/(www\.)?onlineautoabmelden\.com/i, '')
+    : '';
+  const featuredImageReady =
+    normalizedFeaturedImage &&
+    (normalizedFeaturedImage.startsWith('/uploads/')
+      ? existsSync(path.join(process.cwd(), 'public', normalizedFeaturedImage.slice(1)))
+      : true);
+
   const sanitizedContent = sanitizeHtml(post.content);
 
   // Strip srcset attributes that reference local /uploads/ paths.
@@ -265,10 +277,10 @@ function BlogPostView({
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10">
           <div className="flex flex-col lg:flex-row gap-8 lg:gap-10">
             <article className="flex-1 min-w-0">
-              {post.featuredImage && (
+              {featuredImageReady && (
                 <div className="relative w-full aspect-[2/1] rounded-2xl overflow-hidden shadow-xl mb-8">
                   <Image
-                    src={post.featuredImage.replace(/^https?:\/\/(www\.)?onlineautoabmelden\.com/i, '')}
+                    src={normalizedFeaturedImage}
                     alt={title}
                     fill
                     className="object-cover"
