@@ -102,12 +102,12 @@ const PRICE_FEATURES = [
     text: "Dieser Ratgeber hilft weiter, wenn iKFZ Probleme macht oder der digitale Ablauf unerwartet abbricht.",
   },
   {
-    href: "/kosten-autoabmeldung-online/",
+    href: "/insiderwissen/auto-online-abmelden-kosten-2026",
     title: "Kosten Autoabmeldung online",
     text: "Wer vor dem Start die Kosten wissen möchte, findet hier eine einfache und klare Übersicht.",
   },
   {
-    href: "/wo-ist-der-7-stellige-sicherheitscode-im-fahrzeugschein/",
+    href: "/insiderwissen/wo-ist-der-7-stellige-sicherheitscode-im-fahrzeugschein",
     title: "Wo ist der 7-stellige Sicherheitscode im Fahrzeugschein",
     text: "Besonders hilfreich, wenn Nutzer nicht wissen, wo der benötigte Code auf den Unterlagen zu finden ist.",
   },
