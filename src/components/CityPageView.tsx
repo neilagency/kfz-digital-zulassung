@@ -357,19 +357,20 @@ export default function CityPageView({
     : Array.isArray(model.content?.sectionOrder)
       ? model.content.sectionOrder
       : [
-          'benefits',
-          'preparation',
-          'trust',
-          'documents',
-          'process',
-          'compare',
-          'target',
-          'local',
-          'note',
-          'faq',
-          'links',
-          'cta',
-        ];
+  'benefits',
+  'preparation',
+  'trust',
+  'documents',
+  'expertHelp',
+  'process',
+  'compare',
+  'target',
+  'local',
+  'note',
+  'faq',
+  'links',
+  'cta',
+];
   model.archetype = typeof model.archetype === 'string' ? model.archetype : 'default';
   model.layoutStrategy = typeof model.layoutStrategy === 'string' ? model.layoutStrategy : 'default';
   model.seoGate ??= { indexable: true };
@@ -686,7 +687,66 @@ export default function CityPageView({
         </div>
       </section>
     ),
+expertHelp: (
+  <section className="mx-auto mt-16 max-w-5xl px-4 sm:px-6" key="expertHelp">
+    <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm md:p-10">
+      <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-primary">
+        <HelpCircle className="h-4 w-4" />
+        <span className="text-sm font-bold">Praxis-Hilfe</span>
+      </div>
 
+      <h2 className="mb-4 text-2xl font-extrabold text-primary">
+        Wichtige Hinweise zur Online-Abmeldung in {cityName}
+      </h2>
+
+      <p className="mb-8 leading-relaxed text-gray-600">
+        {renderInlineLinkedText(model.content.expertAccordionIntro)}
+      </p>
+
+      <div className="space-y-3">
+        {model.content.expertAccordionItems?.map(
+          (item: { title: string; paragraphs: string[] }) => (
+            <details
+              key={item.title}
+              className="group overflow-hidden rounded-xl border border-gray-200 bg-gray-50"
+            >
+              <summary className="flex cursor-pointer items-center justify-between p-5 font-bold text-gray-900">
+                {item.title}
+                <span className="ml-3 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                  <svg
+                    className="h-4 w-4 transition-transform group-open:rotate-180"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </span>
+              </summary>
+
+              <div className="space-y-4 border-t border-gray-200 bg-white px-5 pb-5 pt-4">
+                {item.paragraphs.map((paragraph) => (
+                  <p key={paragraph} className="leading-relaxed text-gray-600">
+                    {renderInlineLinkedText(paragraph)}
+                  </p>
+                ))}
+              </div>
+            </details>
+          ),
+        )}
+      </div>
+
+      <p className="mt-8 leading-relaxed text-gray-600">
+        {renderInlineLinkedText(model.content.expertAccordionOutro)}
+      </p>
+    </div>
+  </section>
+),
     process: (
       <section className="mx-auto mt-16 max-w-5xl px-4 sm:px-6" key="process">
         <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm md:p-10">
