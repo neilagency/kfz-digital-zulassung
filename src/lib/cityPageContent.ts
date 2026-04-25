@@ -4841,22 +4841,23 @@ notes: [
 ],
 
   sectionOrders: [
-    [
-      'compare',
-      'benefits',
-      'preparation',
-      'trust',
-      'local',
-      'process',
-      'target',
-      'documents',
-      'note',
-      'faq',
-      'authorityHubs',
-      'links',
-      'cta',
-    ],
-  ] as SectionKey[][],
+  [
+    'compare',
+    'benefits',
+    'preparation',
+    'trust',
+    'local',
+    'process',
+    'target',
+    'documents',
+    'expertHelp',
+    'note',
+    'faq',
+    'authorityHubs',
+    'links',
+    'cta',
+  ],
+] as SectionKey[][],
 };
 
 export function hashString(input: string): number {
@@ -4908,6 +4909,7 @@ const REQUIRED_SECTION_ORDER: SectionKey[] = [
   "process",
   "target",
   "documents",
+  "expertHelp",
   "note",
   "faq",
   "authorityHubs",
