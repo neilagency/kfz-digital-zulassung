@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { LocalPost, stripHtml, formatDate } from '@/lib/db';
+import { existsSync } from 'fs';
+import path from 'path';
 
 interface BlogCardProps {
   post: LocalPost;
@@ -15,14 +17,20 @@ export default function BlogCard({ post }: BlogCardProps) {
   const title = stripHtml(post.title);
   const publishDate = post.publishedAt || post.createdAt;
   const postUrl = '/insiderwissen/' + post.slug;
-  const imageSrc = normalizeOwnImageUrl(post.featuredImage);
+  const rawImageSrc = normalizeOwnImageUrl(post.featuredImage);
+  const imageSrc =
+    rawImageSrc && rawImageSrc.startsWith('/uploads/')
+      ? existsSync(path.join(process.cwd(), 'public', rawImageSrc.slice(1)))
+        ? rawImageSrc
+        : ''
+      : rawImageSrc;
 
   const excerptRaw = stripHtml(post.excerpt || '').trim();
   const excerpt = excerptRaw ? excerptRaw.slice(0, 160) + '\u2026' : '';
 
   return (
     <article className="group bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-      {imageSrc && (
+      {!!imageSrc && (
         <Link href={postUrl} className="block relative aspect-[16/10] overflow-hidden bg-gray-100">
           <Image
             src={imageSrc}
