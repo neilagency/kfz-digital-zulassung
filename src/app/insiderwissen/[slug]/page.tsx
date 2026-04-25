@@ -106,7 +106,17 @@ function BlogPostView({
   const headings: { level: number; id: string; text: string }[] = [];
   const sanitizedContent = sanitizeHtml(post.content);
 
-  const contentWithIds = sanitizedContent.replace(
+  // Strip srcset attributes that reference local /uploads/ paths.
+  // Variant files (thumbnails, medium, large) may not exist on the server
+  // after a deploy; removing the srcset avoids 404 spam while keeping the
+  // main <img src> intact so the original (or re-uploaded) file still loads.
+  const sanitizedNoLocalSrcset = sanitizedContent.replace(
+    /\s+srcset="([^"]*)"/gi,
+    (match, srcsetValue: string) =>
+      srcsetValue.includes('/uploads/') ? '' : match
+  );
+
+  const contentWithIds = sanitizedNoLocalSrcset.replace(
     /<h([23])([^>]*)>(.*?)<\/h[23]>/gi,
     (_full: string, level: string, attrs: string, inner: string) => {
       const existingId = attrs.match(/id="([^"]*)"/)?.[1];
@@ -258,7 +268,7 @@ function BlogPostView({
               {post.featuredImage && (
                 <div className="relative w-full aspect-[2/1] rounded-2xl overflow-hidden shadow-xl mb-8">
                   <Image
-                    src={post.featuredImage}
+                    src={post.featuredImage.replace(/^https?:\/\/(www\.)?onlineautoabmelden\.com/i, '')}
                     alt={title}
                     fill
                     className="object-cover"
