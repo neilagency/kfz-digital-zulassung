@@ -38,6 +38,9 @@ export const STATIC_CITY_CONTENT_MAP: Record<string, BuiltCityPageContent> = {
     ],
     note:
       'Bitte beachten Sie: Diese digitale Abmeldung ist bundesweit nutzbar. Die genauen Anforderungen können je nach Bundesland und Behörde unterschiedlich sein.',
+    expertAccordionIntro: '',
+    expertAccordionItems: [],
+    expertAccordionOutro: '',
     localBlockTitle: 'Zuständige Behörde in Zwickau',
     localBlockText:
       'Zuständig für die Abmeldung in Zwickau ist die lokale Behörde. Die online Abmeldung wird über unsere GKS-Anbindung amtlich verarbeitet.',
