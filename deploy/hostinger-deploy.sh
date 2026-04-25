@@ -201,6 +201,8 @@ rsync -az --delete --checksum \
     --exclude='console.log' \
     --exclude='stderr.log' \
     --exclude='.env' \
+    --exclude='public/uploads/media/' \
+    --exclude='public/uploads/wp/' \
     --exclude='public/uploads/documents/' \
     --exclude='public/uploads/order-documents/' \
     -e "ssh -o StrictHostKeyChecking=no -p $SSH_PORT" \
