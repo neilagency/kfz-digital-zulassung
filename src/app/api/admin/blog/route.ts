@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { revalidatePath, revalidateTag } from 'next/cache';
 import prisma from '@/lib/prisma';
+import {
+  blogListCache,
+  BLOG_CACHE_TTL,
+  clearBlogCache,
+  getFreshBlogTotal,
+  storeBlogTotal,
+} from '@/lib/blog-cache';
 
 // Lazy-load heavy modules only when needed (POST/PUT/DELETE)
 let _validations: typeof import('@/lib/validations') | null = null;
@@ -15,13 +22,6 @@ async function getSanitize() {
   return _sanitize;
 }
 
-// In-memory cache for blog list (10s TTL)
-let blogListCache: Map<string, { data: any; ts: number }> = new Map();
-const BLOG_CACHE_TTL = 30_000;
-
-// Total count cache (30s TTL)
-let blogTotalCache: Map<string, { total: number; ts: number }> = new Map();
-const BLOG_TOTAL_TTL = 30_000;
 
 function jsonResponse(data: unknown, cacheSecs = 5, cacheHit = false) {
   return new NextResponse(JSON.stringify(data), {
@@ -34,23 +34,6 @@ function jsonResponse(data: unknown, cacheSecs = 5, cacheHit = false) {
   });
 }
 
-function getFreshBlogTotal(cacheKey: string) {
-  const cached = blogTotalCache.get(cacheKey);
-  if (cached && Date.now() - cached.ts < BLOG_TOTAL_TTL) {
-    return cached.total;
-  }
-  return null;
-}
-
-function storeBlogTotal(cacheKey: string, total: number) {
-  blogTotalCache.set(cacheKey, { total, ts: Date.now() });
-  if (blogTotalCache.size > 30) {
-    const now = Date.now();
-    for (const [key, value] of blogTotalCache) {
-      if (now - value.ts > BLOG_TOTAL_TTL) blogTotalCache.delete(key);
-    }
-  }
-}
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -153,9 +136,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  // Invalidate cache on creation
-  blogListCache.clear();
-  blogTotalCache.clear();
+  clearBlogCache();
   try {
     const body = await request.json();
 
@@ -213,10 +194,10 @@ export async function POST(request: NextRequest) {
     });
 
     try {
-      revalidatePath(`/${post.slug}`);
-      revalidatePath('/insiderwissen');
+      revalidatePath(`/insiderwissen/${post.slug}`);
+      revalidatePath('/insiderwissen', 'page');
       revalidatePath('/sitemap.xml');
-      revalidateTag('blog');
+      revalidateTag('blog-posts');
     } catch (e) {
       console.warn('Revalidation warning:', e);
     }

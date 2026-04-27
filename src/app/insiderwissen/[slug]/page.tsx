@@ -12,8 +12,6 @@ import {
 import { sanitizeHtml } from '@/lib/sanitize';
 import Image from 'next/image';
 import Link from 'next/link';
-import { existsSync } from 'fs';
-import path from 'path';
 import { notFound } from 'next/navigation';
 import {
   Calendar,
@@ -108,27 +106,19 @@ function BlogPostView({
   const headings: { level: number; id: string; text: string }[] = [];
 
   const normalizedFeaturedImage = post.featuredImage
-    ? post.featuredImage.replace(/^https?:\/\/(www\.)?onlineautoabmelden\.com/i, '')
+    ? post.featuredImage.replace(/^https?:\/\/[^/]+(?=\/uploads\/media\/)/i, '')
     : '';
-  const featuredImageReady =
-    normalizedFeaturedImage &&
-    (normalizedFeaturedImage.startsWith('/uploads/')
-      ? existsSync(path.join(process.cwd(), 'public', normalizedFeaturedImage.slice(1)))
-      : true);
+  // Accept any non-empty featured image: relative /uploads/ paths and CDN absolute URLs alike
+  const featuredImageReady = !!normalizedFeaturedImage;
 
   const sanitizedContent = sanitizeHtml(post.content);
 
-  // Strip srcset attributes that reference local /uploads/ paths.
-  // Variant files (thumbnails, medium, large) may not exist on the server
-  // after a deploy; removing the srcset avoids 404 spam while keeping the
-  // main <img src> intact so the original (or re-uploaded) file still loads.
-  const sanitizedNoLocalSrcset = sanitizedContent.replace(
-    /\s+srcset="([^"]*)"/gi,
-    (match, srcsetValue: string) =>
-      srcsetValue.includes('/uploads/') ? '' : match
+  const contentWithLazyImages = sanitizedContent.replace(
+    /<img\b(?![^>]*\bloading\s*=)([^>]*?)(\s*\/?>)/gi,
+    '<img loading="lazy" decoding="async"$1$2',
   );
 
-  const contentWithIds = sanitizedNoLocalSrcset.replace(
+  const contentWithIds = contentWithLazyImages.replace(
     /<h([23])([^>]*)>(.*?)<\/h[23]>/gi,
     (_full: string, level: string, attrs: string, inner: string) => {
       const existingId = attrs.match(/id="([^"]*)"/)?.[1];
@@ -158,7 +148,7 @@ function BlogPostView({
     headline: title,
     datePublished: new Date(publishDate).toISOString(),
     dateModified: new Date(post.updatedAt).toISOString(),
-    ...(post.featuredImage && { image: post.featuredImage }),
+    ...(normalizedFeaturedImage && { image: normalizedFeaturedImage.startsWith('/') ? `${settings.siteUrl}${normalizedFeaturedImage}` : normalizedFeaturedImage }),
     author: {
       '@type': 'Organization',
       name: settings.siteName,
@@ -286,6 +276,7 @@ function BlogPostView({
                     className="object-cover"
                     priority
                     sizes="(max-width: 1024px) 100vw, 720px"
+                    unoptimized={normalizedFeaturedImage.startsWith('/uploads/')}
                   />
                 </div>
               )}

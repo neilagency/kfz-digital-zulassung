@@ -78,47 +78,53 @@ export default function AdminDashboardPage() {
 
   const { stats, recentOrders, monthlyRevenue } = data;
 
+  // Safety check for stats
+  if (!stats) {
+    console.error('[dashboard] Stats is undefined:', data);
+    return <p className="text-red-500">Fehler beim Laden der Statistiken</p>;
+  }
+
   const statCards = [
     {
       label: 'Umsatz (Gesamt)',
-      value: `€${stats.totalRevenue.toFixed(2)}`,
+      value: `€${(stats.totalRevenue || 0).toFixed(2)}`,
       icon: <TrendingUp className="w-5 h-5" />,
       iconBg: 'bg-emerald-50',
       iconColor: 'text-emerald-600',
-      sub: `${stats.completedOrders} abgeschlossen`,
+      sub: `${stats.completedOrders || 0} abgeschlossen`,
     },
     {
       label: 'Bestellungen',
-      value: stats.totalOrders,
+      value: stats.totalOrders || 0,
       icon: <Package className="w-5 h-5" />,
       iconBg: 'bg-blue-50',
       iconColor: 'text-blue-600',
-      sub: `${stats.completedOrders} abgeschlossen`,
+      sub: `${stats.completedOrders || 0} abgeschlossen`,
     },
     {
       label: 'Ausstehend',
-      value: stats.pendingOrders,
+      value: stats.pendingOrders || 0,
       icon: <Clock className="w-5 h-5" />,
       iconBg: 'bg-amber-50',
       iconColor: 'text-amber-600',
     },
     {
       label: 'Kunden',
-      value: stats.totalCustomers,
+      value: stats.totalCustomers || 0,
       icon: <Users className="w-5 h-5" />,
       iconBg: 'bg-purple-50',
       iconColor: 'text-purple-600',
     },
     {
       label: 'Blog-Beiträge',
-      value: stats.totalBlogPosts,
+      value: stats.totalBlogPosts || 0,
       icon: <BookOpen className="w-5 h-5" />,
       iconBg: 'bg-indigo-50',
       iconColor: 'text-indigo-600',
     },
     {
       label: 'Storniert',
-      value: stats.cancelledOrders,
+      value: stats.cancelledOrders || 0,
       icon: <XCircle className="w-5 h-5" />,
       iconBg: 'bg-red-50',
       iconColor: 'text-red-600',

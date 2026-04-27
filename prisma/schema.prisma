@@ -454,16 +454,18 @@ model Media {
   height        Int      @default(0)
   fileSize      Int      @default(0)
   folder        String   @default("")   // Logical folder/category
-  usedIn        String   @default("[]") // JSON: list of {type, id, field} refs
-  useCount      Int      @default(0)    // Number of places this image is used
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  usedIn            String   @default("[]") // JSON: list of {type, id, field} refs
+  useCount          Int      @default(0)    // Number of places this image is used
+  processingStatus  String   @default("ready") // ready | pending | processing | failed
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 
   @@index([fileName])
   @@index([createdAt])
   @@index([folder])
   @@index([mimeType])
   @@index([useCount])
+  @@index([processingStatus])
 }
 
 // ──────────────────────────────────────────────

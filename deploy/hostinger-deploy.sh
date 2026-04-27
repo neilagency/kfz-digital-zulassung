@@ -147,26 +147,50 @@ fi
 
 # sharp for linux-x64
 if [ ! -d "$STANDALONE_DIR/node_modules/@img/sharp-linux-x64" ]; then
-    echo "  📦 Pre-bundling sharp linux-x64..."
-    TMPDIR_SHARP=$(mktemp -d)
-    echo '{"private":true}' > "$TMPDIR_SHARP/package.json"
-    # Get sharp version from standalone
-    SHARP_VERSION=$(cat "$STANDALONE_DIR/node_modules/sharp/package.json" 2>/dev/null | python3 -c "import json,sys; print(json.load(sys.stdin)['version'])" 2>/dev/null || echo "")
-    LIBVIPS_VERSION=$(cat "$STANDALONE_DIR/node_modules/sharp/package.json" 2>/dev/null | python3 -c "import json,sys; d=json.load(sys.stdin); print(d['optionalDependencies']['@img/sharp-libvips-linux-x64'])" 2>/dev/null || echo "")
-    if [ -n "$SHARP_VERSION" ] && [ -n "$LIBVIPS_VERSION" ]; then
-        npm install "@img/sharp-linux-x64@$SHARP_VERSION" "@img/sharp-libvips-linux-x64@$LIBVIPS_VERSION" --ignore-scripts --no-save --os=linux --cpu=x64 --libc=glibc --force --prefix "$TMPDIR_SHARP" 2>/dev/null || true
-    else
-        npm install --os=linux --cpu=x64 --libc=glibc --force sharp --no-save --prefix "$TMPDIR_SHARP" 2>/dev/null || true
-    fi
-    if [ -d "$TMPDIR_SHARP/node_modules/@img/sharp-linux-x64" ]; then
-        mkdir -p "$STANDALONE_DIR/node_modules/@img"
-        cp -r "$TMPDIR_SHARP/node_modules/@img/sharp-linux-x64" "$STANDALONE_DIR/node_modules/@img/"
-        cp -r "$TMPDIR_SHARP/node_modules/@img/sharp-libvips-linux-x64" "$STANDALONE_DIR/node_modules/@img/" 2>/dev/null || true
-        echo "  ✅ sharp linux-x64 pre-bundled"
-    else
-        warn "sharp pre-bundle failed — images may not resize on server"
-    fi
-    rm -rf "$TMPDIR_SHARP"
+  echo "  📦 Pre-bundling sharp linux-x64..."
+  TMPDIR_SHARP=$(mktemp -d)
+  echo '{"private":true}' > "$TMPDIR_SHARP/package.json"
+  # Get sharp version from standalone
+  SHARP_VERSION=$(cat "$STANDALONE_DIR/node_modules/sharp/package.json" 2>/dev/null | python3 -c "import json,sys; print(json.load(sys.stdin)['version'])" 2>/dev/null || echo "")
+  LIBVIPS_VERSION=$(cat "$STANDALONE_DIR/node_modules/sharp/package.json" 2>/dev/null | python3 -c "import json,sys; d=json.load(sys.stdin); print(d['optionalDependencies']['@img/sharp-libvips-linux-x64'])" 2>/dev/null || echo "")
+  if [ -n "$SHARP_VERSION" ] && [ -n "$LIBVIPS_VERSION" ]; then
+    npm install "@img/sharp-linux-x64@$SHARP_VERSION" "@img/sharp-libvips-linux-x64@$LIBVIPS_VERSION" --ignore-scripts --no-save --os=linux --cpu=x64 --libc=glibc --force --prefix "$TMPDIR_SHARP" 2>/dev/null || true
+  else
+    npm install --os=linux --cpu=x64 --libc=glibc --force sharp --no-save --prefix "$TMPDIR_SHARP" 2>/dev/null || true
+  fi
+  if [ -d "$TMPDIR_SHARP/node_modules/@img/sharp-linux-x64" ]; then
+    mkdir -p "$STANDALONE_DIR/node_modules/@img"
+    cp -r "$TMPDIR_SHARP/node_modules/@img/sharp-linux-x64" "$STANDALONE_DIR/node_modules/@img/"
+    cp -r "$TMPDIR_SHARP/node_modules/@img/sharp-libvips-linux-x64" "$STANDALONE_DIR/node_modules/@img/" 2>/dev/null || true
+    echo "  ✅ sharp linux-x64 pre-bundled"
+  else
+    warn "sharp pre-bundle failed — images may not resize on server"
+  fi
+  rm -rf "$TMPDIR_SHARP"
+fi
+
+# better-sqlite3 for linux-x64
+if [ ! -d "$STANDALONE_DIR/node_modules/better-sqlite3/build/Release" ] || \
+   [ ! -f "$STANDALONE_DIR/node_modules/better-sqlite3/build/Release/better_sqlite3.node" ]; then
+  echo "  📦 Pre-bundling better-sqlite3 linux-x64..."
+  TMPDIR_SQLITE=$(mktemp -d)
+  echo '{"private":true}' > "$TMPDIR_SQLITE/package.json"
+  # Get better-sqlite3 version from standalone
+  SQLITE_VERSION=$(cat "$STANDALONE_DIR/node_modules/better-sqlite3/package.json" 2>/dev/null | python3 -c "import json,sys; print(json.load(sys.stdin)['version'])" 2>/dev/null || echo "")
+  if [ -n "$SQLITE_VERSION" ]; then
+    npm install "better-sqlite3@$SQLITE_VERSION" --ignore-scripts --no-save --os=linux --cpu=x64 --libc=glibc --force --prefix "$TMPDIR_SQLITE" 2>/dev/null || true
+  else
+    npm install --os=linux --cpu=x64 --libc=glibc --force better-sqlite3 --no-save --prefix "$TMPDIR_SQLITE" 2>/dev/null || true
+  fi
+  if [ -f "$TMPDIR_SQLITE/node_modules/better-sqlite3/build/Release/better_sqlite3.node" ]; then
+    rm -rf "$STANDALONE_DIR/node_modules/better-sqlite3/build"
+    mkdir -p "$STANDALONE_DIR/node_modules/better-sqlite3/build"
+    cp -r "$TMPDIR_SQLITE/node_modules/better-sqlite3/build/Release" "$STANDALONE_DIR/node_modules/better-sqlite3/build/"
+    echo "  ✅ better-sqlite3 linux-x64 pre-bundled"
+  else
+    warn "better-sqlite3 pre-bundle failed — DB may not work on server"
+  fi
+  rm -rf "$TMPDIR_SQLITE"
 fi
 
 DEPLOY_SIZE=$(du -sh "$STANDALONE_DIR" | cut -f1)
@@ -223,10 +247,10 @@ export PATH="/opt/alt/alt-nodejs24/root/usr/bin:/opt/alt/alt-nodejs22/root/usr/b
 
 # Copy .env from persistent location
 if [ -f "$REMOTE_ENV_FILE" ]; then
-    cp "$REMOTE_ENV_FILE" "$REMOTE_APP_DIR/.env"
-    echo "  ✅ .env copied from $REMOTE_ENV_FILE"
+  cp "$REMOTE_ENV_FILE" "$REMOTE_APP_DIR/.env"
+  echo "  ✅ .env copied from $REMOTE_ENV_FILE"
 else
-    echo "  ⚠️  No env file found at $REMOTE_ENV_FILE"
+  echo "  ⚠️  No env file found at $REMOTE_ENV_FILE"
 fi
 
 # Verify critical modules exist

@@ -1,8 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { LocalPost, stripHtml, formatDate } from '@/lib/db';
-import { existsSync } from 'fs';
-import path from 'path';
 
 interface BlogCardProps {
   post: LocalPost;
@@ -10,20 +8,16 @@ interface BlogCardProps {
 
 function normalizeOwnImageUrl(src?: string) {
   if (!src) return '';
-  return src.replace(/^https?:\/\/(www\.)?onlineautoabmelden\.com/i, '');
+  // Strip any CDN/domain prefix when the path is /uploads/media/ (our own hosted media)
+  // This handles: own domain, CDN subdomains, or any other absolute URL for local uploads
+  return src.replace(/^https?:\/\/[^/]+(?=\/uploads\/media\/)/i, '');
 }
 
 export default function BlogCard({ post }: BlogCardProps) {
   const title = stripHtml(post.title);
   const publishDate = post.publishedAt || post.createdAt;
   const postUrl = '/insiderwissen/' + post.slug;
-  const rawImageSrc = normalizeOwnImageUrl(post.featuredImage);
-  const imageSrc =
-    rawImageSrc && rawImageSrc.startsWith('/uploads/')
-      ? existsSync(path.join(process.cwd(), 'public', rawImageSrc.slice(1)))
-        ? rawImageSrc
-        : ''
-      : rawImageSrc;
+  const imageSrc = normalizeOwnImageUrl(post.featuredImage);
 
   const excerptRaw = stripHtml(post.excerpt || '').trim();
   const excerpt = excerptRaw ? excerptRaw.slice(0, 160) + '\u2026' : '';
@@ -39,6 +33,7 @@ export default function BlogCard({ post }: BlogCardProps) {
             className="object-cover group-hover:scale-105 transition-transform duration-500"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             loading="lazy"
+            unoptimized={imageSrc.startsWith('/uploads/')}
           />
         </Link>
       )}

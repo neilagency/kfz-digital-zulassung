@@ -186,6 +186,7 @@ export default async function InsiderwissenPage({ searchParams }: BlogPageProps)
             {currentPage > 1 && (
               <Link
                 href={'/insiderwissen?page=' + (currentPage - 1) + (catFilter ? '&cat=' + catFilter : '')}
+                prefetch={false}
                 className="px-4 py-2 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 font-medium transition-colors"
               >
                 &larr; Zur&uuml;ck
@@ -207,6 +208,7 @@ export default async function InsiderwissenPage({ searchParams }: BlogPageProps)
                 <Link
                   key={pageNum}
                   href={'/insiderwissen?page=' + pageNum + (catFilter ? '&cat=' + catFilter : '')}
+                  prefetch={false}
                   className={'w-10 h-10 flex items-center justify-center rounded-lg font-medium transition-colors ' +
                     (currentPage === pageNum
                       ? 'bg-primary text-white'
@@ -220,6 +222,7 @@ export default async function InsiderwissenPage({ searchParams }: BlogPageProps)
             {currentPage < totalPages && (
               <Link
                 href={'/insiderwissen?page=' + (currentPage + 1) + (catFilter ? '&cat=' + catFilter : '')}
+                prefetch={false}
                 className="px-4 py-2 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 font-medium transition-colors"
               >
                 Weiter &rarr;

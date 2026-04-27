@@ -3,6 +3,7 @@ import { revalidatePath, revalidateTag } from 'next/cache';
 import prisma from '@/lib/prisma';
 import { blogPostUpdateSchema, formatZodErrors } from '@/lib/validations';
 import { sanitizeHtml } from '@/lib/sanitize';
+import { clearBlogCache } from '@/lib/blog-cache';
 
 export async function GET(
   request: NextRequest,
@@ -30,6 +31,7 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  clearBlogCache();
   try {
     const body = await request.json();
 
@@ -91,10 +93,10 @@ export async function PUT(
 
     // Revalidate the post on the live site
     try {
-      revalidatePath(`/${post.slug}`);
-      revalidatePath('/insiderwissen');
+      revalidatePath(`/insiderwissen/${post.slug}`);
+      revalidatePath('/insiderwissen', 'page');
       revalidatePath('/sitemap.xml');
-      revalidateTag('blog');
+      revalidateTag('blog-posts');
     } catch (e) {
       console.warn('Revalidation warning:', e);
     }
@@ -110,15 +112,16 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  clearBlogCache();
   try {
     const post = await prisma.blogPost.findUnique({ where: { id: params.id } });
     await prisma.blogPost.delete({ where: { id: params.id } });
 
     try {
-      if (post) revalidatePath(`/${post.slug}`);
-      revalidatePath('/insiderwissen');
+      if (post) revalidatePath(`/insiderwissen/${post.slug}`);
+      revalidatePath('/insiderwissen', 'page');
       revalidatePath('/sitemap.xml');
-      revalidateTag('blog');
+      revalidateTag('blog-posts');
     } catch (e) {
       console.warn('Revalidation warning:', e);
     }

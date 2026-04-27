@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useCallback, useEffect, useRef } from 'react';
-import { X, Search, Upload, Loader2, Check, ImageIcon } from 'lucide-react';
+import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
+import { X, Search, Upload, Loader2, Check, ImageIcon, AlertTriangle } from 'lucide-react';
+import { useMedia } from '@/lib/admin-api';
 
 interface MediaItem {
   id: string;
@@ -16,18 +17,28 @@ interface MediaItem {
   width: number;
   height: number;
   fileSize: number;
+  processingStatus: string;
   createdAt: string;
 }
 
 function getThumbUrl(item: MediaItem): string {
   if (item.thumbnailUrl) return item.thumbnailUrl;
+  if (item.sourceUrl) return item.sourceUrl;
   if (item.localPath) return item.localPath.startsWith('/') ? item.localPath : `/${item.localPath}`;
-  return item.sourceUrl;
+  return '';
 }
 
 function getBestUrl(item: MediaItem): string {
+  // Always prefer localPath (relative /uploads/media/ path) over sourceUrl.
+  // sourceUrl may contain an absolute CDN URL that Next.js Image rejects with 400
+  // unless the CDN hostname is in next.config.js remotePatterns.
   if (item.localPath) return item.localPath.startsWith('/') ? item.localPath : `/${item.localPath}`;
-  return item.sourceUrl;
+  // Fallback: strip CDN domain from sourceUrl to get a relative path
+  if (item.sourceUrl) {
+    const relative = item.sourceUrl.replace(/^https?:\/\/[^/]+(?=\/uploads\/media\/)/i, '');
+    return relative || item.sourceUrl;
+  }
+  return '';
 }
 
 interface MediaPickerProps {
@@ -37,9 +48,10 @@ interface MediaPickerProps {
   title?: string;
 }
 
-function MediaThumb({ src, alt }: { src: string; alt: string }) {
+function MediaThumb({ src, fallbackSrc, alt }: { src: string; fallbackSrc?: string; alt: string }) {
   const [error, setError] = useState(false);
-  if (error || !src) {
+  const [currentSrc, setCurrentSrc] = useState(src);
+  if (error || !currentSrc) {
     return (
       <div className="w-full h-full bg-gray-100 flex items-center justify-center">
         <ImageIcon className="w-6 h-6 text-gray-300" />
@@ -48,62 +60,62 @@ function MediaThumb({ src, alt }: { src: string; alt: string }) {
   }
   return (
     <img
-      src={src}
+      src={currentSrc}
       alt={alt}
       className="w-full h-full object-cover"
       loading="lazy"
-      onError={() => setError(true)}
+      onError={() => {
+        if (fallbackSrc && currentSrc !== fallbackSrc) {
+          setCurrentSrc(fallbackSrc);
+        } else {
+          setError(true);
+        }
+      }}
     />
   );
 }
 
 export default function MediaPicker({ open, onClose, onSelect, title = 'Bild auswählen' }: MediaPickerProps) {
-  const [media, setMedia] = useState<MediaItem[]>([]);
-  const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState('');
   const [selected, setSelected] = useState<MediaItem | null>(null);
   const [tab, setTab] = useState<'library' | 'upload'>('library');
   const [uploading, setUploading] = useState(false);
   const [page, setPage] = useState(1);
-  const [pages, setPages] = useState(0);
-  const [error, setError] = useState<string | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const searchTimeout = useRef<NodeJS.Timeout>();
 
-  const fetchMedia = useCallback(async (p = 1, s = '') => {
-    setLoading(true);
-    setError(null);
-    try {
-      const params = new URLSearchParams({ page: p.toString(), limit: '30' });
-      if (s) params.set('search', s);
-      const res = await fetch(`/api/admin/media?${params}`);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
-      setMedia(data.media || []);
-      setPage(data.pagination?.page || 1);
-      setPages(data.pagination?.pages || 0);
-    } catch (err) {
-      setError('Bilder konnten nicht geladen werden.');
-      setMedia([]);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  // Shared SWR cache with MediaPage
+  const { data: mediaData, isLoading: loading, error: swrError, mutate } = useMedia(
+    { page, limit: 30, search },
+  );
+  const media: MediaItem[] = mediaData?.media ?? [];
+  const pages = mediaData?.pagination?.pages ?? 0;
+
+  // Auto-refresh while items are still being processed by Sharp
+  const hasPending = useMemo(
+    () => media.some((m) => m.processingStatus === 'pending' || m.processingStatus === 'processing'),
+    [media],
+  );
+  useEffect(() => {
+    if (!hasPending || !open) return;
+    const timer = setTimeout(() => mutate(), 3500);
+    return () => clearTimeout(timer);
+  }, [hasPending, open, mutate]);
 
   useEffect(() => {
     if (open) {
-      fetchMedia();
       setSelected(null);
       setSearch('');
+      setPage(1);
       setTab('library');
     }
-  }, [open, fetchMedia]);
+  }, [open]);
 
   const handleSearch = (value: string) => {
     setSearch(value);
     clearTimeout(searchTimeout.current);
-    searchTimeout.current = setTimeout(() => fetchMedia(1, value), 300);
+    searchTimeout.current = setTimeout(() => setPage(1), 300);
   };
 
   const handleUpload = async (files: FileList | null) => {
@@ -127,7 +139,24 @@ export default function MediaPicker({ open, onClose, onSelect, title = 'Bild aus
         const res = await fetch('/api/admin/upload', { method: 'POST', body: formData });
         if (!res.ok) throw new Error();
         const data = await res.json();
-        uploaded.push(data);
+        // Normalize upload response → MediaItem (API returns 'url'/'size', not 'sourceUrl'/'fileSize')
+        const mediaItem: MediaItem = {
+          id: data.id,
+          fileName: data.fileName || '',
+          originalName: data.fileName || '',
+          title: data.title || '',
+          altText: '',
+          sourceUrl: data.url || data.sourceUrl || '',
+          thumbnailUrl: data.thumbnailUrl || data.url || '',
+          localPath: '',
+          mimeType: data.mimeType || '',
+          width: data.width || 0,
+          height: data.height || 0,
+          fileSize: data.size || data.fileSize || 0,
+          processingStatus: data.processingStatus || 'pending',
+          createdAt: new Date().toISOString(),
+        };
+        uploaded.push(mediaItem);
       } catch {
         failCount++;
       }
@@ -138,7 +167,8 @@ export default function MediaPicker({ open, onClose, onSelect, title = 'Bild aus
     setUploading(false);
     if (uploaded.length > 0) {
       setTab('library');
-      fetchMedia(1, search);
+      setPage(1);
+      mutate();
       setSelected(uploaded[0]);
     }
   };
@@ -215,10 +245,12 @@ export default function MediaPicker({ open, onClose, onSelect, title = 'Bild aus
                   <div className="flex items-center justify-center h-40">
                     <Loader2 className="w-6 h-6 text-primary animate-spin" />
                   </div>
-                ) : error ? (
+                ) : swrError ? (
                   <div className="flex flex-col items-center justify-center h-40 text-gray-400 gap-3">
-                    <p className="text-sm text-red-500">{error}</p>
-                    <button                      type="button"                      onClick={() => fetchMedia(page, search)}
+                    <p className="text-sm text-red-500">Bilder konnten nicht geladen werden.</p>
+                    <button
+                      type="button"
+                      onClick={() => mutate()}
                       className="text-sm text-primary hover:underline font-medium"
                     >
                       Erneut versuchen
@@ -245,8 +277,19 @@ export default function MediaPicker({ open, onClose, onSelect, title = 'Bild aus
                         >
                           <MediaThumb
                             src={getThumbUrl(item)}
+                            fallbackSrc={getBestUrl(item)}
                             alt={item.altText || item.title}
                           />
+                          {(item.processingStatus === 'pending' || item.processingStatus === 'processing') && (
+                            <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                              <Loader2 className="w-4 h-4 text-white animate-spin" />
+                            </div>
+                          )}
+                          {item.processingStatus === 'failed' && (
+                            <div className="absolute inset-0 bg-red-500/40 flex items-center justify-center">
+                              <AlertTriangle className="w-4 h-4 text-white" />
+                            </div>
+                          )}
                           {selected?.id === item.id && (
                             <div className="absolute top-1 right-1 bg-primary rounded-full p-0.5">
                               <Check className="w-3 h-3 text-white" />
@@ -258,7 +301,7 @@ export default function MediaPicker({ open, onClose, onSelect, title = 'Bild aus
                     {pages > 1 && (
                       <div className="flex items-center justify-center gap-3 mt-4">
                         <button
-                          onClick={() => fetchMedia(page - 1, search)}
+                          onClick={() => setPage((p) => Math.max(1, p - 1))}
                           disabled={page <= 1}
                           className="text-sm text-primary disabled:text-gray-300"
                         >
@@ -267,7 +310,7 @@ export default function MediaPicker({ open, onClose, onSelect, title = 'Bild aus
                         <span className="text-xs text-gray-500">{page} / {pages}</span>
                         <button
                           type="button"
-                          onClick={() => fetchMedia(page + 1, search)}
+                          onClick={() => setPage((p) => Math.min(pages, p + 1))}
                           disabled={page >= pages}
                           className="text-sm text-primary disabled:text-gray-300"
                         >

@@ -147,12 +147,21 @@ export async function getPostBySlug(slug: string): Promise<LocalPost | null> {
 }
 
 export async function getAllPostSlugs(): Promise<string[]> {
-  const posts = await prisma.blogPost.findMany({
-    where: { status: 'publish' },
-    select: { slug: true },
-  });
+  try {
+    const posts = await prisma.blogPost.findMany({
+      where: { status: 'publish' },
+      select: { slug: true },
+    });
 
-  return posts.map((p) => p.slug);
+    return posts.map((p) => p.slug);
+  } catch (error) {
+    console.warn(
+      '[DB] getAllPostSlugs failed (likely build-time database unavailability), returning empty array for on-demand generation:',
+      error instanceof Error ? error.message : String(error)
+    );
+    // Return empty array to allow dynamicParams to generate pages on-demand
+    return [];
+  }
 }
 
 export const getCategories = unstable_cache(
@@ -183,14 +192,22 @@ export async function getPageBySlug(slug: string): Promise<LocalPage | null> {
 }
 
 export async function getAllPageSlugs(): Promise<string[]> {
-  const pages = await prisma.page.findMany({
-    where: { status: 'publish' },
-    select: { slug: true },
-  });
+  try {
+    const pages = await prisma.page.findMany({
+      where: { status: 'publish' },
+      select: { slug: true },
+    });
 
-  return pages
-    .map((p) => p.slug)
-    .filter((slug) => !ALIAS_SOURCE_SLUGS.has(slug));
+    return pages
+      .map((p) => p.slug)
+      .filter((slug) => !ALIAS_SOURCE_SLUGS.has(slug));
+  } catch (error) {
+    console.warn(
+      '[DB] getAllPageSlugs failed (likely build-time database unavailability), returning empty array for on-demand generation:',
+      error instanceof Error ? error.message : String(error)
+    );
+    return [];
+  }
 }
 
 export const getFooterPages = unstable_cache(
@@ -262,12 +279,20 @@ export async function getAllActiveProducts() {
 }
 
 export async function getAllProductSlugs(): Promise<string[]> {
-  const products = await prisma.product.findMany({
-    where: { isActive: true },
-    select: { slug: true },
-  });
+  try {
+    const products = await prisma.product.findMany({
+      where: { isActive: true },
+      select: { slug: true },
+    });
 
-  return products.map((p) => p.slug);
+    return products.map((p) => p.slug);
+  } catch (error) {
+    console.warn(
+      '[DB] getAllProductSlugs failed (likely build-time database unavailability), returning empty array for on-demand generation:',
+      error instanceof Error ? error.message : String(error)
+    );
+    return [];
+  }
 }
 
 // ─── Payment Gateways ───────────────────────────

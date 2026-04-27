@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useRef, memo } from 'react';
+import { useState, useCallback, useRef, useMemo, useEffect, memo } from 'react';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { useMedia } from '@/lib/admin-api';
@@ -31,6 +31,7 @@ interface MediaItem {
   folder: string;
   usedIn: string;
   useCount: number;
+  processingStatus: string;
   createdAt: string;
 }
 
@@ -41,6 +42,11 @@ function ensureSlash(p: string): string {
 
 function getImageUrl(item: MediaItem): string {
   const url = item.thumbnailUrl || item.localPath || item.sourceUrl;
+  return url ? ensureSlash(url) : '';
+}
+
+function getOriginalUrl(item: MediaItem): string {
+  const url = item.localPath || item.sourceUrl;
   return url ? ensureSlash(url) : '';
 }
 
@@ -60,9 +66,10 @@ function formatBytes(bytes: number): string {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
 }
 
-const MediaThumb = memo(function MediaThumb({ src, alt, className }: { src: string; alt: string; className?: string }) {
+const MediaThumb = memo(function MediaThumb({ src, fallbackSrc, alt, className }: { src: string; fallbackSrc?: string; alt: string; className?: string }) {
   const [error, setError] = useState(false);
-  if (error || !src) {
+  const [currentSrc, setCurrentSrc] = useState(src);
+  if (error || !currentSrc) {
     return (
       <div className={`${className || ''} bg-gray-100 flex items-center justify-center`}>
         <ImageIcon className="w-6 h-6 text-gray-300" />
@@ -71,15 +78,126 @@ const MediaThumb = memo(function MediaThumb({ src, alt, className }: { src: stri
   }
   return (
     <img
-      src={src}
+      src={currentSrc}
       alt={alt}
       className={className}
       loading="lazy"
       decoding="async"
-      onError={() => setError(true)}
+      onError={() => {
+        if (fallbackSrc && currentSrc !== fallbackSrc) {
+          setCurrentSrc(fallbackSrc);
+        } else {
+          setError(true);
+        }
+      }}
     />
   );
 });
+
+/* ── Memoized grid item (prevents full-grid re-renders) ── */
+interface MediaGridItemProps {
+  item: MediaItem;
+  isSelected: boolean;
+  isMultiSelected: boolean;
+  multiSelect: boolean;
+  onSelect: (item: MediaItem) => void;
+  formattedDate: string;
+}
+const MediaGridItem = memo(function MediaGridItem({ item, isSelected, isMultiSelected, multiSelect, onSelect }: MediaGridItemProps) {
+  return (
+    <button
+      type="button"
+      onClick={() => onSelect(item)}
+      className={`group relative aspect-square rounded-xl overflow-hidden border-2 transition-all ${
+        (isSelected || isMultiSelected)
+          ? 'border-primary ring-2 ring-primary/30'
+          : 'border-gray-100 hover:border-gray-300'
+      }`}
+    >
+      <MediaThumb
+        src={getImageUrl(item)}
+        fallbackSrc={getOriginalUrl(item)}
+        alt={item.altText || item.title || ''}
+        className="w-full h-full object-cover"
+      />
+      {item.processingStatus === 'pending' && (
+        <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+          <Loader2 className="w-6 h-6 text-white animate-spin" />
+        </div>
+      )}
+      {item.processingStatus === 'failed' && (
+        <div className="absolute inset-0 bg-red-500/40 flex items-center justify-center">
+          <AlertTriangle className="w-6 h-6 text-white" />
+        </div>
+      )}
+      {multiSelect && (
+        <div className="absolute top-2 left-2">
+          {isMultiSelected
+            ? <CheckSquare className="w-5 h-5 text-primary bg-white rounded" />
+            : <Square className="w-5 h-5 text-gray-400 bg-white/80 rounded" />}
+        </div>
+      )}
+      {item.useCount > 0 && (
+        <div className="absolute top-2 right-2 bg-green-500 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center">
+          {item.useCount}
+        </div>
+      )}
+      {!item.altText && (
+        <div className="absolute bottom-2 right-2 bg-orange-400 text-white rounded-full p-0.5" title="Alt-Text fehlt">
+          <AlertTriangle className="w-3 h-3" />
+        </div>
+      )}
+      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent p-2 opacity-0 group-hover:opacity-100 transition">
+        <p className="text-white text-xs truncate">{item.fileName || item.title}</p>
+      </div>
+    </button>
+  );
+});
+
+/* ── Memoized list row ── */
+interface MediaListRowProps {
+  item: MediaItem;
+  isSelected: boolean;
+  isMultiSelected: boolean;
+  onSelect: (item: MediaItem) => void;
+  formattedDate: string;
+}
+const MediaListRow = memo(function MediaListRow({ item, isSelected, isMultiSelected, onSelect, formattedDate }: MediaListRowProps) {
+  return (
+    <tr
+      key={item.id}
+      onClick={() => onSelect(item)}
+      className={`cursor-pointer border-b last:border-0 transition ${
+        (isSelected || isMultiSelected) ? 'bg-primary/5' : 'hover:bg-gray-50'
+      }`}
+    >
+      <td className="px-4 py-2">
+        <MediaThumb src={getImageUrl(item)} fallbackSrc={getOriginalUrl(item)} alt="" className="w-10 h-10 rounded object-cover" />
+      </td>
+      <td className="px-4 py-2 font-medium text-gray-900 truncate max-w-[200px]">{item.fileName || item.originalName}</td>
+      <td className="px-4 py-2 text-gray-500 hidden md:table-cell">
+        {item.altText ? <span className="truncate max-w-[150px] block">{item.altText}</span> : <span className="text-orange-400 text-xs">fehlt</span>}
+      </td>
+      <td className="px-4 py-2 text-gray-500 hidden lg:table-cell">{formatBytes(item.fileSize)}</td>
+      <td className="px-4 py-2 hidden lg:table-cell">
+        <div className="flex gap-0.5">
+          {item.webpUrl && <span className="text-[10px] bg-green-100 text-green-700 rounded px-1">WebP</span>}
+          {item.avifUrl && <span className="text-[10px] bg-blue-100 text-blue-700 rounded px-1">AVIF</span>}
+          {item.mediumUrl && <span className="text-[10px] bg-gray-100 text-gray-600 rounded px-1">3x</span>}
+        </div>
+      </td>
+      <td className="px-4 py-2 text-gray-500 hidden lg:table-cell">
+        {item.useCount > 0 ? <span className="text-green-600 font-medium">{item.useCount}x</span> : <span className="text-gray-300">-</span>}
+      </td>
+      <td className="px-4 py-2 text-gray-500 hidden lg:table-cell">{formattedDate}</td>
+    </tr>
+  );
+});
+
+/* ── Optimistic upload item type ── */
+interface OptimisticMedia extends MediaItem {
+  optimistic?: boolean;
+}
 
 export default function MediaPage() {
   const [page, setPage] = useState(1);
@@ -92,7 +210,7 @@ export default function MediaPage() {
   const [editForm, setEditForm] = useState({ fileName: '', altText: '', title: '' });
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState<{ name: string; done: boolean }[]>([]);
+  const [uploadProgress, setUploadProgress] = useState<{ name: string; status: 'pending' | 'uploading' | 'done' | 'error'; id?: string }[]>([]);
   const [dragOver, setDragOver] = useState(false);
   const [copied, setCopied] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -103,17 +221,72 @@ export default function MediaPage() {
   const [showStats, setShowStats] = useState(false);
   const [stats, setStats] = useState<Stats | null>(null);
   const [deleteWarning, setDeleteWarning] = useState<{ item: MediaItem; usedIn: any[] } | null>(null);
+  const [pendingDeleteIds, setPendingDeleteIds] = useState<Set<string>>(new Set());
+  const [optimisticUploads, setOptimisticUploads] = useState<OptimisticMedia[]>([]);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const replaceInputRef = useRef<HTMLInputElement>(null);
   const [searchInput, setSearchInput] = useState('');
   const searchTimeout = useRef<NodeJS.Timeout>();
+  // Cache buster persisted in localStorage to survive refresh and prevent stale SWR cache
+  const [cacheBuster, setCacheBuster] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('media-cache-buster');
+      return stored ? parseInt(stored, 10) || 0 : 0;
+    }
+    return 0;
+  });
 
-  // SWR-based data fetching with caching & deduplication
-  const { data: mediaData, isLoading: loading, mutate } = useMedia(
-    { page, limit, search, imagesOnly: imagesOnly ? undefined : false },
+  // SWR-based data fetching
+  const { data: mediaData, isLoading: loading, mutate, error: swrError } = useMedia(
+    { page, limit, search, imagesOnly: imagesOnly ? undefined : false, _t: cacheBuster },
   );
-  const media: MediaItem[] = mediaData?.media ?? [];
+
+  // Force revalidate by incrementing cache buster (persisted to localStorage)
+  const forceRevalidate = () => {
+    setCacheBuster(prev => {
+      const next = prev + 1;
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('media-cache-buster', String(next));
+      }
+      return next;
+    });
+  };
+
+  // Merge server data with optimistic state: hide pending deletes, prepend optimistic uploads
+  const media: MediaItem[] = useMemo(() => {
+    const base: MediaItem[] = mediaData?.media ?? [];
+    const filtered = base.filter((m: MediaItem) => !pendingDeleteIds.has(m.id));
+    // Insert optimistic uploads at the top (they appear immediately)
+    return [...optimisticUploads, ...filtered];
+  }, [mediaData, pendingDeleteIds, optimisticUploads]);
+
   const pagination: Pagination = mediaData?.pagination ?? { page: 1, limit: 24, total: 0, pages: 0 };
+
+  // Auto-refresh while items are processing in background (Sharp is async)
+  const hasPending = useMemo(
+    () => media.some((m) => m.processingStatus === 'pending' || m.processingStatus === 'processing'),
+    [media],
+  );
+  useEffect(() => {
+    if (!hasPending) return;
+    const timer = setTimeout(() => mutate(), 4000);
+    return () => clearTimeout(timer);
+  }, [hasPending, mutate]);
+
+  // Pre-format dates & parse JSON once per render cycle (not per cell)
+  const formattedDates = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const m of media) {
+      map.set(m.id, format(new Date(m.createdAt), 'dd.MM.yy', { locale: de }));
+    }
+    return map;
+  }, [media]);
+
+  const selectedUsedIn = useMemo(() => {
+    if (!selected?.usedIn) return [];
+    try { return JSON.parse(selected.usedIn); } catch { return []; }
+  }, [selected?.usedIn]);
 
   const fetchStats = async () => {
     try {
@@ -134,23 +307,98 @@ export default function MediaPage() {
   };
 
   const handleUpload = async (files: FileList | File[]) => {
+    const fileArray = Array.from(files);
     if (!files.length) return;
     setUploading(true);
-    const fileArray = Array.from(files);
-    setUploadProgress(fileArray.map((f) => ({ name: f.name, done: false })));
+    const tempIds = fileArray.map(() => `optimistic-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`);
 
-    for (let i = 0; i < fileArray.length; i++) {
+    setUploadProgress(fileArray.map((f, i) => ({ name: f.name, status: 'uploading', id: tempIds[i] })));
+
+    // Clear SWR cache to force fresh fetch
+    forceRevalidate();
+
+    // Create optimistic media items immediately in the grid
+    setOptimisticUploads((prev) => [
+      ...prev,
+      ...fileArray.map((f, i) => ({
+        id: tempIds[i],
+        fileName: f.name,
+        originalName: f.name,
+        title: f.name.replace(/\.[^.]+$/, '').replace(/[-_]/g, ' ').trim(),
+        altText: '',
+        sourceUrl: '',
+        localPath: '',
+        thumbnailUrl: '',
+        mediumUrl: '',
+        largeUrl: '',
+        webpUrl: '',
+        avifUrl: '',
+        mimeType: f.type,
+        width: 0,
+        height: 0,
+        fileSize: f.size,
+        folder: '',
+        usedIn: '[]',
+        useCount: 0,
+        processingStatus: 'pending',
+        createdAt: new Date().toISOString(),
+        optimistic: true,
+      } as OptimisticMedia)),
+    ]);
+
+    // Controlled concurrency: max 3 parallel uploads
+    const CONCURRENCY = 3;
+    const uploadOne = async (file: File, tempId: string, _index: number) => {
       const formData = new FormData();
-      formData.append('file', fileArray[i]);
+      formData.append('file', file);
       try {
-        await fetch('/api/admin/upload', { method: 'POST', body: formData });
-        setUploadProgress((prev) => prev.map((p, j) => j === i ? { ...p, done: true } : p));
-      } catch { /* continue */ }
+        const res = await fetch('/api/admin/upload', { method: 'POST', body: formData });
+        if (!res.ok) throw new Error('Upload failed');
+        const data = await res.json();
+        // Update progress
+        setUploadProgress((prev) => prev.map((p) => p.id === tempId ? { ...p, status: 'done' as const } : p));
+        // Replace optimistic item with real item in SWR cache by removing optimistic and triggering mutate
+        setOptimisticUploads((prev) => prev.filter((u) => u.id !== tempId));
+        return { success: true, data };
+      } catch {
+        setUploadProgress((prev) => prev.map((p) => p.id === tempId ? { ...p, status: 'error' as const } : p));
+        return { success: false, tempId };
+      }
+    };
+
+    const queue = fileArray.map((f, i) => () => uploadOne(f, tempIds[i] , i));
+    const results: { success: boolean; data?: any; tempId?: string }[] = [];
+    for (let i = 0; i < queue.length; i += CONCURRENCY) {
+      const batch = queue.slice(i, i + CONCURRENCY);
+      const batchResults = await Promise.allSettled(batch.map((fn) => fn()));
+      batchResults.forEach((r, idx) => {
+        if (r.status === 'fulfilled') results.push(r.value);
+        else {
+          setUploadProgress((prev) => prev.map((p, j) => j === i + idx ? { ...p, status: 'error' as const } : p));
+          results.push({ success: false, tempId: tempIds[i + idx] });
+        }
+      });
     }
+
+    // Clean up successful optimistic items, keep failed ones briefly
+    const failedTempIds = new Set(results.filter((r) => !r.success).map((r) => r.tempId).filter(Boolean));
+    setOptimisticUploads((prev) => prev.filter((u) => !tempIds.includes(u.id) || failedTempIds.has(u.id)));
+    setTimeout(() => {
+      setOptimisticUploads((prev) => prev.filter((u) => !failedTempIds.has(u.id)));
+      setUploadProgress((prev) => prev.filter((p) => p.status === 'error'));
+    }, 3000);
+
     setUploading(false);
-    setUploadProgress([]);
     setPage(1);
-    mutate();
+    forceRevalidate();
+
+    const failedCount = results.filter((r) => !r.success).length;
+    if (failedCount > 0) {
+      setToast({ message: `${failedCount} Upload(s) fehlgeschlagen`, type: 'error' });
+    } else {
+      setToast({ message: `${results.length} Bilder erfolgreich hochgeladen`, type: 'success' });
+    }
+    setTimeout(() => setToast(null), 4000);
   };
 
   const handleDrop = (e: React.DragEvent) => {
@@ -201,6 +449,11 @@ export default function MediaPage() {
     const target = item || selected;
     if (!target) return;
 
+    // Optimistic: hide immediately from UI
+    setPendingDeleteIds((prev) => new Set(prev).add(target.id));
+    if (selected?.id === target.id) setSelected(null);
+    setDeleteWarning(null);
+
     setDeleting(true);
     try {
       const params = new URLSearchParams({ id: target.id });
@@ -210,27 +463,83 @@ export default function MediaPage() {
       const data = await res.json();
 
       if (res.status === 409 && data.requireForce) {
+        // Rollback optimistic delete
+        setPendingDeleteIds((prev) => {
+          const next = new Set(prev);
+          next.delete(target.id);
+          return next;
+        });
         setDeleteWarning({ item: target, usedIn: data.usedIn });
         setDeleting(false);
         return;
       }
 
-      if (res.ok) {
-        if (selected?.id === target.id) setSelected(null);
-        setDeleteWarning(null);
-        mutate();
+      if (!res.ok) {
+        // Rollback on failure
+        setPendingDeleteIds((prev) => {
+          const next = new Set(prev);
+          next.delete(target.id);
+          return next;
+        });
+        setToast({ message: `Löschen fehlgeschlagen: ${target.fileName}`, type: 'error' });
+        setTimeout(() => setToast(null), 4000);
+      } else {
+        setToast({ message: `${target.fileName || 'Bild'} gelöscht`, type: 'success' });
+        setTimeout(() => setToast(null), 3000);
+        forceRevalidate();
       }
-    } catch { /* silent */ } finally { setDeleting(false); }
+    } catch {
+      // Rollback on network failure
+      setPendingDeleteIds((prev) => {
+        const next = new Set(prev);
+        next.delete(target.id);
+        return next;
+      });
+      setToast({ message: 'Netzwerkfehler beim Löschen', type: 'error' });
+      setTimeout(() => setToast(null), 4000);
+    } finally { setDeleting(false); }
   };
 
   const bulkDelete = async () => {
     if (!selectedIds.size || !confirm(`${selectedIds.size} Bilder wirklich löschen?`)) return;
-    for (const id of selectedIds) {
-      await fetch(`/api/admin/media?id=${id}&force=true`, { method: 'DELETE' });
-    }
-    setSelectedIds(new Set());
+
+    // Optimistic: hide all selected immediately
+    setPendingDeleteIds((prev) => {
+      const next = new Set(prev);
+      selectedIds.forEach((id) => next.add(id));
+      return next;
+    });
+
+    const ids = Array.from(selectedIds);
     setMultiSelect(false);
-    mutate();
+    setSelectedIds(new Set());
+
+    const results = await Promise.allSettled(
+      ids.map((id) => fetch(`/api/admin/media?id=${id}&force=true`, { method: 'DELETE' }))
+    );
+
+    // Build set of failed IDs using correct original index mapping
+    const failedIds = new Set<string>();
+    results.forEach((r, i) => {
+      if (r.status === 'rejected' || (r.status === 'fulfilled' && !(r.value as Response).ok)) {
+        failedIds.add(ids[i]);
+      }
+    });
+    if (failedIds.size > 0) {
+      // Rollback only the failed items
+      setPendingDeleteIds((prev) => {
+        const next = new Set(prev);
+        failedIds.forEach((id) => next.delete(id));
+        return next;
+      });
+      setToast({ message: `${failedIds.size} Löschvorgänge fehlgeschlagen`, type: 'error' });
+      setTimeout(() => setToast(null), 4000);
+    } else {
+      setToast({ message: `${ids.length} Bilder gelöscht`, type: 'success' });
+      setTimeout(() => setToast(null), 3000);
+    }
+
+    forceRevalidate();
   };
 
   const replaceImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -245,7 +554,7 @@ export default function MediaPage() {
       if (res.ok) {
         const updated = await res.json();
         setSelected((prev) => prev ? { ...prev, ...updated } : prev);
-        mutate();
+        mutate(undefined, { revalidate: true });
       }
     } catch { /* silent */ } finally { setReplacing(false); }
   };
@@ -264,8 +573,6 @@ export default function MediaPage() {
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
-
-  const usedInParsed = selected?.usedIn ? JSON.parse(selected.usedIn) : [];
 
   return (
     <div className="flex h-[calc(100vh-64px)]">
@@ -364,7 +671,7 @@ export default function MediaPage() {
                 <div className="flex gap-2 overflow-x-auto">
                   {stats.topUsed.map((m: any) => (
                     <div key={m.id} className="flex items-center gap-2 bg-white rounded-lg border px-2 py-1 shrink-0">
-                      <MediaThumb src={m.thumbnailUrl || m.sourceUrl} alt="" className="w-6 h-6 rounded object-cover" />
+                      <MediaThumb src={ensureSlash(m.thumbnailUrl || m.sourceUrl)} fallbackSrc={ensureSlash(m.sourceUrl || m.localPath)} alt="" className="w-6 h-6 rounded object-cover" />
                       <span className="text-xs text-gray-700 truncate max-w-[100px]">{m.fileName}</span>
                       <span className="text-xs font-mono text-primary">{m.useCount}×</span>
                     </div>
@@ -375,16 +682,29 @@ export default function MediaPage() {
           </div>
         )}
 
+        {/* Toast Notification */}
+        {toast && (
+          <div className={`border-b px-6 py-3 flex items-center gap-2 text-sm font-medium transition ${
+            toast.type === 'success' ? 'bg-green-50 border-green-100 text-green-800' : 'bg-red-50 border-red-100 text-red-800'
+          }`}>
+            {toast.type === 'success' ? <Check className="w-4 h-4" /> : <AlertTriangle className="w-4 h-4" />}
+            {toast.message}
+          </div>
+        )}
+
         {/* Upload Progress */}
-        {uploading && (
+        {(uploading || uploadProgress.some((p) => p.status === 'error')) && (
           <div className="bg-blue-50 border-b border-blue-100 px-6 py-3">
-            <p className="text-sm font-medium text-blue-700 mb-2">Wird hochgeladen & optimiert...</p>
+            <p className="text-sm font-medium text-blue-700 mb-2">
+              {uploading ? 'Wird hochgeladen & optimiert...' : 'Fertig'}
+            </p>
             <div className="space-y-1">
-              {uploadProgress.map((p, i) => (
-                <div key={i} className="flex items-center gap-2 text-xs">
-                  {p.done ? <Check className="w-3 h-3 text-green-600" /> : <Loader2 className="w-3 h-3 text-blue-600 animate-spin" />}
-                  <span className={p.done ? 'text-green-700' : 'text-blue-700'}>{p.name}</span>
-                  {p.done && <span className="text-green-600 text-[10px]">(WebP + AVIF + 3 Größen)</span>}
+              {uploadProgress.map((p) => (
+                <div key={p.id || p.name} className="flex items-center gap-2 text-xs">
+                  {p.status === 'done' ? <Check className="w-3 h-3 text-green-600" /> : p.status === 'error' ? <AlertTriangle className="w-3 h-3 text-red-600" /> : <Loader2 className="w-3 h-3 text-blue-600 animate-spin" />}
+                  <span className={p.status === 'done' ? 'text-green-700' : p.status === 'error' ? 'text-red-700' : 'text-blue-700'}>{p.name}</span>
+                  {p.status === 'done' && <span className="text-green-600 text-[10px]">(WebP + AVIF + 3 Größen)</span>}
+                  {p.status === 'error' && <span className="text-red-600 text-[10px]">Fehlgeschlagen</span>}
                 </div>
               ))}
             </div>
@@ -425,44 +745,15 @@ export default function MediaPage() {
           {!dragOver && !loading && media.length > 0 && viewMode === 'grid' && (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
               {media.map((item) => (
-                <button
+                <MediaGridItem
                   key={item.id}
-                  onClick={() => selectMedia(item)}
-                  className={`group relative aspect-square rounded-xl overflow-hidden border-2 transition-all ${
-                    (selected?.id === item.id || selectedIds.has(item.id))
-                      ? 'border-primary ring-2 ring-primary/30'
-                      : 'border-gray-100 hover:border-gray-300'
-                  }`}
-                >
-                  <MediaThumb
-                    src={getImageUrl(item)}
-                    alt={item.altText || item.title || ''}
-                    className="w-full h-full object-cover"
-                  />
-                  {/* Multi-select checkbox */}
-                  {multiSelect && (
-                    <div className="absolute top-2 left-2">
-                      {selectedIds.has(item.id)
-                        ? <CheckSquare className="w-5 h-5 text-primary bg-white rounded" />
-                        : <Square className="w-5 h-5 text-gray-400 bg-white/80 rounded" />}
-                    </div>
-                  )}
-                  {/* Usage badge */}
-                  {item.useCount > 0 && (
-                    <div className="absolute top-2 right-2 bg-green-500 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center">
-                      {item.useCount}
-                    </div>
-                  )}
-                  {/* Missing alt warning */}
-                  {!item.altText && (
-                    <div className="absolute bottom-2 right-2 bg-orange-400 text-white rounded-full p-0.5" title="Alt-Text fehlt">
-                      <AlertTriangle className="w-3 h-3" />
-                    </div>
-                  )}
-                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent p-2 opacity-0 group-hover:opacity-100 transition">
-                    <p className="text-white text-xs truncate">{item.fileName || item.title}</p>
-                  </div>
-                </button>
+                  item={item}
+                  isSelected={selected?.id === item.id}
+                  isMultiSelected={selectedIds.has(item.id)}
+                  multiSelect={multiSelect}
+                  onSelect={selectMedia}
+                  formattedDate={formattedDates.get(item.id) || ''}
+                />
               ))}
             </div>
           )}
@@ -483,31 +774,14 @@ export default function MediaPage() {
                 </thead>
                 <tbody>
                   {media.map((item) => (
-                    <tr key={item.id} onClick={() => selectMedia(item)}
-                      className={`cursor-pointer border-b last:border-0 transition ${
-                        (selected?.id === item.id || selectedIds.has(item.id)) ? 'bg-primary/5' : 'hover:bg-gray-50'
-                      }`}
-                    >
-                      <td className="px-4 py-2">
-                        <MediaThumb src={getImageUrl(item)} alt="" className="w-10 h-10 rounded object-cover" />
-                      </td>
-                      <td className="px-4 py-2 font-medium text-gray-900 truncate max-w-[200px]">{item.fileName || item.originalName}</td>
-                      <td className="px-4 py-2 text-gray-500 hidden md:table-cell">
-                        {item.altText ? <span className="truncate max-w-[150px] block">{item.altText}</span> : <span className="text-orange-400 text-xs">fehlt</span>}
-                      </td>
-                      <td className="px-4 py-2 text-gray-500 hidden lg:table-cell">{formatBytes(item.fileSize)}</td>
-                      <td className="px-4 py-2 hidden lg:table-cell">
-                        <div className="flex gap-0.5">
-                          {item.webpUrl && <span className="text-[10px] bg-green-100 text-green-700 rounded px-1">WebP</span>}
-                          {item.avifUrl && <span className="text-[10px] bg-blue-100 text-blue-700 rounded px-1">AVIF</span>}
-                          {item.mediumUrl && <span className="text-[10px] bg-gray-100 text-gray-600 rounded px-1">3×</span>}
-                        </div>
-                      </td>
-                      <td className="px-4 py-2 text-gray-500 hidden lg:table-cell">
-                        {item.useCount > 0 ? <span className="text-green-600 font-medium">{item.useCount}×</span> : <span className="text-gray-300">—</span>}
-                      </td>
-                      <td className="px-4 py-2 text-gray-500 hidden lg:table-cell">{format(new Date(item.createdAt), 'dd.MM.yy', { locale: de })}</td>
-                    </tr>
+                    <MediaListRow
+                      key={item.id}
+                      item={item}
+                      isSelected={selected?.id === item.id}
+                      isMultiSelected={selectedIds.has(item.id)}
+                      onSelect={selectMedia}
+                      formattedDate={formattedDates.get(item.id) || ''}
+                    />
                   ))}
                 </tbody>
               </table>
@@ -607,7 +881,7 @@ export default function MediaPage() {
         <div className="w-80 xl:w-96 bg-white border-l flex flex-col overflow-y-auto">
           {/* Preview */}
           <div className="relative bg-gray-50 aspect-video flex items-center justify-center">
-            <MediaThumb src={getMediumUrl(selected)} alt={selected.altText || selected.title || ''} className="max-w-full max-h-full object-contain" />
+            <MediaThumb src={getMediumUrl(selected)} fallbackSrc={getOriginalUrl(selected)} alt={selected.altText || selected.title || ''} className="max-w-full max-h-full object-contain" />
             <button onClick={() => setSelected(null)} className="absolute top-2 right-2 p-1 bg-white rounded-full shadow hover:bg-gray-100 transition">
               <X className="w-4 h-4" />
             </button>
@@ -652,10 +926,10 @@ export default function MediaPage() {
             </div>
 
             {/* Usage list */}
-            {usedInParsed.length > 0 && (
+            {selectedUsedIn.length > 0 && (
               <div className="bg-green-50 rounded-lg p-3 border border-green-100">
                 <div className="text-xs font-medium text-green-700 mb-1">Verwendet in:</div>
-                {usedInParsed.map((ref: any, i: number) => (
+                {selectedUsedIn.map((ref: any, i: number) => (
                   <div key={i} className="text-xs text-green-600 py-0.5">
                     {ref.type}: {ref.title} ({ref.field})
                   </div>

@@ -13,47 +13,21 @@ import { unlink, writeFile } from 'fs/promises';
 import { existsSync } from 'fs';
 import path from 'path';
 import prisma from '@/lib/prisma';
+import { revalidatePath, revalidateTag } from 'next/cache';
 
-// Folders cache (60s TTL) - avoids expensive groupBy on every list request
-let foldersCache: { data: { name: string; count: number }[]; ts: number } | null = null;
-const FOLDERS_CACHE_TTL = 60_000;
-
-// Media list cache (10s TTL)
-let mediaListCache: Map<string, { data: any; ts: number }> = new Map();
-const MEDIA_CACHE_TTL = 30_000;
-
-// Total count cache (30s TTL)
-let mediaTotalCache: Map<string, { total: number; ts: number }> = new Map();
-const MEDIA_TOTAL_TTL = 30_000;
-
-async function getCachedFolders() {
-  if (foldersCache && Date.now() - foldersCache.ts < FOLDERS_CACHE_TTL) {
-    return foldersCache.data;
+// Path traversal guard: ensure resolved path stays inside public/
+function resolvePublicPath(urlPath: string): string {
+  const abs = path.join(process.cwd(), 'public', urlPath.replace(/^\//, ''));
+  const resolved = path.resolve(abs);
+  const publicRoot = path.resolve(path.join(process.cwd(), 'public'));
+  if (!resolved.startsWith(publicRoot + path.sep)) {
+    throw new Error('Path traversal detected');
   }
-  const raw = await prisma.$queryRaw<{ folder: string; cnt: bigint }[]>`
-    SELECT "folder", COUNT(*) as cnt FROM "Media" WHERE "folder" != '' GROUP BY "folder"
-  `;
-  const folders = raw.map((f) => ({ name: f.folder, count: Number(f.cnt) }));
-  foldersCache = { data: folders, ts: Date.now() };
-  return folders;
+  return resolved;
 }
 
-function getFreshMediaTotal(cacheKey: string) {
-  const cached = mediaTotalCache.get(cacheKey);
-  if (cached && Date.now() - cached.ts < MEDIA_TOTAL_TTL) {
-    return cached.total;
-  }
-  return null;
-}
-
-function storeMediaTotal(cacheKey: string, total: number) {
-  mediaTotalCache.set(cacheKey, { total, ts: Date.now() });
-  if (mediaTotalCache.size > 30) {
-    const now = Date.now();
-    for (const [key, value] of mediaTotalCache) {
-      if (now - value.ts > MEDIA_TOTAL_TTL) mediaTotalCache.delete(key);
-    }
-  }
+function safePublicPath(urlPath: string): string | null {
+  try { return resolvePublicPath(urlPath); } catch { return null; }
 }
 
 // Dynamic import: sharp may not be available on all platforms
@@ -69,7 +43,7 @@ async function getSharp() {
   }
 }
 
-const CDN_BASE = process.env.CDN_BASE_URL || '';
+const CDN_BASE = (process.env.CDN_BASE_URL || '').replace(/\/+$/, '');
 
 function cdnUrl(localPath: string): string {
   return CDN_BASE ? `${CDN_BASE}/${localPath}` : `/${localPath}`;
@@ -111,29 +85,17 @@ export async function GET(request: NextRequest) {
     }
 
     // Normal list mode
-    const page = parseInt(searchParams.get('page') || '1');
-    const limit = Math.min(parseInt(searchParams.get('limit') || '24'), 100);
+    const page = parseInt(searchParams.get('page') || '1', 10);
+    const limit = parseInt(searchParams.get('limit') || '24', 10);
     const search = searchParams.get('search') || '';
+    const imagesOnly = searchParams.get('imagesOnly') !== 'false';
     const folder = searchParams.get('folder') || '';
-    const mimeType = searchParams.get('mimeType') || '';
-    const imagesOnly = searchParams.get('imagesOnly') !== 'false'; // default: true
     const sortBy = searchParams.get('sortBy') || 'createdAt';
     const sortDir = (searchParams.get('sortDir') || 'desc') as 'asc' | 'desc';
-    const skip = (page - 1) * limit;
+    const stats = searchParams.get('stats') === 'true';
+    const _t = searchParams.get('_t');
 
-    // Check cache
-    const cacheKey = `media:${page}:${limit}:${search}:${folder}:${mimeType}:${imagesOnly}:${sortBy}:${sortDir}`;
-    const cached = mediaListCache.get(cacheKey);
-    if (cached && Date.now() - cached.ts < MEDIA_CACHE_TTL) {
-      return new NextResponse(JSON.stringify(cached.data), {
-        status: 200,
-        headers: {
-          'Content-Type': 'application/json',
-          'Cache-Control': 'private, max-age=5, stale-while-revalidate=30',
-          'X-Cache': 'HIT',
-        },
-      });
-    }
+    const skip = (page - 1) * limit;
 
     const where: any = {};
     if (search) {
@@ -145,128 +107,76 @@ export async function GET(request: NextRequest) {
       ];
     }
     if (folder) where.folder = folder;
-    if (mimeType) {
-      where.mimeType = { contains: mimeType };
-    } else if (imagesOnly) {
+    if (imagesOnly) {
       where.mimeType = { startsWith: 'image/' };
     }
 
-    const totalCacheKey = `media-total:${search}:${folder}:${mimeType}:${imagesOnly}`;
-    const cachedTotal = getFreshMediaTotal(totalCacheKey);
+    const [folders, media, total] = await Promise.all([
+      prisma.$queryRaw<{ folder: string; cnt: bigint }[]>`
+        SELECT "folder", COUNT(*) as cnt FROM "Media" WHERE "folder" != '' GROUP BY "folder"
+      `.then((raw) => raw.map((f) => ({ name: f.folder, count: Number(f.cnt) }))),
+      prisma.media.findMany({
+        where,
+        select: {
+          id: true,
+          fileName: true,
+          originalName: true,
+          title: true,
+          altText: true,
+          sourceUrl: true,
+          localPath: true,
+          thumbnailUrl: true,
+          mediumUrl: true,
+          largeUrl: true,
+          webpUrl: true,
+          avifUrl: true,
+          mimeType: true,
+          width: true,
+          height: true,
+          fileSize: true,
+          folder: true,
+          usedIn: true,
+          useCount: true,
+          processingStatus: true,
+          createdAt: true,
+        },
+        orderBy: { [sortBy]: sortDir },
+        skip,
+        take: limit,
+      }),
+      prisma.media.count({ where }),
+    ]);
+    const pages = Math.ceil(total / limit);
+    const pagination = { page, limit, total, pages };
 
-    const foldersPromise = getCachedFolders();
+    const responseData = { media, folders, pagination };
 
-    let folders: { name: string; count: number }[];
-    let media;
-    let total;
-
-    if (cachedTotal != null) {
-      [folders, media] = await Promise.all([
-        foldersPromise,
-        prisma.media.findMany({
-          where,
-          select: {
-            id: true,
-            fileName: true,
-            originalName: true,
-            title: true,
-            altText: true,
-            sourceUrl: true,
-            localPath: true,
-            thumbnailUrl: true,
-            mimeType: true,
-            width: true,
-            height: true,
-            fileSize: true,
-            folder: true,
-            useCount: true,
-            createdAt: true,
-          },
-          orderBy: { [sortBy]: sortDir },
-          skip,
-          take: limit,
-        }),
-      ]);
-      total = cachedTotal;
-    } else {
-      const [resolvedFolders, queryResult] = await Promise.all([
-        foldersPromise,
-        prisma.$transaction([
-          prisma.media.findMany({
-            where,
-            select: {
-              id: true,
-              fileName: true,
-              originalName: true,
-              title: true,
-              altText: true,
-              sourceUrl: true,
-              localPath: true,
-              thumbnailUrl: true,
-              mimeType: true,
-              width: true,
-              height: true,
-              fileSize: true,
-              folder: true,
-              useCount: true,
-              createdAt: true,
-            },
-            orderBy: { [sortBy]: sortDir },
-            skip,
-            take: limit,
-          }),
-          prisma.media.count({ where }),
-        ]),
-      ]);
-      folders = resolvedFolders;
-      [media, total] = queryResult;
-      storeMediaTotal(totalCacheKey, total);
-    }
-
-    // Truncate base64 data URLs in list responses for performance
-    const cleanMedia = media.map((m) => ({
-      ...m,
-      sourceUrl: m.sourceUrl.startsWith('data:') ? m.sourceUrl.slice(0, 50) + '...' : m.sourceUrl,
-    }));
-
-    const responseData = {
-      media: cleanMedia,
-      pagination: { page, limit, total, pages: Math.ceil(total / limit) },
-      folders,
-    };
-
-    // Store in cache
-    mediaListCache.set(cacheKey, { data: responseData, ts: Date.now() });
-    if (mediaListCache.size > 30) {
-      const now = Date.now();
-      for (const [k, v] of mediaListCache) {
-        if (now - v.ts > MEDIA_CACHE_TTL) mediaListCache.delete(k);
-      }
-    }
-
-    return new NextResponse(JSON.stringify(responseData), {
-      status: 200,
+    return NextResponse.json(responseData, {
       headers: {
         'Content-Type': 'application/json',
         'Cache-Control': 'private, max-age=5, stale-while-revalidate=30',
       },
     });
-  } catch (error) {
-    console.error('Media list error:', error);
+  } catch (error: any) {
+    console.error('[MEDIA_GET] ERROR:', error?.message, error?.stack);
     return NextResponse.json({ error: 'Failed to fetch media' }, { status: 500 });
   }
 }
 
 // ── POST: Update metadata OR replace image ──────────────────
 export async function POST(request: NextRequest) {
+  console.log('[media POST] Request received');
   try {
     const contentType = request.headers.get('content-type') || '';
+    console.log('[media POST] Content-Type:', contentType);
 
     // Replace image (multipart form with file + id)
     if (contentType.includes('multipart/form-data')) {
+      console.log('[media POST] Replace image mode');
       const formData = await request.formData();
       const id = formData.get('id') as string;
       const file = formData.get('file') as File;
+      console.log('[media POST] Replace params:', { id, fileName: file?.name, fileSize: file?.size });
 
       if (!id || !file) {
         return NextResponse.json({ error: 'ID and file required for replace' }, { status: 400 });
@@ -281,7 +191,10 @@ export async function POST(request: NextRequest) {
       const buffer = Buffer.from(bytes);
 
       // Overwrite the original file at the SAME path (keeps same URL)
-      const absPath = path.join(process.cwd(), 'public', existing.localPath);
+      const absPath = safePublicPath(existing.localPath);
+      if (!absPath) {
+        return NextResponse.json({ error: 'Invalid path' }, { status: 400 });
+      }
       await writeFile(absPath, buffer);
 
       // Get new dimensions
@@ -298,29 +211,30 @@ export async function POST(request: NextRequest) {
           height = meta.height || 0;
 
           // Regenerate variants at existing paths
-          const dirAbsolute = path.join(process.cwd(), 'public', path.dirname(existing.localPath));
-          const basePart = existing.localPath.replace(/\.[^.]+$/, ''); // without extension
-
-          // Rebuild thumbnail
           if (existing.thumbnailUrl && existing.thumbnailUrl !== existing.sourceUrl) {
-            const thumbAbs = path.join(process.cwd(), 'public', existing.thumbnailUrl.replace(/^\//, ''));
+            const thumbAbs = safePublicPath(existing.thumbnailUrl);
+            if (!thumbAbs) return NextResponse.json({ error: 'Invalid path' }, { status: 400 });
             await (sharpModule as any)(buffer).resize(150, null, { withoutEnlargement: true }).webp({ quality: 70 }).toFile(thumbAbs);
           }
           if (existing.mediumUrl) {
-            const medAbs = path.join(process.cwd(), 'public', existing.mediumUrl.replace(/^\//, ''));
+            const medAbs = safePublicPath(existing.mediumUrl);
+            if (!medAbs) return NextResponse.json({ error: 'Invalid path' }, { status: 400 });
             await (sharpModule as any)(buffer).resize(500, null, { withoutEnlargement: true }).webp({ quality: 80 }).toFile(medAbs);
           }
           if (existing.largeUrl) {
-            const lgAbs = path.join(process.cwd(), 'public', existing.largeUrl.replace(/^\//, ''));
+            const lgAbs = safePublicPath(existing.largeUrl);
+            if (!lgAbs) return NextResponse.json({ error: 'Invalid path' }, { status: 400 });
             await (sharpModule as any)(buffer).resize(1200, null, { withoutEnlargement: true }).webp({ quality: 85 }).toFile(lgAbs);
           }
           if (existing.webpUrl) {
-            const webpAbs = path.join(process.cwd(), 'public', existing.webpUrl.replace(/^\//, ''));
+            const webpAbs = safePublicPath(existing.webpUrl);
+            if (!webpAbs) return NextResponse.json({ error: 'Invalid path' }, { status: 400 });
             await (sharpModule as any)(buffer).webp({ quality: 85 }).toFile(webpAbs);
           }
           if (existing.avifUrl) {
             try {
-              const avifAbs = path.join(process.cwd(), 'public', existing.avifUrl.replace(/^\//, ''));
+              const avifAbs = safePublicPath(existing.avifUrl);
+              if (!avifAbs) return NextResponse.json({ error: 'Invalid path' }, { status: 400 });
               await (sharpModule as any)(buffer).avif({ quality: 65 }).toFile(avifAbs);
             } catch { /* avif may not be supported */ }
           }
@@ -331,10 +245,7 @@ export async function POST(request: NextRequest) {
         where: { id },
         data: { width, height, fileSize: file.size, mimeType: file.type },
       });
-
-      mediaListCache.clear();
-      mediaTotalCache.clear();
-      foldersCache = null;
+        revalidateTag('media');
       return NextResponse.json(updated);
     }
 
@@ -363,12 +274,10 @@ export async function POST(request: NextRequest) {
     if (folder !== undefined) data.folder = folder;
 
     const updated = await prisma.media.update({ where: { id }, data });
-    mediaListCache.clear();
-    mediaTotalCache.clear();
-    foldersCache = null;
+    revalidateTag('media');
     return NextResponse.json(updated);
   } catch (error) {
-    console.error('Media update error:', error);
+    console.error('[media POST] Error:', error);
     return NextResponse.json({ error: 'Failed to update media' }, { status: 500 });
   }
 }
@@ -379,18 +288,34 @@ export async function DELETE(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
     const force = searchParams.get('force') === 'true';
+    console.log('[DELETE] Params:', { id, force, fullUrl: request.url });
 
     if (!id) {
+      console.warn('[DELETE] No ID provided');
       return NextResponse.json({ error: 'Media ID required' }, { status: 400 });
     }
 
+    console.log(`[DELETE] Looking up media ID: ${id}`);
     const media = await prisma.media.findUnique({ where: { id } });
     if (!media) {
+      console.warn(`[DELETE] Media NOT FOUND: ${id}`);
       return NextResponse.json({ error: 'Media not found' }, { status: 404 });
     }
+    console.log('[DELETE] Media found:', {
+      id: media.id,
+      fileName: media.fileName,
+      localPath: media.localPath,
+      useCount: media.useCount,
+      usedIn: media.usedIn,
+    });
 
     // Check usage — block delete if in use (unless force=true)
-    const usedIn = JSON.parse(media.usedIn || '[]');
+    let usedIn: any[] = [];
+    try {
+      usedIn = JSON.parse(media.usedIn || '[]');
+    } catch {
+      usedIn = [];
+    }
     if (usedIn.length > 0 && !force) {
       return NextResponse.json({
         error: 'Bild wird noch verwendet',
@@ -409,118 +334,169 @@ export async function DELETE(request: NextRequest) {
       media.webpUrl,
       media.avifUrl,
     ].filter(Boolean);
+    console.log('[DELETE] Files to delete:', urlsToDelete);
 
     for (const urlPath of urlsToDelete) {
-      const cleaned = urlPath.replace(/^\//, '');
-      const absPath = path.join(process.cwd(), 'public', cleaned);
-      if (existsSync(absPath)) {
-        try { await unlink(absPath); } catch { /* ignore */ }
+      let absPath: string | null;
+      try {
+        absPath = resolvePublicPath(urlPath);
+      } catch {
+        console.error(`[DELETE] Invalid path: ${urlPath}`);
+        return NextResponse.json({ error: 'Invalid path' }, { status: 400 });
       }
+      if (existsSync(absPath)) {
+        try {
+          await unlink(absPath);
+          console.log(`[DELETE] File deleted: ${absPath}`);
+        } catch (err: any) {
+          console.warn(`[DELETE] File delete failed (non-critical): ${absPath}`, err?.message);
+        }
+      } else {
+        }
     }
 
     await prisma.media.delete({ where: { id } });
-    mediaListCache.clear();
-    mediaTotalCache.clear();
-    foldersCache = null;
-    return NextResponse.json({ success: true });
-  } catch (error) {
-    console.error('Media delete error:', error);
+
+    revalidateTag('media');
+
+    // Cascade cleanup: clear featuredImage/ogImage in blog posts that reference deleted URLs
+    const deletedUrls = [
+      media.sourceUrl,
+      media.localPath,
+      media.thumbnailUrl,
+      media.mediumUrl,
+      media.largeUrl,
+      media.webpUrl,
+      media.avifUrl,
+    ].filter((u): u is string => Boolean(u));
+
+    if (deletedUrls.length > 0) {
+      const affectedPosts = await prisma.blogPost.findMany({
+        where: { featuredImage: { in: deletedUrls } },
+        select: { id: true, slug: true },
+      });
+      if (affectedPosts.length > 0) {
+        await prisma.blogPost.updateMany({
+          where: { featuredImage: { in: deletedUrls } },
+          data: { featuredImage: '' },
+        });
+        for (const p of affectedPosts) {
+          try { revalidatePath(`/insiderwissen/${p.slug}`); } catch {}
+        }
+        revalidatePath('/insiderwissen', 'page');
+        revalidateTag('blog-posts');
+        console.log(`[DELETE] Cascade-cleared featuredImage in ${affectedPosts.length} post(s)`);
+      }
+    }
+
+    return NextResponse.json({ success: true, deletedId: id });
+  } catch (error: any) {
+    console.error('[DELETE] ERROR:', error?.message, error?.stack);
     return NextResponse.json({ error: 'Failed to delete media' }, { status: 500 });
   }
 }
 
-// ── PUT: Scan & update usage tracking ───────────────────────
+// ── PUT: Scan & update usage tracking (batched, low-memory) ──
 export async function PUT() {
   try {
-    // Fetch all media URLs
+    const CONTENT_BATCH = 200;
+    const UPDATE_BATCH = 50;
+
     const allMedia = await prisma.media.findMany({
       select: { id: true, sourceUrl: true, thumbnailUrl: true, webpUrl: true },
     });
 
-    // Fetch all content that references images
-    const [posts, pages, products] = await Promise.all([
-      prisma.blogPost.findMany({
-        select: { id: true, title: true, featuredImage: true, content: true, ogImage: true },
-      }),
-      prisma.page.findMany({
-        select: { id: true, title: true, featuredImage: true, content: true, ogImage: true },
-      }),
-      prisma.product.findMany({
-        select: { id: true, name: true, featuredImage: true, content: true, ogImage: true },
-      }),
-    ]);
-
-    // Build a reverse index: URL substring → media IDs
-    // This avoids O(media × content) nested loops
-    const allContent = [
-      ...posts.map((p) => ({ ...p, type: 'blog' as const })),
-      ...pages.map((p) => ({ ...p, type: 'page' as const, name: undefined })),
-      ...products.map((p) => ({ ...p, type: 'product' as const, title: undefined })),
-    ];
-
-    // Concatenate all content fields per content item for fast substring search
-    const contentStrings = allContent.map((c) => ({
-      type: c.type,
-      id: c.id,
-      title: 'title' in c && c.title ? c.title : 'name' in c && c.name ? c.name : '',
-      combined: [c.featuredImage || '', c.content || '', c.ogImage || ''].join('\n'),
-      featuredImage: c.featuredImage || '',
-      content: c.content || '',
-      ogImage: c.ogImage || '',
-    }));
-
-    // Batch: compute all refs, then batch update
-    const updates: { id: string; usedIn: string; useCount: number }[] = [];
+    const mediaDedup = new Map<string, Set<string>>();
+    const mediaRefs = new Map<string, { type: string; id: string; field: string; title: string }[]>();
 
     for (const m of allMedia) {
-      const urls = [m.sourceUrl, m.thumbnailUrl, m.webpUrl].filter(Boolean);
-      if (urls.length === 0) {
-        updates.push({ id: m.id, usedIn: '[]', useCount: 0 });
-        continue;
+      mediaDedup.set(m.id, new Set());
+      mediaRefs.set(m.id, []);
+    }
+
+    async function* paginateContent<T>(
+      query: (args: { skip: number; take: number }) => Promise<T[]>
+    ) {
+      let skip = 0;
+      while (true) {
+        const chunk = await query({ skip, take: CONTENT_BATCH });
+        if (chunk.length === 0) break;
+        yield chunk;
+        skip += CONTENT_BATCH;
       }
+    }
 
-      const refs: { type: string; id: string; field: string; title: string }[] = [];
+    async function scanType(
+      type: string,
+      query: (args: { skip: number; take: number }) => Promise<any[]>,
+      titleKey: string,
+    ) {
+      for await (const chunk of paginateContent(query)) {
+        for (const c of chunk) {
+          const title = c[titleKey] || '';
+          const fields = [
+            { name: 'featuredImage', value: c.featuredImage || '' },
+            { name: 'content', value: c.content || '' },
+            { name: 'ogImage', value: c.ogImage || '' },
+          ];
+          for (const m of allMedia) {
+            const urls = [m.sourceUrl, m.thumbnailUrl, m.webpUrl].filter(Boolean);
+            if (!urls.length) continue;
 
-      for (const c of contentStrings) {
-        // Quick check: does any URL appear in the combined string?
-        const hasMatch = urls.some((url) => c.combined.includes(url));
-        if (!hasMatch) continue;
-
-        // Detailed field-level matching
-        for (const url of urls) {
-          if (c.featuredImage.includes(url)) {
-            refs.push({ type: c.type, id: c.id, field: 'featuredImage', title: c.title });
-            break; // one ref per content item per field is enough
-          }
-        }
-        for (const url of urls) {
-          if (c.content.includes(url)) {
-            refs.push({ type: c.type, id: c.id, field: 'content', title: c.title });
-            break;
-          }
-        }
-        for (const url of urls) {
-          if (c.ogImage.includes(url)) {
-            refs.push({ type: c.type, id: c.id, field: 'ogImage', title: c.title });
-            break;
+            for (const field of fields) {
+              if (urls.some((url) => field.value.includes(url))) {
+                const dedupKey = `${type}:${c.id}:${field.name}`;
+                const set = mediaDedup.get(m.id)!;
+                if (!set.has(dedupKey)) {
+                  set.add(dedupKey);
+                  mediaRefs.get(m.id)!.push({ type, id: c.id, field: field.name, title });
+                }
+              }
+            }
           }
         }
       }
+    }
 
+    await scanType('blog', (args) =>
+      prisma.blogPost.findMany({
+        ...args,
+        select: { id: true, title: true, featuredImage: true, content: true, ogImage: true },
+      }),
+      'title',
+    );
+
+    await scanType('page', (args) =>
+      prisma.page.findMany({
+        ...args,
+        select: { id: true, title: true, featuredImage: true, content: true, ogImage: true },
+      }),
+      'title',
+    );
+
+    await scanType('product', (args) =>
+      prisma.product.findMany({
+        ...args,
+        select: { id: true, name: true, featuredImage: true, content: true, ogImage: true },
+      }),
+      'name',
+    );
+
+    const updates: { id: string; usedIn: string; useCount: number }[] = [];
+    for (const m of allMedia) {
+      const refs = mediaRefs.get(m.id)!;
       updates.push({ id: m.id, usedIn: JSON.stringify(refs), useCount: refs.length });
     }
 
-    // Batch updates in chunks of 50 using transactions
-    const BATCH_SIZE = 50;
-    for (let i = 0; i < updates.length; i += BATCH_SIZE) {
-      const batch = updates.slice(i, i + BATCH_SIZE);
+    for (let i = 0; i < updates.length; i += UPDATE_BATCH) {
+      const batch = updates.slice(i, i + UPDATE_BATCH);
       await prisma.$transaction(
         batch.map((u) =>
           prisma.media.update({
             where: { id: u.id },
             data: { usedIn: u.usedIn, useCount: u.useCount },
-          })
-        )
+          }),
+        ),
       );
     }
 

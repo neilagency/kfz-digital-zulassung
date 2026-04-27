@@ -2,6 +2,16 @@ import { PrismaClient } from '@/generated/prisma';
 import { PrismaLibSql } from '@prisma/adapter-libsql';
 
 function createPrismaClient() {
+  // Force local SQLite (for Hostinger migration)
+  if (process.env.USE_LOCAL_DB === 'true') {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const { PrismaBetterSqlite3 } = require('@prisma/adapter-better-sqlite3');
+    const path = require('path');
+    const dbPath = process.env.DATABASE_URL?.replace('file:', '') || path.join(process.cwd(), 'production-db-backup.db');
+    const adapter = new PrismaBetterSqlite3({ url: 'file:' + dbPath });
+    return new PrismaClient({ adapter });
+  }
+
   // On Vercel (or any env with TURSO_DATABASE_URL), use Turso/LibSQL
   if (process.env.TURSO_DATABASE_URL) {
     const adapter = new PrismaLibSql({

@@ -197,6 +197,7 @@ interface MediaParams {
   folder?: string;
   sortBy?: string;
   sortDir?: string;
+  _t?: number; // Cache buster
 }
 
 export function useMedia(params: MediaParams = {}, config?: SWRConfiguration) {
@@ -208,9 +209,16 @@ export function useMedia(params: MediaParams = {}, config?: SWRConfiguration) {
     folder: params.folder,
     sortBy: params.sortBy,
     sortDir: params.sortDir,
+    _t: params._t,
   });
   return useSWR(url, fetcher, {
     ...HP_CONFIG,
+    // Disable keepPreviousData for media to prevent stale cache
+    // after upload/delete mutations
+    keepPreviousData: false,
+    revalidateOnFocus: true,
+    revalidateOnReconnect: true,
+    dedupingInterval: 0, // Disable deduping to always fetch fresh data
     ...config,
   });
 }

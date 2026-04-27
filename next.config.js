@@ -1,14 +1,30 @@
 /** @type {import('next').NextConfig} */
+
+// Add CDN domain to remotePatterns if CDN_BASE_URL is configured
+const cdnRemotePattern = (() => {
+  const cdnBase = process.env.CDN_BASE_URL || '';
+  if (!cdnBase) return null;
+  try {
+    const url = new URL(cdnBase);
+    return { protocol: url.protocol.replace(':', ''), hostname: url.hostname, pathname: '/**' };
+  } catch { return null; }
+})();
+
 const nextConfig = {
   output: 'standalone',
   trailingSlash: false,
   eslint: { ignoreDuringBuilds: true },
 
   images: {
-    formats: ['image/webp'],
+    formats: ['image/avif', 'image/webp'],
     minimumCacheTTL: 60 * 60 * 24 * 30,
     deviceSizes: [384, 640, 828, 1080, 1280, 1920],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    remotePatterns: [
+      { protocol: 'https', hostname: 'onlineautoabmelden.com', pathname: '/**' },
+      { protocol: 'https', hostname: 'www.onlineautoabmelden.com', pathname: '/**' },
+      ...(cdnRemotePattern ? [cdnRemotePattern] : []),
+    ],
   },
 
   experimental: {
@@ -905,7 +921,7 @@ const nextConfig = {
         headers: [
           {
             key: 'Cache-Control',
-            value: 'public, s-maxage=300, stale-while-revalidate=600',
+            value: 'public, s-maxage=60, stale-while-revalidate=120',
           },
         ],
       },

@@ -83,6 +83,29 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const lowerPath = pathname.toLowerCase();
 
+  // ── RSC header restoration ───────────────────────────────────────────────
+  // Hostinger CDN (hcdn) strips non-standard request headers including
+  // "RSC: 1", "Next-Router-State-Tree", and "Next-Router-Prefetch".
+  // Next.js decides RSC vs HTML based on the "RSC: 1" header, NOT the
+  // ?_rsc= query param. Without this header the server returns full HTML
+  // and the browser gets wrong content-type → Safari "access control checks"
+  // + "Failed to fetch RSC payload" errors on every client-side navigation.
+  // We detect RSC requests via ?_rsc= (URL param, CDN cannot strip it) and
+  // restore the missing headers before the request reaches the router.
+  if (request.nextUrl.searchParams.has('_rsc') && !request.headers.get('rsc')) {
+    const headers = new Headers(request.headers);
+    headers.set('rsc', '1');
+    if (!headers.has('next-router-prefetch')) {
+      headers.set('next-router-prefetch', '1');
+    }
+    const response = NextResponse.next({ request: { headers } });
+    response.headers.set(
+      'Vary',
+      'RSC, Next-Router-State-Tree, Next-Router-Prefetch, Accept-Encoding',
+    );
+    return response;
+  }
+
   // ── 0. SEO Lock Layer: known-bad paths → 410 Gone ───────────────────────
   if (
     GONE_EXACT.has(lowerPath) ||
