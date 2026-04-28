@@ -18,8 +18,10 @@ export const NAV_LINKS = [
   { label: 'KFZ online anmelden', href: '/product/auto-online-anmelden' },
   { label: 'FAQ / Hilfe', href: '/#faq' },
   { label: 'Blog', href: '/insiderwissen' },
+  { label: 'Unsere Videos', href: '/vedio'},
   { label: 'Über Uns', href: '/#ueber-uns' },
   { label: 'Alle Städte', href: '/kfz-zulassung-abmeldung-in-deiner-stadt' },
+  
 ];
 
 export const SOCIAL_LINKS = {
