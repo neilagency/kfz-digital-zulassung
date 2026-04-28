@@ -86,9 +86,10 @@ export default async function Page() {
           <p className="mb-4">
             Viele Fahrzeughalter möchten ihr Auto schnell abmelden, ohne extra
             zur Zulassungsstelle zu fahren, ohne Terminbuchung und ohne
-            Wartezeit. Genau deshalb wird das Thema <strong>online Auto abmelden</strong>{' '}
-            immer wichtiger. Der Ablauf ist klar, bequem und für viele deutlich
-            angenehmer als die klassische Abmeldung vor Ort.
+            Wartezeit. Genau deshalb wird das Thema{' '}
+            <strong>online Auto abmelden</strong> immer wichtiger. Der Ablauf ist
+            klar, bequem und für viele deutlich angenehmer als die klassische
+            Abmeldung vor Ort.
           </p>
 
           <p className="mb-4">
@@ -193,6 +194,36 @@ export default async function Page() {
             <strong>Auto online abmelden</strong> und den Vorgang direkt starten.
             Mehr brauchen viele im ersten Schritt nicht.
           </p>
+        </section>
+
+        {/* VIDEO HILFE */}
+        <section className="bg-white p-8 rounded-2xl border">
+          <h2 className="text-2xl font-bold mb-4">
+            Video-Hilfe: Sicherheitscodes richtig freilegen
+          </h2>
+
+          <p className="text-gray-700 mb-6">
+            Sie sind unsicher, wo der Sicherheitscode am Kennzeichen oder im
+            Fahrzeugschein ist? In unseren kurzen Videos zeigen wir Schritt für
+            Schritt, wie Sie die Codes richtig freilegen und Ihre
+            Online-Abmeldung besser vorbereiten.
+          </p>
+
+          <div className="flex gap-4 flex-wrap">
+            <Link
+              href="/vedio"
+              className="bg-primary text-white px-6 py-3 rounded-full font-bold"
+            >
+              Videos ansehen
+            </Link>
+
+            <Link
+              href="/product/fahrzeugabmeldung"
+              className="bg-accent text-primary px-6 py-3 rounded-full font-bold"
+            >
+              Jetzt Auto abmelden
+            </Link>
+          </div>
         </section>
 
         {/* CTA */}
