@@ -53,13 +53,13 @@ export default function Pagination({
   };
 
   return (
-    <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-4 sm:px-6 py-4 border-t border-gray-100/80">
+    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-5 sm:px-6 py-5 border-t border-gray-100/80">
       <p className="text-sm text-gray-400">
-        <span className="font-medium text-gray-600">{from}–{to}</span> von{' '}
-        <span className="font-medium text-gray-600">{total}</span> {itemLabel}
+        <span className="font-medium text-gray-700">{from}–{to}</span> von{' '}
+        <span className="font-medium text-gray-700">{total}</span> {itemLabel}
       </p>
 
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-1.5">
         {/* First page */}
         <button
           onClick={() => onPageChange(1)}

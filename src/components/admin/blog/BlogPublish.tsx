@@ -32,28 +32,28 @@ export default function BlogPublish({
     onPublishModeChange?.(mode);
   };
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       {/* Publish Panel */}
-      <div className="bg-white rounded-xl p-6 shadow-sm space-y-4">
-        <h3 className="text-sm font-semibold text-gray-900">Veröffentlichung</h3>
+      <div className="bg-white rounded-2xl p-6 sm:p-7 shadow-sm border border-gray-100/80 space-y-5">
+        <h3 className="text-base font-semibold text-gray-900">Veröffentlichung</h3>
 
         {/* Current status */}
         {!isNew && form.status === 'publish' && (
-          <div className="text-xs text-gray-500 bg-emerald-50 rounded-lg px-3 py-2">
-            ✅ Veröffentlicht
+          <div className="text-sm text-emerald-700 bg-emerald-50 rounded-xl px-4 py-3 flex items-center gap-2">
+            <span>✅</span> Veröffentlicht
           </div>
         )}
         {!isNew && form.status === 'scheduled' && form.scheduledAt && (
-          <div className="text-xs text-gray-500 bg-blue-50 rounded-lg px-3 py-2">
-            🕐 Geplant für:{' '}
+          <div className="text-sm text-blue-700 bg-blue-50 rounded-xl px-4 py-3 flex items-center gap-2">
+            <span>🕐</span> Geplant für:{' '}
             {format(new Date(form.scheduledAt), 'dd.MM.yyyy HH:mm', { locale: de })}
           </div>
         )}
 
         {/* Publish mode selector */}
-        <div className="space-y-2">
-          <label className="block text-sm text-gray-600">Modus</label>
-          <div className="space-y-1.5">
+        <div className="space-y-3">
+          <label className="block text-sm font-medium text-gray-700">Modus</label>
+          <div className="space-y-2 bg-gray-50/50 rounded-xl p-3">
             <label className="flex items-center gap-2 cursor-pointer">
               <input
                 type="radio"
@@ -92,18 +92,18 @@ export default function BlogPublish({
 
         {/* Schedule date picker */}
         {publishMode === 'schedule' && (
-          <div>
-            <label className="block text-sm text-gray-600 mb-1">Veröffentlichungsdatum</label>
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-700">Veröffentlichungsdatum</label>
             <input
               type="datetime-local"
               value={form.scheduledAt ? form.scheduledAt.slice(0, 16) : ''}
               onChange={(e) => updateField('scheduledAt', e.target.value)}
               min={new Date().toISOString().slice(0, 16)}
-              className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-[#0D5581] focus:border-transparent outline-none"
+              className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#0D5581]/20 focus:border-[#0D5581]/50 outline-none transition-all"
             />
-            <p className="text-xs text-gray-400 mt-1">Zeitzone: Europe/Berlin (MEZ/MESZ)</p>
+            <p className="text-xs text-gray-400">Zeitzone: Europe/Berlin (MEZ/MESZ)</p>
             {form.scheduledAt && new Date(form.scheduledAt) <= new Date() && (
-              <p className="text-xs text-amber-600 mt-1">
+              <p className="text-xs text-amber-600 mt-2 bg-amber-50 rounded-lg px-3 py-2">
                 ⚠️ Datum liegt in der Vergangenheit — wird sofort veröffentlicht.
               </p>
             )}
@@ -114,7 +114,7 @@ export default function BlogPublish({
         <button
           type="submit"
           disabled={saving}
-          className="w-full bg-[#0D5581] hover:bg-[#0a4468] text-white font-medium py-2.5 rounded-lg transition disabled:opacity-50 flex items-center justify-center gap-2"
+          className="w-full bg-[#0D5581] hover:bg-[#0a4468] text-white font-semibold py-3 rounded-xl transition-all disabled:opacity-50 flex items-center justify-center gap-2 shadow-sm hover:shadow-md"
         >
           {saving ? (
             <>
@@ -165,24 +165,25 @@ export default function BlogPublish({
       </div>
 
       {/* Category / Tags */}
-      <div className="bg-white rounded-xl p-6 shadow-sm space-y-4">
+      <div className="bg-white rounded-2xl p-6 sm:p-7 shadow-sm border border-gray-100/80 space-y-5">
+        <h3 className="text-base font-semibold text-gray-900">Kategorisierung</h3>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Kategorie</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Kategorie</label>
           <input
             type="text"
             value={form.category}
             onChange={(e) => updateField('category', e.target.value)}
-            className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-[#0D5581] focus:border-transparent outline-none"
+            className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#0D5581]/20 focus:border-[#0D5581]/50 outline-none transition-all"
             placeholder="z.B. Ratgeber"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Tags</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Tags</label>
           <input
             type="text"
             value={form.tags}
             onChange={(e) => updateField('tags', e.target.value)}
-            className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-[#0D5581] focus:border-transparent outline-none"
+            className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#0D5581]/20 focus:border-[#0D5581]/50 outline-none transition-all"
             placeholder="Kommagetrennt..."
           />
         </div>

@@ -191,17 +191,9 @@ async function processMediaAsync(mediaId: string, localPath: string, mimeType: s
 }
 
 export async function POST(request: NextRequest) {
-  console.time('[UPLOAD] Total');
-  console.log('[UPLOAD] === POST request received ===');
-  console.log('[UPLOAD] Request URL:', request.url);
-  console.log('[UPLOAD] Content-Type:', request.headers.get('content-type'));
   try {
     const formData = await request.formData();
     const files = formData.getAll('file') as File[];
-    console.log('[UPLOAD] Files received:', files.length);
-    files.forEach((f, i) => {
-      console.log(`[UPLOAD] File[${i}]:`, { name: f.name, size: f.size, type: f.type, lastModified: f.lastModified });
-    });
 
     if (!files.length) {
       console.warn('[upload] No files in formData');
@@ -213,18 +205,12 @@ export async function POST(request: NextRequest) {
 
     for (const file of files) {
       const detectedMime = file.type || detectMimeFromName(file.name);
-      console.log(`[UPLOAD] Processing file: ${file.name}`);
-      console.log(`[UPLOAD]   - size: ${file.size} bytes`);
-      console.log(`[UPLOAD]   - client type: ${file.type}`);
-      console.log(`[UPLOAD]   - detected MIME: ${detectedMime}`);
 
       if (!detectedMime || !ALLOWED_TYPES.includes(detectedMime)) {
-        console.warn(`[upload] Rejected: ${file.name} — type=${file.type} detected=${detectedMime}`);
         results.push({ error: `${file.name}: Invalid type (${file.type || 'unknown'}). Allowed: JPG, PNG, GIF, WebP, SVG, AVIF` });
         continue;
       }
       if (file.size > MAX_SIZE) {
-        console.warn(`[upload] Rejected: ${file.name} — size=${file.size} > ${MAX_SIZE}`);
         results.push({ error: `${file.name}: Too large. Max 10MB` });
         continue;
       }
@@ -249,22 +235,14 @@ export async function POST(request: NextRequest) {
       const targetPath = path.join(dirAbsolute, originalFileName);
       const relativePath = `${dirRelative}/${originalFileName}`;
 
-      console.log(`[UPLOAD]   - baseName: ${baseName}`);
-      console.log(`[UPLOAD]   - uniqueSuffix: ${uniqueSuffix}`);
-      console.log(`[UPLOAD]   - originalFileName: ${originalFileName}`);
-      console.log(`[UPLOAD]   - targetPath (absolute): ${targetPath}`);
-      console.log(`[UPLOAD]   - relativePath: ${relativePath}`);
-
       const resolvedTarget = path.resolve(targetPath);
       const publicRoot = path.resolve(path.join(process.cwd(), 'public'));
       if (!resolvedTarget.startsWith(publicRoot + path.sep)) {
-        console.error(`[UPLOAD]   - PATH TRAVERSAL BLOCKED: ${resolvedTarget} not in ${publicRoot}`);
         results.push({ error: `${file.name}: Invalid path` });
         continue;
       }
 
       const sourceUrl = cdnUrl(relativePath);
-      console.log(`[UPLOAD]   - sourceUrl: ${sourceUrl}`);
 
       // For SVG/GIF, thumbnail = sourceUrl (no variants)
       const isSvgOrGif = detectedMime === 'image/svg+xml' || detectedMime === 'image/gif';
@@ -288,31 +266,17 @@ export async function POST(request: NextRequest) {
           processingStatus: isSvgOrGif ? 'ready' : 'pending',
         },
       });
-      console.log('[UPLOAD] DB record CREATED:', {
-        id: media.id,
-        fileName: media.fileName,
-        originalName: media.originalName,
-        sourceUrl: media.sourceUrl,
-        localPath: media.localPath,
-        mimeType: media.mimeType,
-        fileSize: media.fileSize,
-        processingStatus: media.processingStatus,
-        createdAt: media.createdAt,
-      });
 
       try {
-        console.log(`[UPLOAD] Writing file to disk: ${targetPath}`);
         await writeFile(targetPath, buffer);
-        console.log(`[UPLOAD] File WRITE SUCCESS: ${targetPath}`);
       } catch (writeErr: any) {
-        console.error(`[UPLOAD] File WRITE FAILED: ${targetPath}`, writeErr?.message, writeErr?.code);
+        console.error(`[UPLOAD] Write failed: ${targetPath}`, writeErr?.message);
         await prisma.media.delete({ where: { id: media.id } }).catch(() => {});
         results.push({ error: `${file.name}: File write failed` });
         continue;
       }
 
       revalidateTag('media');
-      console.log('[UPLOAD] revalidateTag("media") called');
 
       if (!isSvgOrGif) {
         processingPromises.push(
@@ -349,26 +313,14 @@ export async function POST(request: NextRequest) {
     // Fire-and-forget: Sharp runs in background; response already sent
     Promise.allSettled(processingPromises).catch(() => {});
 
-    console.timeEnd('[UPLOAD] Total');
-    console.log('[UPLOAD] Upload complete. Results count:', results.length);
-    const successCount = results.filter(r => !('error' in r)).length;
-    const errorCount = results.filter(r => 'error' in r).length;
-    console.log(`[UPLOAD] Success: ${successCount}, Errors: ${errorCount}`);
-
     if (files.length === 1 && results.length === 1) {
       const r = results[0];
-      if ('error' in r) {
-        console.log('[UPLOAD] Returning SINGLE ERROR:', r);
-        return NextResponse.json(r, { status: 400 });
-      }
-      console.log('[UPLOAD] Returning SINGLE SUCCESS:', JSON.stringify(r, null, 2));
+      if ('error' in r) return NextResponse.json(r, { status: 400 });
       return NextResponse.json(r);
     }
-    console.log('[UPLOAD] Returning MULTIPLE results:', JSON.stringify({ results }, null, 2));
     return NextResponse.json({ results });
   } catch (error: any) {
-    console.timeEnd('[UPLOAD] Total');
-    console.error('[UPLOAD] UNEXPECTED ERROR:', error?.message, error?.stack);
+    console.error('[UPLOAD] Error:', error?.message);
     return NextResponse.json({ error: 'Upload failed' }, { status: 500 });
   }
 }

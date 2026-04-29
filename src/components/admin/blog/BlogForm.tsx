@@ -47,15 +47,15 @@ function BlogForm({
     }, 300);
   }, [updateField]);
   return (
-    <div className="bg-white rounded-xl p-6 shadow-sm space-y-4">
+    <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-gray-100/80 space-y-6">
       {/* Title */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Titel</label>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Titel</label>
         <input
           type="text"
           value={form.title}
           onChange={(e) => handleTitleChange(e.target.value)}
-          className="w-full px-3 py-2.5 border rounded-lg focus:ring-2 focus:ring-[#0D5581] focus:border-transparent outline-none"
+          className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#0D5581]/20 focus:border-[#0D5581]/50 outline-none transition-all text-base"
           placeholder="Beitragstitel eingeben..."
           required
         />
@@ -63,22 +63,22 @@ function BlogForm({
 
       {/* Slug */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Slug (URL)</label>
-        <div className="flex items-center gap-1 text-sm text-gray-400">
-          <span>/insiderwissen/</span>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Slug (URL)</label>
+        <div className="flex items-center gap-2 text-sm text-gray-400 bg-gray-50 rounded-xl px-4 py-1 border border-gray-200">
+          <span className="shrink-0 text-gray-400">/insiderwissen/</span>
           <input
             type="text"
             value={form.slug}
             onChange={(e) => updateField('slug', e.target.value)}
-            className="flex-1 px-3 py-2.5 border rounded-lg focus:ring-2 focus:ring-[#0D5581] focus:border-transparent outline-none"
+            className="flex-1 bg-transparent py-2.5 outline-none text-gray-700"
             required
           />
         </div>
       </div>
 
       {/* Content */}
-      <div>
-        <div className="flex items-center justify-between mb-1">
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
           <label className="block text-sm font-medium text-gray-700">Inhalt</label>
           <div className="flex items-center gap-3">
             {/* Word count / reading time */}
@@ -91,7 +91,7 @@ function BlogForm({
               type="button"
               onClick={() => setHtmlMode(!htmlMode)}
               className={
-                'text-xs px-2 py-1 rounded transition ' +
+                'text-xs px-3 py-1.5 rounded-lg transition font-medium ' +
                 (htmlMode
                   ? 'bg-gray-800 text-green-400'
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200')
@@ -119,11 +119,11 @@ function BlogForm({
 
       {/* Excerpt */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Auszug</label>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Auszug</label>
         <textarea
           value={form.excerpt}
           onChange={(e) => updateField('excerpt', e.target.value)}
-          className="w-full px-3 py-2.5 border rounded-lg focus:ring-2 focus:ring-[#0D5581] focus:border-transparent outline-none h-24"
+          className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#0D5581]/20 focus:border-[#0D5581]/50 outline-none h-28 resize-none transition-all"
           placeholder="Kurze Beschreibung..."
         />
       </div>

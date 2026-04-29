@@ -15,13 +15,13 @@ export default function EmptyState({
   action,
 }: EmptyStateProps) {
   return (
-    <div className="flex flex-col items-center justify-center py-20 px-6">
-      <div className="w-16 h-16 rounded-2xl bg-gray-50 border border-gray-100 flex items-center justify-center mb-5">
-        {icon || <Inbox className="w-7 h-7 text-gray-300" />}
+    <div className="flex flex-col items-center justify-center py-16 sm:py-24 px-6">
+      <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gray-50 border border-gray-100 flex items-center justify-center mb-6 shadow-sm">
+        {icon || <Inbox className="w-8 h-8 text-gray-300" />}
       </div>
-      <h3 className="text-base font-semibold text-gray-900 mb-1.5">{title}</h3>
+      <h3 className="text-lg font-semibold text-gray-900 mb-2">{title}</h3>
       {description && (
-        <p className="text-sm text-gray-400 text-center max-w-sm mb-5 leading-relaxed">{description}</p>
+        <p className="text-sm text-gray-400 text-center max-w-sm mb-6 leading-relaxed">{description}</p>
       )}
       {action}
     </div>

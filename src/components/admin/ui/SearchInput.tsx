@@ -38,21 +38,21 @@ export default function SearchInput({
   };
 
   return (
-    <div className="relative">
-      <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+    <div className="relative group">
+      <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 transition-colors group-focus-within:text-primary" />
       <input
         type="text"
         value={localValue}
         onChange={(e) => handleChange(e.target.value)}
         placeholder={placeholder}
-        className="w-full pl-10 pr-10 py-2.5 border border-gray-200/80 rounded-xl text-sm bg-white focus:ring-2 focus:ring-primary/15 focus:border-primary/40 outline-none transition placeholder:text-gray-400"
+        className="w-full pl-10 pr-10 py-2.5 sm:py-3 border border-gray-200/80 rounded-xl text-sm bg-white focus:ring-2 focus:ring-primary/10 focus:border-primary/30 outline-none transition-all placeholder:text-gray-400 hover:border-gray-300/80"
       />
       {localValue && (
         <button
           onClick={handleClear}
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition p-0.5 rounded-md hover:bg-gray-100"
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition p-1 rounded-lg hover:bg-gray-100"
         >
-          <X className="w-3.5 h-3.5" />
+          <X className="w-4 h-4" />
         </button>
       )}
     </div>

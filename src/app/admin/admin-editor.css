@@ -56,21 +56,55 @@
 }
 
 /* ═══════════════════════════════════════════════
-   ADMIN DESIGN SYSTEM — Premium UI
+   ADMIN DESIGN SYSTEM — Modern, Clean, Spacious
    ═══════════════════════════════════════════════ */
 
-/* Admin root variables */
+/* Admin root variables — Enhanced spacing and modern aesthetics */
 .admin-panel {
+  /* Background colors */
   --admin-bg: #f8fafc;
+  --admin-bg-elevated: #f1f5f9;
   --admin-surface: #ffffff;
-  --admin-surface-hover: #f1f5f9;
+  --admin-surface-hover: #f8fafc;
+  --admin-surface-active: #f1f5f9;
+
+  /* Border colors - softer, modern */
   --admin-border: #e2e8f0;
   --admin-border-light: #f1f5f9;
+  --admin-border-subtle: rgba(226, 232, 240, 0.6);
+
+  /* Border radius - consistent modern rounding */
+  --admin-radius-xl: 20px;
   --admin-radius: 16px;
+  --admin-radius-md: 12px;
   --admin-radius-sm: 10px;
   --admin-radius-xs: 8px;
-  --admin-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.04), 0 1px 2px -1px rgb(0 0 0 / 0.04);
-  --admin-shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.03);
+
+  /* Shadows - subtle depth */
+  --admin-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.03), 0 1px 3px 0 rgb(0 0 0 / 0.02);
+  --admin-shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.04);
+  --admin-shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.04), 0 2px 4px -2px rgb(0 0 0 / 0.02);
+  --admin-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.05), 0 4px 6px -4px rgb(0 0 0 / 0.03);
+  --admin-shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.06), 0 8px 10px -6px rgb(0 0 0 / 0.03);
+
+  /* Spacing scale */
+  --admin-space-xs: 4px;
+  --admin-space-sm: 8px;
+  --admin-space-md: 12px;
+  --admin-space-lg: 16px;
+  --admin-space-xl: 20px;
+  --admin-space-2xl: 24px;
+  --admin-space-3xl: 32px;
+  --admin-space-4xl: 40px;
+
+  /* Typography scale */
+  --admin-text-xs: 11px;
+  --admin-text-sm: 12px;
+  --admin-text-base: 13px;
+  --admin-text-md: 14px;
+  --admin-text-lg: 16px;
+  --admin-text-xl: 20px;
+  --admin-text-2xl: 24px;
 }
 
 /* Bottom navigation on mobile */
@@ -139,6 +173,136 @@
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* ── Modern Card Styles ── */
+.admin-card {
+  background: var(--admin-surface);
+  border-radius: var(--admin-radius);
+  border: 1px solid var(--admin-border-light);
+  box-shadow: var(--admin-shadow);
+  transition: box-shadow 0.2s ease, transform 0.15s ease;
+}
+
+.admin-card-hover:hover {
+  box-shadow: var(--admin-shadow-md);
+  transform: translateY(-1px);
+}
+
+.admin-card-elevated {
+  box-shadow: var(--admin-shadow-md);
+}
+
+/* ── Section Styles ── */
+.admin-section {
+  background: var(--admin-surface);
+  border-radius: var(--admin-radius-xl);
+  border: 1px solid var(--admin-border-subtle);
+  padding: var(--admin-space-2xl);
+}
+
+.admin-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--admin-space-xl);
+  padding-bottom: var(--admin-space-md);
+  border-bottom: 1px solid var(--admin-border-light);
+}
+
+/* ── Modern Button Styles ── */
+.admin-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--admin-space-sm);
+  padding: var(--admin-space-md) var(--admin-space-lg);
+  border-radius: var(--admin-radius-md);
+  font-size: var(--admin-text-base);
+  font-weight: 500;
+  transition: all 0.15s ease;
+}
+
+.admin-btn-primary {
+  background: var(--primary, #0D5581);
+  color: white;
+  box-shadow: 0 1px 2px 0 rgba(13, 85, 129, 0.15);
+}
+
+.admin-btn-primary:hover {
+  background: var(--primary-600, #0B4A70);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px 0 rgba(13, 85, 129, 0.2);
+}
+
+.admin-btn-secondary {
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-border);
+  color: #475569;
+}
+
+.admin-btn-secondary:hover {
+  background: var(--admin-surface-hover);
+  border-color: #cbd5e1;
+}
+
+/* ── Form Input Modern Styles ── */
+.admin-input {
+  width: 100%;
+  padding: var(--admin-space-md) var(--admin-space-lg);
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius-md);
+  font-size: var(--admin-text-md);
+  background: var(--admin-surface);
+  transition: all 0.15s ease;
+}
+
+.admin-input:focus {
+  outline: none;
+  border-color: var(--primary, #0D5581);
+  box-shadow: 0 0 0 3px rgba(13, 85, 129, 0.08);
+}
+
+.admin-input::placeholder {
+  color: #94a3b8;
+}
+
+/* ── Mobile Optimized Touch Targets ── */
+@media (hover: none) {
+  .admin-touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  .admin-card-touch:active {
+    transform: scale(0.98);
+    transition: transform 0.1s ease;
+  }
+
+  /* Larger touch areas on mobile */
+  .admin-btn {
+    min-height: 44px;
+    padding: var(--admin-space-md) var(--admin-space-xl);
+  }
+}
+
+/* ── Improved Scrollbar for Admin ── */
+.admin-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.admin-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.admin-scrollbar::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+.admin-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }
 
 /* ── CSS containment for heavy layout sections ── */

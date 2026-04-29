@@ -122,7 +122,7 @@ export default function BlogPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 sm:space-y-8">
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
 
       {deleteTarget && (
@@ -152,15 +152,15 @@ export default function BlogPage() {
       />
 
       {/* Filters + Search */}
-      <div className="bg-white rounded-2xl p-4 border border-gray-100/80 flex flex-col lg:flex-row gap-4 items-start lg:items-center">
+      <div className="bg-white rounded-2xl p-4 sm:p-5 border border-gray-100/80 shadow-sm flex flex-col lg:flex-row gap-4 sm:gap-5 items-start lg:items-center">
         <FilterTabs tabs={statusFilters} active={status} onChange={handleStatusChange} />
-        <div className="w-full lg:w-72 ml-auto">
+        <div className="w-full lg:w-80 ml-auto">
           <SearchInput value={search} onChange={handleSearchChange} placeholder="Beitrag suchen..." />
         </div>
       </div>
 
       {/* Mobile Card View */}
-      <div className="md:hidden space-y-3">
+      <div className="md:hidden space-y-4">
         {loading ? (
           <div className="space-y-3">
             {[...Array(5)].map((_, i) => (
@@ -189,16 +189,16 @@ export default function BlogPage() {
         ) : (
           <>
             {posts.map((post) => (
-              <Link key={post.id} href={`/admin/blog/${post.id}`} className="block bg-white rounded-2xl border border-gray-100/80 p-4 active:bg-gray-50 transition admin-card-touch">
-                <div className="flex items-start justify-between gap-3">
+              <Link key={post.id} href={`/admin/blog/${post.id}`} className="block bg-white rounded-2xl border border-gray-100/80 p-5 active:bg-gray-50 transition admin-card-touch shadow-sm hover:shadow-md">
+                <div className="flex items-start justify-between gap-4">
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium text-gray-900 text-sm line-clamp-1">{post.title}</p>
-                    <p className="text-xs text-gray-400 mt-0.5 truncate">/{post.slug}</p>
-                    <div className="flex items-center gap-2 mt-2">
+                    <p className="font-semibold text-gray-900 text-[15px] line-clamp-1">{post.title}</p>
+                    <p className="text-sm text-gray-400 mt-1 truncate">/{post.slug}</p>
+                    <div className="flex items-center gap-2 mt-3">
                       <StatusBadge status={post.status} />
-                      {post.category && <span className="text-xs text-gray-400">{post.category}</span>}
+                      {post.category && <span className="text-sm text-gray-400">{post.category}</span>}
                     </div>
-                    <div className="flex items-center gap-3 mt-2 text-xs text-gray-400">
+                    <div className="flex items-center gap-4 mt-3 text-sm text-gray-400">
                       <span>{post.views} Views</span>
                       <span>
                         {post.publishedAt
@@ -207,7 +207,7 @@ export default function BlogPage() {
                       </span>
                     </div>
                   </div>
-                  <ChevronRight className="w-4 h-4 text-gray-300 mt-1 shrink-0" />
+                  <ChevronRight className="w-5 h-5 text-gray-300 mt-1 shrink-0" />
                 </div>
               </Link>
             ))}
@@ -225,7 +225,7 @@ export default function BlogPage() {
       </div>
 
       {/* Desktop Table */}
-      <div className="hidden md:block bg-white rounded-2xl border border-gray-100/80 overflow-hidden">
+      <div className="hidden md:block bg-white rounded-2xl border border-gray-100/80 shadow-sm overflow-hidden">
         {loading ? (
           <TableSkeleton rows={10} columns={6} />
         ) : posts.length === 0 ? (

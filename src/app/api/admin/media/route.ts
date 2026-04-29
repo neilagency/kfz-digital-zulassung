@@ -86,14 +86,13 @@ export async function GET(request: NextRequest) {
 
     // Normal list mode
     const page = parseInt(searchParams.get('page') || '1', 10);
-    const limit = parseInt(searchParams.get('limit') || '24', 10);
+    const limit = Math.min(parseInt(searchParams.get('limit') || '24', 10), 100);
     const search = searchParams.get('search') || '';
     const imagesOnly = searchParams.get('imagesOnly') !== 'false';
     const folder = searchParams.get('folder') || '';
     const sortBy = searchParams.get('sortBy') || 'createdAt';
     const sortDir = (searchParams.get('sortDir') || 'desc') as 'asc' | 'desc';
-    const stats = searchParams.get('stats') === 'true';
-    const _t = searchParams.get('_t');
+    const includeUsage = searchParams.get('includeUsage') === 'true';
 
     const skip = (page - 1) * limit;
 
@@ -111,35 +110,40 @@ export async function GET(request: NextRequest) {
       where.mimeType = { startsWith: 'image/' };
     }
 
+    // Build select: exclude heavy usedIn by default (can be KBs of JSON per item)
+    const select: Record<string, boolean> = {
+      id: true,
+      fileName: true,
+      originalName: true,
+      title: true,
+      altText: true,
+      sourceUrl: true,
+      localPath: true,
+      thumbnailUrl: true,
+      mediumUrl: true,
+      largeUrl: true,
+      webpUrl: true,
+      avifUrl: true,
+      mimeType: true,
+      width: true,
+      height: true,
+      fileSize: true,
+      folder: true,
+      useCount: true,
+      processingStatus: true,
+      createdAt: true,
+    };
+    if (includeUsage) {
+      select.usedIn = true;
+    }
+
     const [folders, media, total] = await Promise.all([
       prisma.$queryRaw<{ folder: string; cnt: bigint }[]>`
         SELECT "folder", COUNT(*) as cnt FROM "Media" WHERE "folder" != '' GROUP BY "folder"
       `.then((raw) => raw.map((f) => ({ name: f.folder, count: Number(f.cnt) }))),
       prisma.media.findMany({
         where,
-        select: {
-          id: true,
-          fileName: true,
-          originalName: true,
-          title: true,
-          altText: true,
-          sourceUrl: true,
-          localPath: true,
-          thumbnailUrl: true,
-          mediumUrl: true,
-          largeUrl: true,
-          webpUrl: true,
-          avifUrl: true,
-          mimeType: true,
-          width: true,
-          height: true,
-          fileSize: true,
-          folder: true,
-          usedIn: true,
-          useCount: true,
-          processingStatus: true,
-          createdAt: true,
-        },
+        select,
         orderBy: { [sortBy]: sortDir },
         skip,
         take: limit,
@@ -154,7 +158,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(responseData, {
       headers: {
         'Content-Type': 'application/json',
-        'Cache-Control': 'private, max-age=5, stale-while-revalidate=30',
+        'Cache-Control': 'private, no-cache, must-revalidate',
       },
     });
   } catch (error: any) {
@@ -165,18 +169,14 @@ export async function GET(request: NextRequest) {
 
 // ── POST: Update metadata OR replace image ──────────────────
 export async function POST(request: NextRequest) {
-  console.log('[media POST] Request received');
   try {
     const contentType = request.headers.get('content-type') || '';
-    console.log('[media POST] Content-Type:', contentType);
 
     // Replace image (multipart form with file + id)
     if (contentType.includes('multipart/form-data')) {
-      console.log('[media POST] Replace image mode');
       const formData = await request.formData();
       const id = formData.get('id') as string;
       const file = formData.get('file') as File;
-      console.log('[media POST] Replace params:', { id, fileName: file?.name, fileSize: file?.size });
 
       if (!id || !file) {
         return NextResponse.json({ error: 'ID and file required for replace' }, { status: 400 });
@@ -288,27 +288,15 @@ export async function DELETE(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
     const force = searchParams.get('force') === 'true';
-    console.log('[DELETE] Params:', { id, force, fullUrl: request.url });
 
     if (!id) {
-      console.warn('[DELETE] No ID provided');
       return NextResponse.json({ error: 'Media ID required' }, { status: 400 });
     }
 
-    console.log(`[DELETE] Looking up media ID: ${id}`);
     const media = await prisma.media.findUnique({ where: { id } });
     if (!media) {
-      console.warn(`[DELETE] Media NOT FOUND: ${id}`);
       return NextResponse.json({ error: 'Media not found' }, { status: 404 });
     }
-    console.log('[DELETE] Media found:', {
-      id: media.id,
-      fileName: media.fileName,
-      localPath: media.localPath,
-      useCount: media.useCount,
-      usedIn: media.usedIn,
-    });
-
     // Check usage — block delete if in use (unless force=true)
     let usedIn: any[] = [];
     try {
@@ -334,25 +322,19 @@ export async function DELETE(request: NextRequest) {
       media.webpUrl,
       media.avifUrl,
     ].filter(Boolean);
-    console.log('[DELETE] Files to delete:', urlsToDelete);
 
     for (const urlPath of urlsToDelete) {
       let absPath: string | null;
       try {
         absPath = resolvePublicPath(urlPath);
       } catch {
-        console.error(`[DELETE] Invalid path: ${urlPath}`);
         return NextResponse.json({ error: 'Invalid path' }, { status: 400 });
       }
       if (existsSync(absPath)) {
         try {
           await unlink(absPath);
-          console.log(`[DELETE] File deleted: ${absPath}`);
-        } catch (err: any) {
-          console.warn(`[DELETE] File delete failed (non-critical): ${absPath}`, err?.message);
-        }
-      } else {
-        }
+        } catch { /* non-critical: file may already be gone */ }
+      }
     }
 
     await prisma.media.delete({ where: { id } });
@@ -385,13 +367,12 @@ export async function DELETE(request: NextRequest) {
         }
         revalidatePath('/insiderwissen', 'page');
         revalidateTag('blog-posts');
-        console.log(`[DELETE] Cascade-cleared featuredImage in ${affectedPosts.length} post(s)`);
       }
     }
 
     return NextResponse.json({ success: true, deletedId: id });
   } catch (error: any) {
-    console.error('[DELETE] ERROR:', error?.message, error?.stack);
+    console.error('[MEDIA_DELETE] Error:', error?.message);
     return NextResponse.json({ error: 'Failed to delete media' }, { status: 500 });
   }
 }

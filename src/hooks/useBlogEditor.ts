@@ -75,8 +75,6 @@ export function useBlogEditor() {
   const [htmlMode, setHtmlMode] = useState(false);
   const [mediaPickerOpen, setMediaPickerOpen] = useState(false);
   const [siteUrl, setSiteUrl] = useState('');
-  const [imageSource, setImageSourceState] = useState<ImageSource>('none');
-  const [selectedMediaName, setSelectedMediaName] = useState('');
   const [publishMode, setPublishMode] = useState<PublishMode>('draft');
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [seoOpen, setSeoOpen] = useState(false);
@@ -175,12 +173,6 @@ export function useBlogEditor() {
           initialFormRef.current = loadedForm;
           lastSavedRef.current = loadedForm;
 
-          if (post.featuredImageId) {
-            setImageSourceState('media');
-          } else if (post.featuredImage) {
-            setImageSourceState('url');
-          }
-
           if (post.status === 'scheduled' && post.scheduledAt) {
             setPublishMode('schedule');
           } else if (post.status === 'publish') {
@@ -229,38 +221,14 @@ export function useBlogEditor() {
     [isNew]
   );
 
-  // ─── Switch image source ───
-  const switchImageSource = useCallback(
-    (newSource: ImageSource) => {
-      if (
-        (imageSource === 'media' && form.featuredImageId) ||
-        (imageSource === 'url' && form.featuredImage)
-      ) {
-        if (!window.confirm('Bild wird entfernt. Fortfahren?')) return;
-      }
-      setImageSourceState(newSource);
-      // Always clear both fields when switching — single source of truth
-      setForm((prev) => ({ ...prev, featuredImage: '', featuredImageId: '' }));
-      setSelectedMediaName('');
-      if (newSource === 'media') {
-        setMediaPickerOpen(true);
-      }
-    },
-    [imageSource, form.featuredImageId, form.featuredImage]
-  );
-
   // ─── Media select handler ───
   const handleMediaSelect = useCallback((media: { url: string; alt: string; id: string }) => {
     setForm((prev) => ({ ...prev, featuredImage: media.url, featuredImageId: media.id }));
-    setImageSourceState('media');
-    setSelectedMediaName(media.alt || '');
   }, []);
 
   // ─── Clear image ───
   const clearImage = useCallback(() => {
     setForm((prev) => ({ ...prev, featuredImage: '', featuredImageId: '' }));
-    setSelectedMediaName('');
-    setImageSourceState('none');
   }, []);
 
   // ─── Save handler ───
@@ -276,11 +244,12 @@ export function useBlogEditor() {
 
         const payload: Record<string, unknown> = { ...form };
 
-        // Enforce single source of truth for image fields
-        if (imageSource === 'url') {
+        // Enforce single source of truth for image fields — derived from form
+        if (form.featuredImageId) {
+          // Media library image — keep both (URL is display URL, ID is the reference)
+        } else if (form.featuredImage) {
+          // External URL — clear any stale ID
           payload.featuredImageId = '';
-        } else if (imageSource === 'media') {
-          // Keep both — URL is the display URL, ID is the reference
         } else {
           payload.featuredImage = '';
           payload.featuredImageId = '';
@@ -347,7 +316,7 @@ export function useBlogEditor() {
         setSaving(false);
       }
     },
-    [form, isNew, params.id, publishMode, imageSource, saving, router]
+    [form, isNew, params.id, publishMode, saving, router]
   );
 
   // ─── Keyboard shortcut: Ctrl/Cmd+S → save & stay ───
@@ -382,8 +351,6 @@ export function useBlogEditor() {
     htmlMode,
     mediaPickerOpen,
     siteUrl,
-    imageSource,
-    selectedMediaName,
     publishMode,
     toast,
     wordCount,
@@ -401,7 +368,6 @@ export function useBlogEditor() {
     setToast,
     handleMediaSelect,
     clearImage,
-    switchImageSource,
     setSeoOpen,
     restoreAutosave,
     dismissAutosave,
