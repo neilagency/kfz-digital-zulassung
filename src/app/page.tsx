@@ -203,7 +203,6 @@ export default async function HomePage() {
           audienceType: 'Fahrzeughalter in Deutschland',
         },
       },
-      
     ],
   };
 
@@ -223,6 +222,7 @@ export default async function HomePage() {
         />
 
         <Steps />
+
         <section
           className="py-14 md:py-16 bg-white"
           aria-labelledby="videos-auto-online-abmelden"
@@ -283,31 +283,51 @@ export default async function HomePage() {
                 </div>
               </div>
 
-              <div className="bg-gray-50 rounded-2xl border border-gray-100 p-4 md:p-5 shadow-sm">
-                <div className="aspect-video rounded-xl overflow-hidden bg-black">
-                  <iframe
-                    className="w-full h-full"
-                    src="https://www.youtube-nocookie.com/embed/3nsdJSvKAtE"
-                    title="Sicherheitscode am Kennzeichen freilegen"
-                    loading="lazy"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                    allowFullScreen
-                  />
-                </div>
+              <div className="grid gap-5">
+                <div className="bg-gray-50 rounded-2xl border border-gray-100 p-4 shadow-sm">
+                  <div className="aspect-video rounded-xl overflow-hidden bg-black mb-4">
+                    <iframe
+                      className="w-full h-full"
+                      src="https://www.youtube-nocookie.com/embed/3nsdJSvKAtE"
+                      title="Kennzeichen Sicherheitscode freilegen"
+                      loading="lazy"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                      allowFullScreen
+                    />
+                  </div>
 
-                <div className="mt-5">
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">
+                  <h3 className="font-bold text-gray-900 mb-2">
                     Sicherheitscode am Kennzeichen freilegen
                   </h3>
-                  <p className="text-gray-600 leading-relaxed">
-                    In diesem Video sehen Sie, wie der Sicherheitscode am Kennzeichen
-                    freigelegt wird. Das hilft, Fehler vor der Online-Abmeldung zu vermeiden.
+                  <p className="text-sm text-gray-600 leading-relaxed">
+                    Kurze Video-Hilfe, damit Kunden den Code am Kennzeichen richtig finden.
+                  </p>
+                </div>
+
+                <div className="bg-gray-50 rounded-2xl border border-gray-100 p-4 shadow-sm">
+                  <div className="aspect-video rounded-xl overflow-hidden bg-black mb-4">
+                    <iframe
+                      className="w-full h-full"
+                      src="https://www.youtube-nocookie.com/embed/u38keaF1QKU"
+                      title="Sicherheitscode im Fahrzeugschein freilegen"
+                      loading="lazy"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                      allowFullScreen
+                    />
+                  </div>
+
+                  <h3 className="font-bold text-gray-900 mb-2">
+                    Sicherheitscode im Fahrzeugschein freilegen
+                  </h3>
+                  <p className="text-sm text-gray-600 leading-relaxed">
+                    Einfach erklärt, welche Stelle im Fahrzeugschein wichtig ist.
                   </p>
                 </div>
               </div>
             </div>
           </div>
         </section>
+
         <section
           className="py-14 md:py-16 bg-gray-50"
           aria-labelledby="warum-online-auto-abmelden"
@@ -370,14 +390,12 @@ export default async function HomePage() {
           className="py-20 md:py-28 bg-gradient-to-b from-gray-50 via-white to-gray-50 relative overflow-hidden"
           aria-labelledby="so-funktioniert-die-digitale-fahrzeugabmeldung"
         >
-          {/* Decorative background elements */}
           <div className="absolute inset-0 pointer-events-none">
             <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/[0.03] rounded-full blur-3xl" />
             <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-accent/[0.03] rounded-full blur-3xl" />
           </div>
 
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-            {/* Section Header */}
             <div className="text-center mb-16 md:mb-20">
               <span className="inline-flex items-center gap-2 bg-primary/10 text-primary font-semibold text-sm px-5 py-2 rounded-full mb-5 border border-primary/10">
                 <BadgeCheck className="w-4 h-4" />
@@ -397,7 +415,6 @@ export default async function HomePage() {
               </p>
             </div>
 
-            {/* Benefits Grid — 3 columns on desktop */}
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 mb-12">
               {[
                 {
@@ -437,7 +454,6 @@ export default async function HomePage() {
                     index === 4 ? 'md:col-span-2 lg:col-span-1' : ''
                   }`}
                 >
-                  {/* Top accent line */}
                   <div
                     className={`absolute top-0 left-8 right-8 h-[3px] rounded-b-full ${
                       color === 'accent' ? 'bg-accent' : 'bg-primary'
@@ -463,9 +479,7 @@ export default async function HomePage() {
                 </div>
               ))}
 
-              {/* Wichtige Information — premium card */}
               <div className="relative bg-gradient-to-br from-dark via-primary-900 to-dark rounded-2xl p-7 text-white shadow-xl overflow-hidden md:col-span-2 lg:col-span-1">
-                {/* Decorative glow */}
                 <div className="absolute -top-12 -right-12 w-40 h-40 bg-accent/10 rounded-full blur-2xl" />
                 <div className="absolute -bottom-8 -left-8 w-32 h-32 bg-primary/20 rounded-full blur-2xl" />
 
@@ -499,7 +513,6 @@ export default async function HomePage() {
               </div>
             </div>
 
-            {/* Links Sections */}
             <div className="grid lg:grid-cols-2 gap-6">
               <section
                 className="group bg-white rounded-2xl p-8 border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300"
@@ -563,7 +576,9 @@ export default async function HomePage() {
                 </nav>
 
                 <div className="mt-6 pt-5 border-t border-gray-100">
-                  <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">Bundesland-Übersichten</p>
+                  <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">
+                    Bundesland-Übersichten
+                  </p>
                   <div className="flex flex-wrap gap-2">
                     {BUNDESLAND_LINKS.map((bl) => (
                       <Link
