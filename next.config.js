@@ -487,6 +487,49 @@ const nextConfig = {
       // -----------------------------
       // Important SEO redirects
       // -----------------------------
+            // -----------------------------
+      // Essen SEO canonical redirects
+      // -----------------------------
+      {
+        source: '/essen',
+        destination: '/kfz-online-abmelden-essen',
+        permanent: true,
+      },
+      {
+        source: '/auto-online-abmelden-essen',
+        destination: '/kfz-online-abmelden-essen',
+        permanent: true,
+      },
+      {
+        source: '/auto-abmelden-essen',
+        destination: '/kfz-online-abmelden-essen',
+        permanent: true,
+      },
+      {
+        source: '/kfz-abmelden-essen',
+        destination: '/kfz-online-abmelden-essen',
+        permanent: true,
+      },
+      {
+        source: '/fahrzeug-abmelden-essen',
+        destination: '/kfz-online-abmelden-essen',
+        permanent: true,
+      },
+      {
+        source: '/fahrzeug-online-abmelden-essen',
+        destination: '/kfz-online-abmelden-essen',
+        permanent: true,
+      },
+      {
+        source: '/kfz-online-abmelden-in-essen',
+        destination: '/kfz-online-abmelden-essen',
+        permanent: true,
+      },
+      {
+        source: '/auto-online-abmelden-in-essen',
+        destination: '/kfz-online-abmelden-essen',
+        permanent: true,
+      },
       {
         source: '/kfz-online-abmelden-hamburg',
         destination: '/kfz-online-abmelden-in-hamburg',
