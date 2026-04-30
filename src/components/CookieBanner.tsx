@@ -11,28 +11,28 @@ const CATEGORIES = [
     key: 'necessary' as const,
     label: 'Notwendig',
     description:
-      'Diese Cookies sind für die Grundfunktionen der Website erforderlich und können nicht deaktiviert werden.',
+      'Diese Cookies sind für Grundfunktionen der Website erforderlich, zum Beispiel Sicherheit, Warenkorb, Formularfunktionen oder Cookie-Auswahl. Sie können nicht deaktiviert werden.',
     locked: true,
   },
   {
     key: 'analytics' as const,
     label: 'Analyse & Statistik',
     description:
-      'Helfen uns zu verstehen, wie Besucher unsere Website nutzen (z.B. Google Analytics).',
+      'Diese Cookies helfen uns zu verstehen, wie Besucher unsere Website nutzen. Dadurch können wir Inhalte, Bedienung und Ladezeiten verbessern.',
     locked: false,
   },
   {
     key: 'marketing' as const,
     label: 'Marketing & Werbung',
     description:
-      'Werden verwendet, um Besuchern relevante Werbung anzuzeigen (z.B. Google Ads, Facebook Pixel).',
+      'Diese Cookies können verwendet werden, um Werbung und Kampagnen besser auszuwerten und relevanter zu gestalten, zum Beispiel über Google Ads oder ähnliche Dienste.',
     locked: false,
   },
   {
     key: 'external_media' as const,
     label: 'Externe Medien',
     description:
-      'Erlaubt das Laden externer Inhalte wie YouTube-Videos, Google Maps und ähnlicher Dienste.',
+      'Diese Einstellung erlaubt das Laden externer Inhalte, zum Beispiel YouTube-Videos oder andere eingebettete Medien.',
     locked: false,
   },
 ];
@@ -46,20 +46,31 @@ function SettingsPanel({
   onClose: () => void;
 }) {
   const { preferences } = useCookieConsent();
-  const [local, setLocal] = useState<CookiePreferences>({ ...preferences });
+  const [local, setLocal] = useState<CookiePreferences>({
+    ...preferences,
+    necessary: true,
+  });
   const [expanded, setExpanded] = useState<string | null>(null);
 
+  function saveSelection() {
+    onSave({
+      ...local,
+      necessary: true,
+    });
+  }
+
   return (
-    <div className="fixed inset-0 z-[10001] flex items-center justify-center bg-black/60 p-4">
+    <div className="fixed inset-0 z-[10001] flex items-center justify-center bg-black/60 p-3 sm:p-4">
       <div
         role="dialog"
         aria-modal="true"
         aria-labelledby="cookie-settings-title"
-        className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[85vh] overflow-hidden flex flex-col animate-in fade-in slide-in-from-bottom-4 duration-300"
+        aria-describedby="cookie-settings-description"
+        className="flex max-h-[88vh] w-full max-w-lg flex-col overflow-hidden rounded-2xl bg-white shadow-2xl"
       >
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+        <div className="flex items-center justify-between border-b border-gray-100 px-5 py-4 sm:px-6">
           <div className="flex items-center gap-2">
-            <Settings className="w-5 h-5 text-[#0d5581]" />
+            <Settings className="h-5 w-5 text-[#0d5581]" />
             <h2 id="cookie-settings-title" className="text-lg font-bold text-gray-900">
               Cookie-Einstellungen
             </h2>
@@ -69,15 +80,15 @@ function SettingsPanel({
             type="button"
             onClick={onClose}
             aria-label="Cookie-Einstellungen schließen"
-            className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
+            className="rounded-lg p-2 transition-colors hover:bg-gray-100"
           >
-            <X className="w-5 h-5 text-gray-500" />
+            <X className="h-5 w-5 text-gray-500" />
           </button>
         </div>
 
-        <div className="overflow-y-auto flex-1 px-6 py-4 space-y-3">
-          <p className="text-sm text-gray-600 mb-4">
-            Hier können Sie auswählen, welche Arten von Cookies Sie zulassen möchten.
+        <div className="flex-1 space-y-3 overflow-y-auto px-5 py-4 sm:px-6">
+          <p id="cookie-settings-description" className="mb-4 text-sm leading-relaxed text-gray-600">
+            Hier können Sie auswählen, welche Cookies und Dienste Sie zulassen möchten.
             Notwendige Cookies sind immer aktiv.
           </p>
 
@@ -87,51 +98,56 @@ function SettingsPanel({
             const isExpanded = expanded === cat.key;
 
             return (
-              <div key={cat.key} className="border border-gray-200 rounded-xl overflow-hidden">
+              <div key={cat.key} className="overflow-hidden rounded-xl border border-gray-200">
                 <div
-                  className="flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-gray-50 transition-colors"
+                  className="flex cursor-pointer items-center justify-between px-4 py-3 transition-colors hover:bg-gray-50"
                   onClick={() => setExpanded(isExpanded ? null : cat.key)}
                 >
-                  <div className="flex items-center gap-3 flex-1 min-w-0">
+                  <div className="flex min-w-0 flex-1 items-center gap-3">
                     <label
                       htmlFor={checkboxId}
-                      className="relative inline-flex items-center cursor-pointer"
+                      className="relative inline-flex cursor-pointer items-center"
                       onClick={(e) => e.stopPropagation()}
                     >
                       <input
                         id={checkboxId}
                         type="checkbox"
                         aria-label={cat.label}
-                        checked={local[cat.key]}
+                        checked={cat.locked ? true : Boolean(local[cat.key])}
                         disabled={cat.locked}
                         onChange={() => {
                           if (!cat.locked) {
-                            setLocal((p) => ({ ...p, [cat.key]: !p[cat.key] }));
+                            setLocal((p) => ({
+                              ...p,
+                              necessary: true,
+                              [cat.key]: !p[cat.key],
+                            }));
                           }
                         }}
-                        className="sr-only peer"
+                        className="peer sr-only"
                       />
-                      <div
-                        className={`w-10 h-5 rounded-full peer-focus:ring-2 peer-focus:ring-[#0d5581]/30 transition-colors ${
+
+                      <span
+                        className={`relative block h-5 w-10 rounded-full transition-colors peer-focus:ring-2 peer-focus:ring-[#0d5581]/30 ${
                           cat.locked
-                            ? 'bg-[#0d5581] cursor-not-allowed'
+                            ? 'cursor-not-allowed bg-[#0d5581]'
                             : local[cat.key]
-                            ? 'bg-[#0d5581]'
-                            : 'bg-gray-300'
+                              ? 'bg-[#0d5581]'
+                              : 'bg-gray-300'
                         }`}
                       >
-                        <div
-                          className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${
-                            local[cat.key] ? 'translate-x-5' : 'translate-x-0'
+                        <span
+                          className={`absolute left-0.5 top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform ${
+                            cat.locked || local[cat.key] ? 'translate-x-5' : 'translate-x-0'
                           }`}
                         />
-                      </div>
+                      </span>
                     </label>
 
-                    <span className="font-medium text-sm text-gray-900">{cat.label}</span>
+                    <span className="text-sm font-semibold text-gray-900">{cat.label}</span>
 
                     {cat.locked && (
-                      <span className="text-[10px] bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">
+                      <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] text-gray-500">
                         Immer aktiv
                       </span>
                     )}
@@ -150,12 +166,12 @@ function SettingsPanel({
                       e.stopPropagation();
                       setExpanded(isExpanded ? null : cat.key);
                     }}
-                    className="ml-2 p-1"
+                    className="ml-2 rounded-lg p-1 transition-colors hover:bg-gray-100"
                   >
                     {isExpanded ? (
-                      <ChevronUp className="w-4 h-4 text-gray-400" />
+                      <ChevronUp className="h-4 w-4 text-gray-400" />
                     ) : (
-                      <ChevronDown className="w-4 h-4 text-gray-400" />
+                      <ChevronDown className="h-4 w-4 text-gray-400" />
                     )}
                   </button>
                 </div>
@@ -163,7 +179,7 @@ function SettingsPanel({
                 {isExpanded && (
                   <div
                     id={panelId}
-                    className="px-4 pb-3 text-xs text-gray-500 leading-relaxed border-t border-gray-100 pt-2"
+                    className="border-t border-gray-100 px-4 pb-3 pt-2 text-xs leading-relaxed text-gray-500"
                   >
                     {cat.description}
                   </div>
@@ -173,19 +189,19 @@ function SettingsPanel({
           })}
         </div>
 
-        <div className="px-6 py-4 border-t border-gray-100 flex gap-3">
+        <div className="flex gap-3 border-t border-gray-100 px-5 py-4 sm:px-6">
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-600 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors"
+            className="flex-1 rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-50"
           >
             Abbrechen
           </button>
 
           <button
             type="button"
-            onClick={() => onSave(local)}
-            className="flex-1 px-4 py-2.5 text-sm font-bold text-white bg-[#0d5581] rounded-xl hover:bg-[#0d5581]/90 transition-colors"
+            onClick={saveSelection}
+            className="flex-1 rounded-xl bg-[#0d5581] px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-[#0d5581]/90"
           >
             Auswahl speichern
           </button>
@@ -209,52 +225,66 @@ export default function CookieBanner() {
       )}
 
       {consent.showBanner && !consent.showSettings && (
-        <div className="fixed bottom-0 inset-x-0 z-[10000] p-4 animate-in slide-in-from-bottom duration-500">
-          <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden">
-            <div className="p-6">
-              <div className="flex items-start gap-4 mb-4">
-                <div className="w-10 h-10 bg-[#0d5581]/10 rounded-xl flex items-center justify-center flex-shrink-0">
-                  <Cookie className="w-5 h-5 text-[#0d5581]" />
+        <div className="fixed inset-x-0 bottom-3 z-[10000] px-3 sm:bottom-4 sm:px-4">
+          <div
+            role="dialog"
+            aria-modal="false"
+            aria-labelledby="cookie-banner-title"
+            aria-describedby="cookie-banner-description"
+            className="mx-auto max-h-[78vh] max-w-4xl overflow-y-auto rounded-2xl border border-gray-200 bg-white shadow-2xl"
+          >
+            <div className="p-4 sm:p-6">
+              <div className="mb-4 flex items-start gap-3 sm:gap-4">
+                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-[#0d5581]/10">
+                  <Cookie className="h-5 w-5 text-[#0d5581]" />
                 </div>
 
                 <div className="flex-1">
-                  <h3 className="text-base font-bold text-gray-900 mb-1">
+                  <h3 id="cookie-banner-title" className="mb-1 text-base font-bold text-gray-900">
                     Wir respektieren Ihre Privatsphäre
                   </h3>
-                  <p className="text-sm text-gray-600 leading-relaxed">
-                    Wir verwenden Cookies, um Ihnen die bestmögliche Erfahrung auf unserer Website
-                    zu bieten. Einige Cookies sind technisch notwendig, andere helfen uns, die
-                    Website zu verbessern oder personalisierte Inhalte anzuzeigen.{' '}
+
+                  <p
+                    id="cookie-banner-description"
+                    className="text-sm leading-relaxed text-gray-600"
+                  >
+                    Wir verwenden notwendige Cookies für den Betrieb der Website. Mit Ihrer
+                    Zustimmung nutzen wir zusätzlich Analyse-, Marketing- und externe Medien-Dienste,
+                    um unsere Website zu verbessern und Inhalte wie Videos einzubinden. Details
+                    finden Sie in unseren{' '}
                     <Link
                       href="/datenschutzhinweise"
-                      className="text-[#0d5581] hover:underline font-medium"
+                      className="font-semibold text-[#0d5581] hover:underline"
                     >
-                      Datenschutzerklärung
+                      Datenschutzhinweisen
                     </Link>
+                    .
                   </p>
                 </div>
               </div>
 
-              <div className="flex flex-wrap gap-3 mb-5">
+              <div className="mb-5 flex flex-wrap gap-3">
                 <div className="flex items-center gap-1.5 text-xs text-gray-500">
-                  <Shield className="w-3.5 h-3.5 text-[#aad137]" />
-                  DSGVO-konform
+                  <Shield className="h-3.5 w-3.5 text-[#aad137]" />
+                  DSGVO-orientiert
                 </div>
+
                 <div className="flex items-center gap-1.5 text-xs text-gray-500">
-                  <Shield className="w-3.5 h-3.5 text-[#aad137]" />
-                  Keine Weitergabe an Dritte
+                  <Shield className="h-3.5 w-3.5 text-[#aad137]" />
+                  Optionale Dienste nur mit Zustimmung
                 </div>
+
                 <div className="flex items-center gap-1.5 text-xs text-gray-500">
-                  <Shield className="w-3.5 h-3.5 text-[#aad137]" />
+                  <Shield className="h-3.5 w-3.5 text-[#aad137]" />
                   Jederzeit widerrufbar
                 </div>
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-3">
+              <div className="flex flex-col gap-3 sm:flex-row">
                 <button
                   type="button"
                   onClick={consent.acceptAll}
-                  className="flex-1 px-6 py-3 text-sm font-bold text-white bg-[#0d5581] rounded-xl hover:bg-[#0d5581]/90 transition-all hover:shadow-lg"
+                  className="flex-1 rounded-xl bg-[#0d5581] px-6 py-3 text-sm font-bold text-white transition-all hover:bg-[#0d5581]/90 hover:shadow-lg"
                 >
                   Alle akzeptieren
                 </button>
@@ -262,7 +292,7 @@ export default function CookieBanner() {
                 <button
                   type="button"
                   onClick={consent.rejectAll}
-                  className="flex-1 px-6 py-3 text-sm font-bold text-gray-700 bg-gray-100 rounded-xl hover:bg-gray-200 transition-colors"
+                  className="flex-1 rounded-xl bg-gray-100 px-6 py-3 text-sm font-bold text-gray-700 transition-colors hover:bg-gray-200"
                 >
                   Nur notwendige
                 </button>
@@ -270,9 +300,9 @@ export default function CookieBanner() {
                 <button
                   type="button"
                   onClick={consent.openSettings}
-                  className="flex-1 px-6 py-3 text-sm font-medium text-[#0d5581] border border-[#0d5581]/30 rounded-xl hover:bg-[#0d5581]/5 transition-colors flex items-center justify-center gap-2"
+                  className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-[#0d5581]/30 px-6 py-3 text-sm font-semibold text-[#0d5581] transition-colors hover:bg-[#0d5581]/5"
                 >
-                  <Settings className="w-4 h-4" />
+                  <Settings className="h-4 w-4" />
                   Einstellungen
                 </button>
               </div>
