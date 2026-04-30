@@ -39,38 +39,46 @@ interface BlogPageProps {
   searchParams: Promise<{ page?: string; cat?: string }>;
 }
 
-export async function generateMetadata({ searchParams }: BlogPageProps): Promise<Metadata> {
+function formatCategoryName(slug: string) {
+  return slug.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+function stripHtmlText(text: string) {
+  return text.replace(/<[^>]*>/g, '').replace(/&[^;]+;/g, ' ').trim();
+}
+
+export async function generateMetadata({
+  searchParams,
+}: BlogPageProps): Promise<Metadata> {
   const params = await searchParams;
   const catFilter = params.cat;
   const pageNum = Number(params.page) || 1;
 
-  // Always use sanitized siteUrl (never localhost)
   const { siteUrl } = await getSiteSettings();
   const canonicalBase = siteUrl + '/insiderwissen';
 
-  // Category filtered pages → canonical only pointing to /insiderwissen
-  // No noindex needed — canonical signal alone consolidates to main page
-  // This avoids the "Canonicalised + noindex" conflict in Screaming Frog
   if (catFilter) {
-    const catName = catFilter.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+    const catName = formatCategoryName(catFilter);
+
     return {
       title: `${catName} – Insiderwissen Blog & Ratgeber`,
-      description: CATEGORY_DESCRIPTIONS[catFilter]?.slice(0, 160) || `Alle Artikel zum Thema ${catName}. Ratgeber und Anleitungen von Experten.`,
+      description:
+        CATEGORY_DESCRIPTIONS[catFilter]?.slice(0, 160) ||
+        `Alle Artikel zum Thema ${catName}. Ratgeber und Anleitungen von Experten.`,
       alternates: { canonical: canonicalBase },
     };
   }
 
-  // Pagination pages → noindex + self-canonical (no conflict: canonical is self)
   if (pageNum > 1) {
     return {
       title: `Insiderwissen – Blog & Ratgeber | Seite ${pageNum}`,
-      description: 'Aktuelle Artikel, Anleitungen und Ratgeber rund um die Online-Fahrzeugabmeldung in Deutschland.',
+      description:
+        'Aktuelle Artikel, Anleitungen und Ratgeber rund um die Online-Fahrzeugabmeldung in Deutschland.',
       alternates: { canonical: `${canonicalBase}?page=${pageNum}` },
       robots: { index: false, follow: true },
     };
   }
 
-  // Main blog page — fully indexable with self-canonical
   return {
     title: 'Insiderwissen – Blog & Ratgeber',
     description:
@@ -89,21 +97,27 @@ export async function generateMetadata({ searchParams }: BlogPageProps): Promise
 }
 
 // ISR: revalidate blog listing every 5 minutes
-// NOTE: do NOT combine with force-dynamic — that disables ISR and hits the DB on every request
 export const revalidate = 300;
 
-export default async function InsiderwissenPage({ searchParams }: BlogPageProps) {
+export default async function InsiderwissenPage({
+  searchParams,
+}: BlogPageProps) {
   const params = await searchParams;
   const currentPage = Number(params.page) || 1;
   const catFilter = params.cat || undefined;
+
+  // 150 sichtbare Blogkarten pro Seite.
+  // 1000 interne Textlinks unten gegen Orphan Pages.
   const perPage = 150;
 
-  const [result, categories] = await Promise.all([
+  const [result, categories, allPostsResult] = await Promise.all([
     getAllPosts(currentPage, perPage, catFilter),
     getCategories(),
+    getAllPosts(1, 1000),
   ]);
 
   const { posts, totalPages } = result;
+  const allPosts = allPostsResult.posts;
 
   return (
     <main className="pb-20">
@@ -112,46 +126,108 @@ export default async function InsiderwissenPage({ searchParams }: BlogPageProps)
         <div className="max-w-4xl mx-auto px-4">
           <div className="inline-flex items-center gap-2 bg-white/10 rounded-full px-4 py-1.5 mb-6">
             <BookOpen className="w-4 h-4 text-accent" />
-            <span className="text-white/90 text-sm font-medium">Blog &amp; Ratgeber</span>
+            <span className="text-white/90 text-sm font-medium">
+              Blog &amp; Ratgeber
+            </span>
           </div>
+
           <h1 className="text-3xl md:text-5xl font-extrabold text-white mb-4">
-            {catFilter
-              ? catFilter.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
-              : 'Insiderwissen'}
+            {catFilter ? formatCategoryName(catFilter) : 'Insiderwissen'}
           </h1>
+
           <p className="text-white/70 text-lg max-w-2xl mx-auto">
             {catFilter
-              ? `Alle Artikel und Ratgeber zum Thema ${catFilter.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}.`
-              : 'Alles was Sie \u00fcber die Fahrzeugabmeldung, Stilllegung und KFZ-Ummeldung wissen m\u00fcssen.'}
+              ? `Alle Artikel und Ratgeber zum Thema ${formatCategoryName(catFilter)}.`
+              : 'Alles, was Sie über die Fahrzeugabmeldung, Stilllegung und KFZ-Ummeldung wissen müssen.'}
           </p>
         </div>
       </section>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12">
-        {/* Categories */}
+        {/* Categories desktop only */}
         {categories.length > 0 && (
-          <div className="flex flex-wrap gap-2 mb-10">
-            <Link
-              href="/insiderwissen"
-              className={'px-4 py-2 rounded-full text-sm font-medium transition-colors ' +
-                (!catFilter
-                  ? 'bg-primary text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200')}
-            >
-              Alle
-            </Link>
-            {categories.map((cat) => (
+          <div className="hidden md:block mb-10 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+            <div className="mb-3 flex items-center justify-between gap-4">
+              <h2 className="text-sm font-extrabold uppercase tracking-wide text-primary">
+                Themenbereiche
+              </h2>
+
+              {catFilter && (
+                <Link
+                  href="/insiderwissen"
+                  className="text-sm font-semibold text-accent hover:underline"
+                >
+                  Alle Artikel anzeigen
+                </Link>
+              )}
+            </div>
+
+            <div className="flex flex-wrap gap-2">
               <Link
-                key={cat.id}
-                href={'/insiderwissen?cat=' + cat.slug}
-                className={'px-4 py-2 rounded-full text-sm font-medium transition-colors ' +
-                  (catFilter === cat.slug
+                href="/insiderwissen"
+                className={
+                  'px-4 py-2 rounded-full text-sm font-medium transition-colors ' +
+                  (!catFilter
                     ? 'bg-primary text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200')}
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200')
+                }
               >
-                {cat.name} ({cat.count})
+                Alle
               </Link>
-            ))}
+
+              {categories.slice(0, 18).map((cat) => (
+                <Link
+                  key={cat.id}
+                  href={'/insiderwissen?cat=' + cat.slug}
+                  className={
+                    'px-4 py-2 rounded-full text-sm font-medium transition-colors ' +
+                    (catFilter === cat.slug
+                      ? 'bg-primary text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200')
+                  }
+                >
+                  {cat.name} ({cat.count})
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Mobile category select */}
+        {categories.length > 0 && (
+          <div className="md:hidden mb-8 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+            <p className="mb-3 text-sm font-extrabold uppercase tracking-wide text-primary">
+              Themenbereich
+            </p>
+
+            <div className="flex gap-2 overflow-x-auto pb-1">
+              <Link
+                href="/insiderwissen"
+                className={
+                  'shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-colors ' +
+                  (!catFilter
+                    ? 'bg-primary text-white'
+                    : 'bg-gray-100 text-gray-700')
+                }
+              >
+                Alle
+              </Link>
+
+              {categories.slice(0, 8).map((cat) => (
+                <Link
+                  key={cat.id}
+                  href={'/insiderwissen?cat=' + cat.slug}
+                  className={
+                    'shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-colors ' +
+                    (catFilter === cat.slug
+                      ? 'bg-primary text-white'
+                      : 'bg-gray-100 text-gray-700')
+                  }
+                >
+                  {cat.name}
+                </Link>
+              ))}
+            </div>
           </div>
         )}
 
@@ -159,7 +235,7 @@ export default async function InsiderwissenPage({ searchParams }: BlogPageProps)
         {catFilter && (
           <div className="mb-10 bg-blue-50 rounded-xl p-6 border border-blue-100">
             <h2 className="text-xl font-bold text-primary mb-3">
-              {catFilter.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())} – Ratgeber &amp; Artikel
+              {formatCategoryName(catFilter)} – Ratgeber &amp; Artikel
             </h2>
             <p className="text-gray-700 leading-relaxed">
               {CATEGORY_DESCRIPTIONS[catFilter] || DEFAULT_CAT_DESCRIPTION}
@@ -185,7 +261,11 @@ export default async function InsiderwissenPage({ searchParams }: BlogPageProps)
           <nav className="flex items-center justify-center gap-2 mt-16">
             {currentPage > 1 && (
               <Link
-                href={'/insiderwissen?page=' + (currentPage - 1) + (catFilter ? '&cat=' + catFilter : '')}
+                href={
+                  '/insiderwissen?page=' +
+                  (currentPage - 1) +
+                  (catFilter ? '&cat=' + catFilter : '')
+                }
                 prefetch={false}
                 className="px-4 py-2 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 font-medium transition-colors"
               >
@@ -195,6 +275,7 @@ export default async function InsiderwissenPage({ searchParams }: BlogPageProps)
 
             {Array.from({ length: Math.min(totalPages, 7) }, (_, i) => {
               let pageNum: number;
+
               if (totalPages <= 7) {
                 pageNum = i + 1;
               } else if (currentPage <= 4) {
@@ -204,15 +285,22 @@ export default async function InsiderwissenPage({ searchParams }: BlogPageProps)
               } else {
                 pageNum = currentPage - 3 + i;
               }
+
               return (
                 <Link
                   key={pageNum}
-                  href={'/insiderwissen?page=' + pageNum + (catFilter ? '&cat=' + catFilter : '')}
+                  href={
+                    '/insiderwissen?page=' +
+                    pageNum +
+                    (catFilter ? '&cat=' + catFilter : '')
+                  }
                   prefetch={false}
-                  className={'w-10 h-10 flex items-center justify-center rounded-lg font-medium transition-colors ' +
+                  className={
+                    'w-10 h-10 flex items-center justify-center rounded-lg font-medium transition-colors ' +
                     (currentPage === pageNum
                       ? 'bg-primary text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200')}
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200')
+                  }
                 >
                   {pageNum}
                 </Link>
@@ -221,7 +309,11 @@ export default async function InsiderwissenPage({ searchParams }: BlogPageProps)
 
             {currentPage < totalPages && (
               <Link
-                href={'/insiderwissen?page=' + (currentPage + 1) + (catFilter ? '&cat=' + catFilter : '')}
+                href={
+                  '/insiderwissen?page=' +
+                  (currentPage + 1) +
+                  (catFilter ? '&cat=' + catFilter : '')
+                }
                 prefetch={false}
                 className="px-4 py-2 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 font-medium transition-colors"
               >
@@ -231,31 +323,63 @@ export default async function InsiderwissenPage({ searchParams }: BlogPageProps)
           </nav>
         )}
 
+        {/* Internal links against orphan pages */}
+        {!catFilter && allPosts.length > 0 && (
+          <section className="mt-16 bg-white rounded-2xl p-8 md:p-10 border border-gray-100 shadow-sm">
+            <h2 className="text-2xl font-extrabold text-primary mb-4">
+              Alle Ratgeber von A bis Z
+            </h2>
+
+            <p className="text-gray-600 leading-relaxed mb-6">
+              Hier finden Sie alle aktuellen Ratgeber rund um Auto abmelden,
+              Kfz-Zulassung, Sicherheitscodes, Kosten, Unterlagen und digitale
+              Fahrzeugabmeldung.
+            </p>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {allPosts.map((post) => (
+                <Link
+                  key={post.id}
+                  href={`/insiderwissen/${post.slug}`}
+                  className="text-sm font-semibold text-primary hover:text-accent hover:underline"
+                >
+                  {stripHtmlText(post.title)}
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
+
         {/* SEO text content for improved text-to-HTML ratio */}
         <div className="mt-16 bg-white rounded-2xl p-8 md:p-10 border border-gray-100 shadow-sm">
           <h2 className="text-2xl font-extrabold text-primary mb-4">
             Insiderwissen rund um die Fahrzeugabmeldung in Deutschland
           </h2>
+
           <div className="space-y-4 text-gray-600 leading-relaxed">
             <p>
-              Willkommen im Insiderwissen-Blog von Online Auto Abmelden – Ihrem umfassenden
-              Ratgeber rund um die Themen Fahrzeugabmeldung, KFZ-Zulassung und digitale
-              Behördenservices in Deutschland. Unsere Experten-Redaktion recherchiert und
-              aktualisiert regelmäßig alle Beiträge, damit Sie stets die neuesten Informationen
-              zu gesetzlichen Änderungen, Kosten und Abläufen erhalten.
+              Willkommen im Insiderwissen-Blog von Online Auto Abmelden – Ihrem
+              umfassenden Ratgeber rund um die Themen Fahrzeugabmeldung,
+              KFZ-Zulassung und digitale Behördenservices in Deutschland. Unsere
+              Experten-Redaktion recherchiert und aktualisiert regelmäßig alle
+              Beiträge, damit Sie stets die neuesten Informationen zu gesetzlichen
+              Änderungen, Kosten und Abläufen erhalten.
             </p>
+
             <p>
-              Ob Sie erfahren möchten, wie die Online-Abmeldung Schritt für Schritt funktioniert,
-              welche Unterlagen Sie benötigen, was bei Fahrzeugverkauf oder -export zu beachten ist
-              oder wie Sie häufige Fehler bei der Abmeldung vermeiden – hier finden Sie die passenden
-              Antworten. Alle Artikel basieren auf den aktuellen Regelungen des Kraftfahrt-Bundesamtes
+              Ob Sie erfahren möchten, wie die Online-Abmeldung Schritt für Schritt
+              funktioniert, welche Unterlagen Sie benötigen, was bei Fahrzeugverkauf
+              oder -export zu beachten ist oder wie Sie häufige Fehler bei der
+              Abmeldung vermeiden – hier finden Sie die passenden Antworten. Alle
+              Artikel basieren auf den aktuellen Regelungen des Kraftfahrt-Bundesamtes
               (KBA) und der Fahrzeug-Zulassungsverordnung (FZV).
             </p>
+
             <p>
-              Nutzen Sie die Kategorie-Filter oben, um gezielt Artikel zu Ihrem Thema zu finden.
-              Von der Kennzeichen-Abmeldung über die Fahrzeugstilllegung bis hin zur iKFZ-Kostenübersicht –
-              unser Blog deckt alle relevanten Bereiche ab und hilft Ihnen, den Behördengang von
-              zu Hause aus zu erledigen.
+              Nutzen Sie die Themenbereiche, um gezielt Artikel zu Ihrem Thema zu
+              finden. Von der Kennzeichen-Abmeldung über die Fahrzeugstilllegung bis
+              hin zur iKFZ-Kostenübersicht – unser Blog deckt alle relevanten Bereiche
+              ab und hilft Ihnen, den Behördengang von zu Hause aus zu erledigen.
             </p>
           </div>
         </div>
