@@ -28,15 +28,16 @@ const nextConfig = {
   },
 
   experimental: {
-    instrumentationHook: false,
-    optimizePackageImports: ['lucide-react', 'recharts', 'date-fns'],
-    serverComponentsExternalPackages: [
-      'better-sqlite3',
-      '@libsql/client',
-      '@prisma/adapter-libsql',
-      '@prisma/adapter-better-sqlite3',
-    ],
-  },
+  instrumentationHook: false,
+  optimizePackageImports: ['lucide-react', 'recharts', 'date-fns'],
+},
+
+serverExternalPackages: [
+  'better-sqlite3',
+  '@libsql/client',
+  '@prisma/adapter-libsql',
+  '@prisma/adapter-better-sqlite3',
+],
 
   async redirects() {
     return [
@@ -204,11 +205,6 @@ const nextConfig = {
 {
   source: '/wo-ist-der-7-stellige-sicherheitscode-im-fahrzeugschein-einfach-erklaert',
   destination: '/insiderwissen/wo-ist-der-7-stellige-sicherheitscode-im-fahrzeugschein',
-  permanent: true,
-},
-{
-  source: '/$',
-  destination: '/',
   permanent: true,
 },
       {
@@ -977,6 +973,31 @@ const nextConfig = {
 
   async headers() {
     return [
+            {
+        source: '/:path*',
+        headers: [
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'strict-origin-when-cross-origin',
+          },
+          {
+            key: 'X-Frame-Options',
+            value: 'SAMEORIGIN',
+          },
+          {
+            key: 'Permissions-Policy',
+            value: 'camera=(), microphone=(), geolocation=()',
+          },
+          {
+            key: 'Strict-Transport-Security',
+            value: 'max-age=31536000; includeSubDomains; preload',
+          },
+        ],
+      },
       {
         source: '/logo.svg',
         headers: [
