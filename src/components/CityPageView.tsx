@@ -1969,6 +1969,3 @@ export default function CityPageView({
     </>
   );
 }
-
-  );
-}
