@@ -155,7 +155,7 @@ export default function Hero({
         <div className="mx-auto max-w-7xl px-4 text-center">
           <p className="text-sm text-white/60">
             <Lightbulb className="mr-1 inline-block h-4 w-4 text-accent" />
-            Code schlecht lesbar? Einfach Foto per WhatsApp senden – wir prüfen kostenlos.
+            Sicherheitscode schlecht lesbar? Einfach Foto per WhatsApp senden – wir prüfen kostenlos vor dem Start.
           </p>
         </div>
       </div>
