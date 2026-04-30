@@ -87,7 +87,7 @@ export default function Hero({
                 href="/product/auto-online-anmelden"
                 className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-white/30 px-6 py-4 text-base font-semibold text-white transition-all hover:-translate-y-0.5 hover:border-accent hover:bg-accent/10"
               >
-                Auch Auto anmelden ab {anmeldungPrice}
+                KFZ online anmelden
               </Link>
             </div>
 
