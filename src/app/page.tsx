@@ -387,7 +387,7 @@ export default async function HomePage() {
         <PricingBox price={pricing.abmeldungPriceFormatted} paymentMethods={paymentLabels} />
 
         <section
-          className="py-20 md:py-28 bg-gradient-to-b from-gray-50 via-white to-gray-50 relative overflow-hidden"
+          className="py-14 md:py-20 bg-gradient-to-b from-gray-50 via-white to-gray-50 relative overflow-hidden"
           aria-labelledby="so-funktioniert-die-digitale-fahrzeugabmeldung"
         >
           <div className="absolute inset-0 pointer-events-none">
@@ -396,7 +396,7 @@ export default async function HomePage() {
           </div>
 
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-            <div className="text-center mb-16 md:mb-20">
+            <div className="text-center mb-12 md:mb-16">
               <span className="inline-flex items-center gap-2 bg-primary/10 text-primary font-semibold text-sm px-5 py-2 rounded-full mb-5 border border-primary/10">
                 <BadgeCheck className="w-4 h-4" />
                 So funktioniert&apos;s
@@ -515,7 +515,7 @@ export default async function HomePage() {
 
             <div className="grid lg:grid-cols-2 gap-6">
               <section
-                className="group bg-white rounded-2xl p-8 border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300"
+                className="group bg-white rounded-2xl p-6 md:p-8 border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300"
                 aria-labelledby="weitere-informationen-zur-online-abmeldung"
               >
                 <div className="flex items-center gap-3 mb-6">
@@ -546,7 +546,7 @@ export default async function HomePage() {
               </section>
 
               <section
-                className="group bg-white rounded-2xl p-8 border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300"
+                className="group bg-white rounded-2xl p-6 md:p-8 border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300"
                 aria-labelledby="beliebte-seiten-zur-fahrzeugabmeldung"
               >
                 <div className="flex items-center gap-3 mb-6">
@@ -560,9 +560,10 @@ export default async function HomePage() {
                     Beliebte Seiten zur Fahrzeugabmeldung
                   </h3>
                 </div>
+
                 <nav aria-label="Beliebte Seiten zur Fahrzeugabmeldung">
                   <div className="grid md:grid-cols-2 gap-3">
-                    {CITY_LINKS.map((city) => (
+                    {CITY_LINKS.slice(0, 8).map((city) => (
                       <Link
                         key={city.slug}
                         href={`/${city.slug}`}
@@ -573,24 +574,53 @@ export default async function HomePage() {
                       </Link>
                     ))}
                   </div>
+
+                  {CITY_LINKS.length > 8 && (
+                    <details className="mt-5 group/details">
+                      <summary className="cursor-pointer inline-flex items-center gap-2 rounded-full bg-gray-50 hover:bg-gray-100 border border-gray-200 px-4 py-2 text-sm font-bold text-primary transition-colors">
+                        Weitere Städte anzeigen
+                      </summary>
+
+                      <div className="grid md:grid-cols-2 gap-3 mt-5">
+                        {CITY_LINKS.slice(8).map((city) => (
+                          <Link
+                            key={city.slug}
+                            href={`/${city.slug}`}
+                            className="flex items-center gap-2 text-primary font-semibold hover:text-accent transition-colors group/link"
+                          >
+                            <span className="w-1.5 h-1.5 rounded-full bg-accent group-hover/link:bg-primary transition-colors flex-shrink-0" />
+                            {city.name}
+                          </Link>
+                        ))}
+                      </div>
+                    </details>
+                  )}
                 </nav>
 
                 <div className="mt-6 pt-5 border-t border-gray-100">
                   <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">
                     Bundesland-Übersichten
                   </p>
-                  <div className="flex flex-wrap gap-2">
-                    {BUNDESLAND_LINKS.map((bl) => (
-                      <Link
-                        key={bl.slug}
-                        href={`/${bl.slug}`}
-                        className="inline-flex items-center gap-1 text-xs font-medium text-primary/70 hover:text-primary bg-gray-50 hover:bg-gray-100 border border-gray-200 px-2.5 py-1 rounded-full transition-colors"
-                      >
-                        {bl.name}
-                      </Link>
-                    ))}
-                  </div>
+
+                  <details>
+                    <summary className="cursor-pointer inline-flex items-center gap-2 rounded-full bg-gray-50 hover:bg-gray-100 border border-gray-200 px-4 py-2 text-sm font-bold text-primary transition-colors">
+                      Bundesländer anzeigen
+                    </summary>
+
+                    <div className="flex flex-wrap gap-2 mt-4">
+                      {BUNDESLAND_LINKS.map((bl) => (
+                        <Link
+                          key={bl.slug}
+                          href={`/${bl.slug}`}
+                          className="inline-flex items-center gap-1 text-xs font-medium text-primary/70 hover:text-primary bg-gray-50 hover:bg-gray-100 border border-gray-200 px-2.5 py-1 rounded-full transition-colors"
+                        >
+                          {bl.name}
+                        </Link>
+                      ))}
+                    </div>
+                  </details>
                 </div>
+
                 <p className="text-sm text-gray-500 mt-5 flex items-center gap-2">
                   <Shield className="w-4 h-4 text-primary/40" />
                   Unser Service funktioniert bundesweit in jeder Stadt und in jedem Landkreis.
