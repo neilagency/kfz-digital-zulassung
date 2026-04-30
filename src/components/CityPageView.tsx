@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import Link from 'next/link';
 import {
   ArrowRight,
@@ -280,9 +281,7 @@ function buildStrongHeroSummary(cityName: string, existing?: string): string {
 }
 
 function buildStrongHeroDetail(cityName: string, existing?: string): string {
-  if (existing?.trim()) {
-    return existing.trim();
-  }
+  if (existing?.trim()) return existing.trim();
 
   return `Viele Kunden aus ${cityName} nutzen den digitalen Weg, um Anfahrt, Termin und Wartezeit zu vermeiden. Unser Service begleitet Sie Schritt für Schritt bis zur offiziellen Bestätigung per E-Mail.`;
 }
@@ -325,6 +324,20 @@ function buildCityInput(page: LocalPage): {
   };
 
   return { cityName, authority, input };
+}
+
+function SectionShell({
+  children,
+  className = '',
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <section className={`mx-auto mt-12 max-w-5xl px-4 sm:px-6 ${className}`}>
+      {children}
+    </section>
+  );
 }
 
 export default function CityPageView({
@@ -567,7 +580,6 @@ export default function CityPageView({
     contentNearbyIntro.trim().length > 0 ? contentNearbyIntro : (model.sections?.links?.intro ?? '');
 
   const prepParagraphs = model.sections.preparation.paragraphs;
-
   const trustParagraphs = excludeExisting(model.sections.trust.paragraphs, prepParagraphs);
 
   const noteParagraphs = excludeExisting(model.sections.note.paragraphs, [
@@ -618,6 +630,34 @@ export default function CityPageView({
     },
   };
 
+  const videoSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: `Video-Hilfe zur Online-Abmeldung in ${cityName}`,
+    itemListElement: [
+      {
+        '@type': 'VideoObject',
+        position: 1,
+        name: 'Sicherheitscode am Kennzeichen freilegen',
+        description:
+          'Video-Hilfe zum Freilegen des Sicherheitscodes am Kennzeichen für die Online-Abmeldung.',
+        thumbnailUrl: 'https://i.ytimg.com/vi/3nsdJSvKAtE/hqdefault.jpg',
+        embedUrl: 'https://www.youtube-nocookie.com/embed/3nsdJSvKAtE',
+        url: `${baseUrl}/vedio`,
+      },
+      {
+        '@type': 'VideoObject',
+        position: 2,
+        name: 'Sicherheitscode im Fahrzeugschein freilegen',
+        description:
+          'Video-Hilfe zum Finden und Freilegen des Sicherheitscodes im Fahrzeugschein.',
+        thumbnailUrl: 'https://i.ytimg.com/vi/u38keaF1QKU/hqdefault.jpg',
+        embedUrl: 'https://www.youtube-nocookie.com/embed/u38keaF1QKU',
+        url: `${baseUrl}/vedio`,
+      },
+    ],
+  };
+
   const governmentOfficeSchema = authority
     ? {
         '@context': 'https://schema.org',
@@ -666,7 +706,7 @@ export default function CityPageView({
 
   const sectionMap: Record<SectionKey, JSX.Element> = {
     benefits: (
-      <section className="mx-auto mt-16 max-w-5xl px-4 sm:px-6" key="benefits">
+      <SectionShell key="benefits">
         <div className="rounded-2xl bg-gradient-to-br from-primary to-primary-800 p-8 text-white md:p-10">
           <h2 className="mb-3 text-2xl font-extrabold md:text-3xl">
             {model.sections.benefits.heading}
@@ -688,11 +728,11 @@ export default function CityPageView({
             ))}
           </div>
         </div>
-      </section>
+      </SectionShell>
     ),
 
     preparation: (
-      <section className="mx-auto mt-16 max-w-5xl px-4 sm:px-6" key="preparation">
+      <SectionShell key="preparation">
         <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm md:p-10">
           <h2 className="mb-4 text-2xl font-extrabold text-primary">
             {model.sections.preparation.heading}
@@ -705,11 +745,11 @@ export default function CityPageView({
             ))}
           </div>
         </div>
-      </section>
+      </SectionShell>
     ),
 
     trust: (
-      <section className="mx-auto mt-16 max-w-5xl px-4 sm:px-6" key="trust">
+      <SectionShell key="trust">
         <div className="rounded-2xl border border-primary/10 bg-primary/5 p-8 md:p-10">
           <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-primary">
             <Shield className="h-4 w-4" />
@@ -742,11 +782,11 @@ export default function CityPageView({
             )}
           </div>
         </div>
-      </section>
+      </SectionShell>
     ),
 
     documents: (
-      <section className="mx-auto mt-16 max-w-5xl px-4 sm:px-6" key="documents">
+      <SectionShell key="documents">
         <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm md:p-10">
           <h2 className="mb-4 text-2xl font-extrabold text-primary">
             {model.sections.documents.heading}
@@ -767,11 +807,11 @@ export default function CityPageView({
             ))}
           </div>
         </div>
-      </section>
+      </SectionShell>
     ),
 
     expertHelp: (
-      <section className="mx-auto mt-16 max-w-5xl px-4 sm:px-6" key="expertHelp">
+      <SectionShell key="expertHelp">
         <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm md:p-10">
           <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-primary">
             <HelpCircle className="h-4 w-4" />
@@ -828,11 +868,11 @@ export default function CityPageView({
             {renderInlineLinkedText(model.content.expertAccordionOutro)}
           </p>
         </div>
-      </section>
+      </SectionShell>
     ),
 
     process: (
-      <section className="mx-auto mt-16 max-w-5xl px-4 sm:px-6" key="process">
+      <SectionShell key="process">
         <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm md:p-10">
           <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-primary">
             <FileCheck className="h-4 w-4" />
@@ -862,11 +902,11 @@ export default function CityPageView({
             ))}
           </div>
         </div>
-      </section>
+      </SectionShell>
     ),
 
     compare: (
-      <section className="mx-auto mt-16 max-w-5xl px-4 sm:px-6" key="compare">
+      <SectionShell key="compare">
         <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm md:p-10">
           <h2 className="mb-4 text-2xl font-extrabold text-primary">
             {model.sections.compare.heading}
@@ -920,11 +960,11 @@ export default function CityPageView({
             <ChevronRight className="h-3.5 w-3.5" />
           </Link>
         </div>
-      </section>
+      </SectionShell>
     ),
 
     target: (
-      <section className="mx-auto mt-16 max-w-5xl px-4 sm:px-6" key="target">
+      <SectionShell key="target">
         <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm md:p-10">
           <h2 className="mb-4 text-2xl font-extrabold text-primary">
             {model.sections.target.heading}
@@ -959,11 +999,11 @@ export default function CityPageView({
             ))}
           </div>
         </div>
-      </section>
+      </SectionShell>
     ),
 
     local: (
-      <section className="mx-auto mt-16 max-w-5xl px-4 sm:px-6" key="local">
+      <SectionShell key="local">
         <div className="rounded-2xl border border-primary/10 bg-primary/5 p-8 md:p-10">
           <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-primary">
             <MapPin className="h-4 w-4" />
@@ -977,21 +1017,23 @@ export default function CityPageView({
             {renderInlineLinkedText(model.sections.local.intro)}
           </p>
 
-          <div className="mt-6 grid gap-4 md:grid-cols-3">
-            {model.localInsights.map((insight: any) => (
-              <div
-                key={insight.id}
-                className="rounded-2xl border border-primary/10 bg-white/70 p-5"
-              >
-                <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary/60">
-                  {insight.label}
-                </p>
-                <p className="mt-3 text-sm leading-relaxed text-gray-700">
-                  {renderInlineLinkedText(insight.text)}
-                </p>
-              </div>
-            ))}
-          </div>
+          {model.localInsights.length > 0 && (
+            <div className="mt-6 grid gap-4 md:grid-cols-3">
+              {model.localInsights.map((insight: any) => (
+                <div
+                  key={insight.id}
+                  className="rounded-2xl border border-primary/10 bg-white/70 p-5"
+                >
+                  <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary/60">
+                    {insight.label}
+                  </p>
+                  <p className="mt-3 text-sm leading-relaxed text-gray-700">
+                    {renderInlineLinkedText(insight.text)}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
 
           <div className="mt-6 space-y-4">
             {localParagraphs.map((paragraph: string) => (
@@ -1007,11 +1049,11 @@ export default function CityPageView({
             </p>
           ) : null}
         </div>
-      </section>
+      </SectionShell>
     ),
 
     note: (
-      <section className="mx-auto mt-16 max-w-5xl px-4 sm:px-6" key="note">
+      <SectionShell key="note">
         <div className="rounded-2xl border border-amber-200 bg-amber-50 p-8 shadow-sm md:p-10">
           <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-amber-100 px-4 py-1.5 text-amber-700">
             <HelpCircle className="h-4 w-4" />
@@ -1036,11 +1078,11 @@ export default function CityPageView({
             </p>
           )}
         </div>
-      </section>
+      </SectionShell>
     ),
 
     faq: (
-      <section className="mx-auto mt-16 max-w-5xl px-4 sm:px-6" key="faq">
+      <SectionShell key="faq">
         <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm md:p-10">
           <div className="mb-8 text-center">
             <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-primary">
@@ -1083,7 +1125,7 @@ export default function CityPageView({
             ))}
           </div>
         </div>
-      </section>
+      </SectionShell>
     ),
 
     authorityHubs: (
@@ -1091,12 +1133,12 @@ export default function CityPageView({
         key="authorityHubs"
         cityName={cityName}
         state={input.state}
-        className="mt-16"
+        className="mt-12"
       />
     ),
 
     links: (
-      <section className="mx-auto mt-16 max-w-5xl px-4 sm:px-6" key="links">
+      <SectionShell key="links">
         <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm">
           <h2 className="mb-4 text-2xl font-extrabold text-primary">
             {model.sections.links.heading}
@@ -1111,10 +1153,8 @@ export default function CityPageView({
             </p>
           ) : model.sections.links.links[0] ? (
             <p className="mb-4 text-xs text-gray-400">
-              {model.sections.links.links[0].source === 'regional_pool' ||
-              model.sections.links.links[0].source === 'second_hop'
-                ? 'Hinweis: Teile der Liste können aus regionaler Ergänzung stammen, wenn direkte Peers nicht ausreichen.'
-                : 'Hinweis: Die Auswahl folgt dem lokalen Nachbarschaftsgraph (unmittelbare Behörden-Peers).'}
+              Die Auswahl folgt dem lokalen Nachbarschaftsgraph und hilft Kunden, ähnliche
+              regionale Seiten schneller zu finden.
             </p>
           ) : null}
 
@@ -1161,11 +1201,11 @@ export default function CityPageView({
             </div>
           )}
         </div>
-      </section>
+      </SectionShell>
     ),
 
     cta: (
-      <section className="mx-auto mt-16 max-w-5xl px-4 sm:px-6" key="cta">
+      <SectionShell key="cta">
         <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary via-primary-800 to-dark p-8 text-center md:p-12">
           <div className="relative">
             <div className="mb-5 inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5">
@@ -1193,9 +1233,24 @@ export default function CityPageView({
             </Link>
           </div>
         </div>
-      </section>
+      </SectionShell>
     ),
   };
+
+  const orderedSections: SectionKey[] = [
+    'documents',
+    'benefits',
+    'trust',
+    'local',
+    'compare',
+    'expertHelp',
+    'process',
+    'target',
+    'note',
+    'faq',
+    'authorityHubs',
+    'links',
+  ];
 
   return (
     <>
@@ -1209,6 +1264,10 @@ export default function CityPageView({
       />
       <script
         type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(videoSchema) }}
+      />
+      <script
+        type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
       {governmentOfficeSchema && (
@@ -1219,7 +1278,7 @@ export default function CityPageView({
       )}
 
       <main
-        className="min-h-screen bg-gray-50 pb-20"
+        className="min-h-screen bg-gray-50 pb-16"
         data-archetype={model.archetype}
         data-layout={model.layoutStrategy}
         data-indexable={model.seoGate.indexable ? 'true' : 'false'}
@@ -1258,6 +1317,7 @@ export default function CityPageView({
             <p className="mb-4 max-w-3xl text-lg leading-relaxed text-white/75">
               {renderInlineLinkedText(model.hero.summary)}
             </p>
+
             <p className="mb-8 max-w-3xl text-sm leading-relaxed text-white/65 md:text-base">
               {renderInlineLinkedText(model.hero.detail)}
             </p>
@@ -1338,7 +1398,7 @@ export default function CityPageView({
           </div>
         </section>
 
-        <section className="relative z-10 mx-auto -mt-6 max-w-5xl px-4 sm:px-6">
+        <SectionShell className="-mt-6 relative z-10">
           <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-lg md:p-10">
             <h2 className="mb-4 text-2xl font-extrabold text-primary md:text-3xl">
               {model.intro.heading}
@@ -1352,9 +1412,9 @@ export default function CityPageView({
               ))}
             </div>
           </div>
-        </section>
+        </SectionShell>
 
-        <section className="mx-auto mt-12 max-w-5xl px-4 sm:px-6">
+        <SectionShell>
           <div className="rounded-2xl border border-primary/10 bg-white p-8 shadow-sm md:p-10">
             <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-primary">
               <Shield className="h-4 w-4" />
@@ -1408,9 +1468,9 @@ export default function CityPageView({
               </div>
             </div>
           </div>
-        </section>
+        </SectionShell>
 
-        <section className="mx-auto mt-12 max-w-5xl px-4 sm:px-6">
+        <SectionShell>
           <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm md:p-10">
             <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-primary">
               <PlayCircle className="h-4 w-4" />
@@ -1495,10 +1555,10 @@ export default function CityPageView({
               </a>
             </div>
           </div>
-        </section>
+        </SectionShell>
 
         {authority && (
-          <section className="relative z-10 mx-auto mt-12 max-w-5xl px-4 sm:px-6">
+          <SectionShell>
             <div className="flex flex-col items-start justify-between gap-8 rounded-2xl border border-gray-100 bg-white p-8 shadow-sm md:flex-row">
               <div>
                 <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-primary">
@@ -1536,10 +1596,10 @@ export default function CityPageView({
                 )}
               </div>
             </div>
-          </section>
+          </SectionShell>
         )}
 
-        <section className="mx-auto mt-8 max-w-5xl px-4 sm:px-6">
+        <SectionShell className="mt-8">
           <div className="rounded-2xl border border-primary/10 bg-primary/5 p-8">
             <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-primary">
               <Shield className="h-4 w-4" />
@@ -1552,17 +1612,17 @@ export default function CityPageView({
               {model.authority.processNote}
             </p>
           </div>
-        </section>
+        </SectionShell>
 
-        {model.sectionOrder
+        {orderedSections
           .filter(
-            (sectionKey: keyof typeof sectionMap) =>
+            (sectionKey) =>
               CITY_AUTHORITY_HUBS_ENABLED || sectionKey !== 'authorityHubs',
           )
-          .map((sectionKey: keyof typeof sectionMap) => sectionMap[sectionKey])
+          .map((sectionKey) => sectionMap[sectionKey])
           .filter(Boolean)}
 
-        <section className="mx-auto mt-16 max-w-5xl px-4 sm:px-6">
+        <SectionShell>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {FEATURE_CARDS.map(({ icon: Icon, title, desc }) => (
               <div
@@ -1577,9 +1637,9 @@ export default function CityPageView({
               </div>
             ))}
           </div>
-        </section>
+        </SectionShell>
 
-        <section className="mx-auto mt-16 max-w-5xl px-4 sm:px-6">
+        <SectionShell>
           <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm md:p-10">
             <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-primary">
               <HelpCircle className="h-4 w-4" />
@@ -1612,9 +1672,9 @@ export default function CityPageView({
               ))}
             </div>
           </div>
-        </section>
+        </SectionShell>
 
-        <section className="mx-auto mt-16 max-w-5xl px-4 sm:px-6">
+        <SectionShell>
           <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
             <div className="grid items-center md:grid-cols-2">
               <div className="p-8 md:p-10">
@@ -1657,9 +1717,9 @@ export default function CityPageView({
               </div>
             </div>
           </div>
-        </section>
+        </SectionShell>
 
-        <section className="mx-auto mt-16 max-w-5xl px-4 sm:px-6">
+        <SectionShell>
           <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-dark to-primary-900 p-8 text-white md:p-10">
             <div className="relative">
               <h2 className="mb-2 text-xl font-extrabold">Hilfe & Kontakt</h2>
@@ -1711,7 +1771,9 @@ export default function CityPageView({
               </div>
             </div>
           </div>
-        </section>
+        </SectionShell>
+
+        {sectionMap.cta}
 
         <section className="mx-auto mt-8 max-w-5xl px-4 sm:px-6">
           <div className="text-center">
