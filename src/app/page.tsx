@@ -151,7 +151,7 @@ export async function generateMetadata(): Promise<Metadata> {
       'auto online abmelden deutschland',
     ],
     alternates: {
-      canonical: s.siteUrl,
+      canonical: s.siteUrl.replace(/\/$/, ''),
     },
     robots: {
       index: true,
@@ -160,7 +160,7 @@ export async function generateMetadata(): Promise<Metadata> {
     openGraph: {
       title: PAGE_TITLE,
       description: PAGE_DESCRIPTION,
-      url: s.siteUrl,
+      url: s.siteUrl.replace(/\/$/, ''),
       siteName: s.siteName,
       type: 'website',
       locale: 'de_DE',
@@ -902,7 +902,7 @@ export default async function HomePage() {
           </div>
         </section>
 
-        <FAQ items={homepageFaqItems} withSchema />
+        <FAQ items={homepageFaqItems} />
 
         {posts.length > 0 && (
           <section
