@@ -114,12 +114,16 @@ const VIDEO_ITEMS = [
   {
     title: 'Sicherheitscode am Kennzeichen freilegen',
     embedUrl: 'https://www.youtube-nocookie.com/embed/3nsdJSvKAtE',
+    thumbnailUrl: 'https://i.ytimg.com/vi/3nsdJSvKAtE/hqdefault.jpg',
+    uploadDate: '2026-04-27T08:00:00+02:00',
     description:
       'Kurze Video-Hilfe, damit Kunden den Sicherheitscode am Kennzeichen richtig finden und Fehler vermeiden.',
   },
   {
     title: 'Sicherheitscode im Fahrzeugschein freilegen',
     embedUrl: 'https://www.youtube-nocookie.com/embed/u38keaF1QKU',
+    thumbnailUrl: 'https://i.ytimg.com/vi/u38keaF1QKU/hqdefault.jpg',
+    uploadDate: '2026-04-27T08:00:00+02:00',
     description:
       'Einfach erklärt, welche Stelle im Fahrzeugschein wichtig ist und worauf Kunden achten sollten.',
   },
