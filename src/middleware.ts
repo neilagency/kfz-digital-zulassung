@@ -115,17 +115,12 @@ export async function middleware(request: NextRequest) {
     return gone();
   }
 
-  // ── 0b. Smart Fallback: deep paths with no known handler → 410 ──────────
-  // All valid app routes are either single-segment (handled by [slug]) or
-  // under a known prefix listed in SAFE_MULTI_PREFIXES.
-  // A multi-segment path not under any known prefix cannot be a valid page.
-  const segments = pathname.split('/').filter(Boolean);
-  if (
-    segments.length >= 2 &&
-    !SAFE_MULTI_PREFIXES.some(p => pathname.startsWith(p))
-  ) {
-    return gone('unknown-deep-path');
-  }
+  // Nur bekannte alte WordPress-Paginierungen als 410 behandeln,
+// wenn sie nicht bereits in next.config.js weitergeleitet werden.
+const segments = pathname.split('/').filter(Boolean);
+
+// Sehr kaputte WP-Reste wie /page/41 bleiben 410 oder Redirect über next.config
+// Aber NICHT pauschal jede 2-Segment-URL löschen.
 
   // 1. www → non-www 301 redirect
   if (host.startsWith('www.')) {
