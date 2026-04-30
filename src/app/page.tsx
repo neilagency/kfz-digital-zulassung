@@ -23,6 +23,8 @@ import {
   BadgeCheck,
   Banknote,
   Truck,
+  PlayCircle,
+  Youtube,
 } from 'lucide-react';
 
 const FAQ = dynamic(() => import('@/components/FAQ'), { ssr: true });
@@ -221,7 +223,91 @@ export default async function HomePage() {
         />
 
         <Steps />
+        <section
+          className="py-14 md:py-16 bg-white"
+          aria-labelledby="videos-auto-online-abmelden"
+        >
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid lg:grid-cols-2 gap-10 items-center">
+              <div>
+                <span className="inline-flex items-center gap-2 bg-primary/10 text-primary font-semibold text-sm px-5 py-2 rounded-full mb-5 border border-primary/10">
+                  <PlayCircle className="w-4 h-4" />
+                  Video-Hilfe zur Online-Abmeldung
+                </span>
 
+                <h2
+                  id="videos-auto-online-abmelden"
+                  className="text-3xl md:text-4xl font-extrabold text-primary mb-5 leading-tight"
+                >
+                  Auto online abmelden: Sicherheitscodes einfach per Video erklärt
+                </h2>
+
+                <p className="text-gray-600 text-lg leading-relaxed mb-6">
+                  Viele Kunden möchten vorher genau sehen, wo der Sicherheitscode am
+                  Kennzeichen und im Fahrzeugschein zu finden ist. Unsere Erklärvideos
+                  zeigen die wichtigsten Schritte einfach und verständlich.
+                </p>
+
+                <div className="space-y-3 mb-8">
+                  {[
+                    'Sicherheitscode am Kennzeichen richtig freilegen',
+                    'Sicherheitscode im Fahrzeugschein finden',
+                    'Fehler beim Freilegen vermeiden',
+                    'Danach direkt online abmelden',
+                  ].map((item) => (
+                    <div key={item} className="flex items-start gap-3">
+                      <BadgeCheck className="w-5 h-5 text-accent flex-shrink-0 mt-0.5" />
+                      <span className="text-gray-700">{item}</span>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="flex flex-wrap gap-4">
+                  <Link
+                    href="/vedio"
+                    className="inline-flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-full font-bold hover:bg-primary-600 transition-colors"
+                  >
+                    <PlayCircle className="w-5 h-5" />
+                    Videos ansehen
+                  </Link>
+
+                  <a
+                    href="https://www.youtube.com/@ikfzdigitalzulassung"
+                    target="_blank"
+                    rel="nofollow noopener noreferrer"
+                    className="inline-flex items-center gap-2 bg-red-600 text-white px-6 py-3 rounded-full font-bold hover:bg-red-700 transition-colors"
+                  >
+                    <Youtube className="w-5 h-5" />
+                    YouTube öffnen
+                  </a>
+                </div>
+              </div>
+
+              <div className="bg-gray-50 rounded-2xl border border-gray-100 p-4 md:p-5 shadow-sm">
+                <div className="aspect-video rounded-xl overflow-hidden bg-black">
+                  <iframe
+                    className="w-full h-full"
+                    src="https://www.youtube-nocookie.com/embed/3nsdJSvKAtE"
+                    title="Sicherheitscode am Kennzeichen freilegen"
+                    loading="lazy"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowFullScreen
+                  />
+                </div>
+
+                <div className="mt-5">
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">
+                    Sicherheitscode am Kennzeichen freilegen
+                  </h3>
+                  <p className="text-gray-600 leading-relaxed">
+                    In diesem Video sehen Sie, wie der Sicherheitscode am Kennzeichen
+                    freigelegt wird. Das hilft, Fehler vor der Online-Abmeldung zu vermeiden.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
         <section
           className="py-14 md:py-16 bg-gray-50"
           aria-labelledby="warum-online-auto-abmelden"
