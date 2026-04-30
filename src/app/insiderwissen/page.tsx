@@ -96,7 +96,7 @@ export default async function InsiderwissenPage({ searchParams }: BlogPageProps)
   const params = await searchParams;
   const currentPage = Number(params.page) || 1;
   const catFilter = params.cat || undefined;
-  const perPage = 9;
+  const perPage = 150;
 
   const [result, categories] = await Promise.all([
     getAllPosts(currentPage, perPage, catFilter),
