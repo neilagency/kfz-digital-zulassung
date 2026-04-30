@@ -63,7 +63,7 @@ function buildCityPage(slug: string): LocalPage {
     focusKeywords: '',
     seoScore: 0,
     canonical: '',
-    robots: model.seoGate.indexable ? 'index, follow' : 'noindex, follow',
+    robots: 'index, follow',
     schemaType: '',
     schemaData: '',
     ogTitle: model.metaTitle,
