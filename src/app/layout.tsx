@@ -11,10 +11,16 @@ const inter = Inter({
   variable: '--font-inter',
 });
 
+function stripTrailingSlash(url: string): string {
+  return url.replace(/\/+$/, '');
+}
+
 export async function generateMetadata(): Promise<Metadata> {
   const s = await getSiteSettings();
+  const siteUrl = stripTrailingSlash(s.siteUrl);
+
   return {
-    metadataBase: new URL(s.siteUrl),
+    metadataBase: new URL(siteUrl),
     title: {
       default: `${s.siteName} – KFZ online abmelden in 2 Minuten`,
       template: `%s | ${s.siteName}`,
@@ -29,6 +35,10 @@ export async function generateMetadata(): Promise<Metadata> {
       'KFZ online abmelden',
       'Fahrzeugabmeldung',
       'iKFZ',
+      'Zulassungsdienst',
+      'Zulassungsservice',
+      'Online Zulassungsdienst',
+      'Digitale Fahrzeugabmeldung',
     ],
     openGraph: {
       type: 'website',
@@ -36,10 +46,21 @@ export async function generateMetadata(): Promise<Metadata> {
       siteName: s.siteName,
       title: `${s.siteName} – KFZ online abmelden in 2 Minuten`,
       description: s.siteDescription,
-      images: [{ url: '/logo.webp', width: 1920, height: 1080, alt: `${s.siteName} – KFZ online abmelden` }],
+      url: siteUrl,
+      images: [
+        {
+          url: `${siteUrl}/logo.webp`,
+          width: 1920,
+          height: 1080,
+          alt: `${s.siteName} – KFZ online abmelden`,
+        },
+      ],
     },
     twitter: {
       card: 'summary_large_image',
+      title: `${s.siteName} – KFZ online abmelden in 2 Minuten`,
+      description: s.siteDescription,
+      images: [`${siteUrl}/logo.webp`],
     },
     icons: {
       icon: [
@@ -48,9 +69,7 @@ export async function generateMetadata(): Promise<Metadata> {
         { url: '/icon-192x192.png', sizes: '192x192', type: 'image/png' },
         { url: '/icon-512x512.png', sizes: '512x512', type: 'image/png' },
       ],
-      apple: [
-        { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
-      ],
+      apple: [{ url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }],
     },
     manifest: '/site.webmanifest',
     robots:
@@ -58,11 +77,8 @@ export async function generateMetadata(): Promise<Metadata> {
         ? { index: false, follow: false }
         : { index: true, follow: true },
     other: {
-      'google': 'notranslate',
+      google: 'notranslate',
     },
-    // NOTE: Do NOT set a global canonical here — each page sets its own via alternates.
-    // Setting canonical: '/' here would cause Next.js to output it on every page
-    // before the page-level canonical overrides it, which confuses crawlers.
   };
 }
 
@@ -72,6 +88,103 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   const settings = await getSiteSettings();
+
+  const siteUrl = stripTrailingSlash(settings.siteUrl);
+  const companyName =
+    settings.companyName || 'iKFZ Digital Zulassung UG (haftungsbeschränkt)';
+  const siteName = settings.siteName || 'Online Auto Abmelden';
+
+  const sameAs = Object.values(settings.social ?? {}).filter(
+    (value): value is string => typeof value === 'string' && value.trim().length > 0,
+  );
+
+  const organizationSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    '@id': `${siteUrl}#organization`,
+    name: siteName,
+    legalName: companyName,
+    alternateName: [
+      'Online Auto Abmelden',
+      'iKFZ Digital Zulassung',
+      'iKfz Digitalzulassung',
+      'KFZ Digital Zulassung',
+      'Digitaler Zulassungsdienst',
+      'Online Zulassungsdienst',
+      'KFZ Zulassungsservice',
+      'Auto online abmelden',
+      'KFZ online abmelden',
+      'Fahrzeug online abmelden',
+      'Kfz-Abmeldung online',
+    ],
+    url: siteUrl,
+    logo: {
+      '@type': 'ImageObject',
+      url: `${siteUrl}/logo.svg`,
+    },
+    image: `${siteUrl}/logo.svg`,
+    email: settings.email,
+    telephone: '+4915224999190',
+    areaServed: {
+      '@type': 'Country',
+      name: 'Deutschland',
+    },
+    contactPoint: [
+      {
+        '@type': 'ContactPoint',
+        telephone: '+4915224999190',
+        email: settings.email,
+        contactType: 'customer support',
+        areaServed: 'DE',
+        availableLanguage: ['de', 'ar', 'tr', 'en'],
+      },
+      {
+        '@type': 'ContactPoint',
+        telephone: '+4915224999190',
+        contactType: 'WhatsApp support',
+        areaServed: 'DE',
+        availableLanguage: ['de', 'ar', 'tr', 'en'],
+      },
+    ],
+    knowsAbout: [
+      'Auto online abmelden',
+      'KFZ online abmelden',
+      'Fahrzeug online abmelden',
+      'Digitale Fahrzeugabmeldung',
+      'i-Kfz',
+      'Sicherheitscode Fahrzeugschein',
+      'Sicherheitscode Kennzeichen',
+      'Zulassungsservice',
+      'Zulassungsdienst',
+      'KBA',
+      'GKS-Anbindung',
+    ],
+    sameAs,
+  };
+
+  const websiteSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    '@id': `${siteUrl}#website`,
+    url: siteUrl,
+    name: siteName,
+    alternateName: [
+      'Online Auto Abmelden',
+      'iKFZ Digital Zulassung',
+      'KFZ online abmelden',
+      'Auto online abmelden',
+    ],
+    description: settings.siteDescription,
+    inLanguage: 'de-DE',
+    publisher: {
+      '@id': `${siteUrl}#organization`,
+    },
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: `${siteUrl}/?s={search_term_string}`,
+      'query-input': 'required name=search_term_string',
+    },
+  };
 
   return (
     <html lang="de" className={inter.variable} suppressHydrationWarning translate="no">
@@ -87,28 +200,20 @@ export default async function RootLayout({
           {children}
         </ConditionalLayout>
 
-        {/* Organization Schema */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              '@context': 'https://schema.org',
-              '@type': 'Organization',
-              name: settings.companyName,
-              url: settings.siteUrl,
-              logo: settings.siteUrl + '/logo.svg',
-              contactPoint: {
-  '@type': 'ContactPoint',
-  telephone: '+4915224999190',
-  contactType: 'customer service',
-  availableLanguage: ['German'],
-},
-              sameAs: Object.values(settings.social).filter(Boolean),
-            }),
+            __html: JSON.stringify(organizationSchema),
           }}
         />
 
-        {/* Auto-reload on ChunkLoadError (stale cache after deploy) */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(websiteSchema),
+          }}
+        />
+
         <script
           dangerouslySetInnerHTML={{
             __html: `
