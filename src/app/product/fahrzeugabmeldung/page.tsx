@@ -47,7 +47,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function FahrzeugabmeldungPage() {
   // Toggle to true to show full page (Hero + Content). false = Form-only landing page.
-  const showFullContent = false;
+  const showFullContent = true;
 
   const [product, settings, pricing] = await Promise.all([
     getProductBySlug('fahrzeugabmeldung'),
@@ -64,23 +64,59 @@ export default async function FahrzeugabmeldungPage() {
   const serviceSchema = {
   '@context': 'https://schema.org',
   '@type': 'Service',
-  name: 'Fahrzeugabmeldung Online',
+  '@id': `${settings.siteUrl}/product/fahrzeugabmeldung#service`,
+  name: 'Fahrzeugabmeldung online',
+  alternateName: [
+    'Auto online abmelden',
+    'KFZ online abmelden',
+    'Fahrzeug online abmelden',
+    'Digitale Fahrzeugabmeldung',
+    'PKW online abmelden',
+    'Motorrad online abmelden',
+    'Anhänger online abmelden',
+  ],
   description:
-    'Online-Abmeldung Ihres Fahrzeugs bei der zuständigen Zulassungsstelle. Amtlich anerkannt, bundesweit gültig.',
+    'Online-Abmeldung Ihres Fahrzeugs. Offiziell, bundesweit nutzbar und mit Bestätigung per E-Mail.',
+  serviceType: [
+    'Digitale Fahrzeugabmeldung',
+    'KFZ-Abmeldung online',
+    'Online-Zulassungsdienst',
+    'KFZ-Zulassungsservice',
+  ],
+  category: 'KFZ-Abmeldung',
+  url: `${settings.siteUrl}/product/fahrzeugabmeldung`,
   provider: {
     '@type': 'Organization',
+    '@id': `${settings.siteUrl}#organization`,
     name: settings.siteName,
     url: settings.siteUrl,
+    telephone: settings.phone,
+    email: settings.email,
   },
   areaServed: {
     '@type': 'Country',
-    name: 'DE',
+    name: 'Deutschland',
+  },
+  availableChannel: {
+    '@type': 'ServiceChannel',
+    serviceType: 'Online',
+    serviceUrl: `${settings.siteUrl}/product/fahrzeugabmeldung`,
+    availableLanguage: ['de', 'ar', 'tr', 'en'],
+  },
+  audience: {
+    '@type': 'Audience',
+    audienceType: 'Fahrzeughalter in Deutschland',
   },
   offers: {
     '@type': 'Offer',
+    url: `${settings.siteUrl}/product/fahrzeugabmeldung`,
     price: basePrice.toFixed(2),
     priceCurrency: 'EUR',
     availability: 'https://schema.org/InStock',
+    seller: {
+      '@type': 'Organization',
+      '@id': `${settings.siteUrl}#organization`,
+    },
   },
 };
 
