@@ -508,7 +508,7 @@ export default function CityPageView({
   };
 
   model.sections.links ??= {
-    heading: 'Weitere Städte',
+    heading: 'Weitere Städte & regionale Seiten',
     intro: '',
     relationshipExplanation: '',
     contextText: '',
@@ -1314,7 +1314,7 @@ export default function CityPageView({
             {model.sections.links.heading}
           </h2>
           <p className="mb-4 text-gray-600">
-            {nearbyIntro || 'Diese Seiten können ebenfalls hilfreich sein:'}
+            {nearbyIntro || 'Diese regionalen Seiten können ebenfalls hilfreich sein:'}
           </p>
 
           {model.sections.links.relationshipExplanation ? (
@@ -1323,8 +1323,7 @@ export default function CityPageView({
             </p>
           ) : model.sections.links.links[0] ? (
             <p className="mb-4 text-xs text-gray-400">
-              Die Auswahl folgt dem lokalen Nachbarschaftsgraph und hilft Kunden, ähnliche
-              regionale Seiten schneller zu finden.
+              Die Auswahl zeigt weitere relevante Stadt- und Regionalseiten, die für Nutzer mit ähnlichem Anliegen hilfreich sein können.
             </p>
           ) : null}
 
