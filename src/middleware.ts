@@ -4,31 +4,35 @@ import { getCustomerSessionFromRequest } from '@/lib/customer-auth';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // SEO LOCK LAYER
-// All WordPress / WooCommerce / spam routes → 410 Gone (never 404).
-// 410 = "permanently deleted" → Google deindexes faster than 404.
-// Applies before any Next.js routing, so no legacy URL can reach real content.
+// WordPress / WooCommerce / Spam / Casino / Porn / Bot-Reste → 410 Gone.
+// 410 = dauerhaft entfernt. Google entfernt solche URLs schneller als bei 404.
 // ═══════════════════════════════════════════════════════════════════════════
 
-/** Builds a 410 Gone response with full SEO-safe headers. */
 function gone(reason = 'legacy-cleanup'): NextResponse {
   return new NextResponse('Gone', {
     status: 410,
     headers: {
-      'Content-Type': 'text/plain',
-      'X-Robots-Tag': 'noindex, nofollow',
-      // no-store: CDN/proxy must never cache a 410 page positively
-      'Cache-Control': 'no-store',
+      'Content-Type': 'text/plain; charset=utf-8',
+      'X-Robots-Tag': 'noindex, nofollow, noarchive, nosnippet',
+      'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
       'X-Removed-Reason': reason,
     },
   });
 }
 
-// ── Exact paths that are permanently gone ─────────────────────────────────
+function normalizePath(pathname: string): string {
+  const lower = pathname.toLowerCase();
+  if (lower === '/') return '/';
+  return lower.replace(/\/+$/, '');
+}
+
+// Exakte alte / tote URLs
 const GONE_EXACT = new Set([
   '/xmlrpc.php',
   '/license.txt',
   '/readme.html',
-  // WooCommerce checkout / cart / account (service never existed here)
+
+  // WooCommerce / Konto / Checkout-Reste
   '/shop',
   '/cart',
   '/kasse',
@@ -36,25 +40,44 @@ const GONE_EXACT = new Set([
   '/warenkorb',
   '/mein-konto',
   '/my-account',
-  // Dead WP system URL
+
+  // Tote WP/System/Import-Reste
   '/ihre_url_zum_upgrade_checkout',
-  // Dead product page — no replacement
   '/gebrauchtwagen-ankauf-digital',
-  // Language pages — permanently removed
+
+  // Entfernte Sprachseiten
   '/online-arac-kayittan-duesuerme-almanya',
   '/ar-ilgha-tasjeel-al-sayara',
   '/online-car-deregistration-en',
 ]);
 
-// ── Prefix patterns — any path starting with these is 410 ─────────────────
-// Add new entries here to extend coverage without touching middleware logic.
+// Alles, was mit diesen Pfaden beginnt, ist dauerhaft weg
 const GONE_PREFIXES = [
-  '/wp-',              // wp-content, wp-includes, wp-admin, wp-json, wp-login.php…
+  // WordPress / alte CMS-Reste
+  '/wp-',
   '/wordpress',
-  '/my-account/',      // /my-account/orders, /my-account/edit-account…
+  '/wp-admin',
+  '/wp-content',
+  '/wp-includes',
+  '/wp-json',
+
+  // WooCommerce / Shop-Reste
+  '/shop/',
+  '/cart/',
+  '/kasse/',
+  '/checkout/',
+  '/warenkorb/',
+  '/mein-konto/',
+  '/my-account/',
   '/product-category/',
   '/product-tag/',
-  // Spam / gambling / bot injection patterns
+
+  // Alte Taxonomien / Archive
+  '/category/',
+  '/tag/',
+  '/author/',
+
+  // Bekannte Spam- und Casino-Muster
   '/casino',
   '/ceriabet',
   '/klikwin88',
@@ -63,66 +86,64 @@ const GONE_PREFIXES = [
   '/gacor',
   '/pragmatic',
   '/sbobet',
+  '/bet-',
+  '/bonus-',
 ];
 
-// ── Safe multi-segment prefixes ────────────────────────────────────────────
-// Valid Next.js routes that have sub-paths. Any two-or-more segment path
-// NOT starting with one of these cannot be a real page → smart-fallback 410.
-const SAFE_MULTI_PREFIXES = [
-  '/product/',
-  '/insiderwissen/',
-  '/admin/',
-  '/konto/',
-  '/api/',
-  '/rechnung/',
-  '/.well-known/',
+// Wenn diese Wörter irgendwo im Pfad auftauchen → 410
+// bewusst nur harte Spam-/Hack-Begriffe, damit echte Seiten nicht betroffen sind
+const GONE_CONTAINS = [
+  'casino',
+  'ceriabet',
+  'klikwin88',
+  'togel',
+  'gacor',
+  'pragmatic',
+  'sbobet',
+  'gambling',
+  'jackpot',
+  'porno',
+  'porn',
+  'xxx',
+  'sexcam',
+  'escort',
+  'viagra',
+  'cialis',
+  'levitra',
+  'pharmacy',
+  'backlink',
 ];
+
+function isGonePath(pathname: string): boolean {
+  const cleanPath = normalizePath(pathname);
+
+  if (GONE_EXACT.has(cleanPath)) return true;
+
+  if (GONE_PREFIXES.some((prefix) => cleanPath.startsWith(prefix))) {
+    return true;
+  }
+
+  if (cleanPath.endsWith('.php')) return true;
+
+  if (cleanPath.includes('/feed')) return true;
+
+  if (GONE_CONTAINS.some((word) => cleanPath.includes(word))) {
+    return true;
+  }
+
+  return false;
+}
 
 export async function middleware(request: NextRequest) {
   const host = request.headers.get('host') || '';
   const { pathname } = request.nextUrl;
-  const lowerPath = pathname.toLowerCase();
 
-  // ── RSC header restoration ───────────────────────────────────────────────
-  // Hostinger CDN (hcdn) strips non-standard request headers including
-  // "RSC: 1", "Next-Router-State-Tree", and "Next-Router-Prefetch".
-  // Next.js decides RSC vs HTML based on the "RSC: 1" header, NOT the
-  // ?_rsc= query param. Without this header the server returns full HTML
-  // and the browser gets wrong content-type → Safari "access control checks"
-  // + "Failed to fetch RSC payload" errors on every client-side navigation.
-  // We detect RSC requests via ?_rsc= (URL param, CDN cannot strip it) and
-  // restore the missing headers before the request reaches the router.
-  if (request.nextUrl.searchParams.has('_rsc') && !request.headers.get('rsc')) {
-    const headers = new Headers(request.headers);
-    headers.set('rsc', '1');
-    if (!headers.has('next-router-prefetch')) {
-      headers.set('next-router-prefetch', '1');
-    }
-    const response = NextResponse.next({ request: { headers } });
-    response.headers.set(
-      'Vary',
-      'RSC, Next-Router-State-Tree, Next-Router-Prefetch, Accept-Encoding',
-    );
-    return response;
-  }
-
-  // ── 0. SEO Lock Layer: known-bad paths → 410 Gone ───────────────────────
-  if (
-    GONE_EXACT.has(lowerPath) ||
-    GONE_PREFIXES.some(p => lowerPath.startsWith(p)) ||
-    lowerPath.endsWith('.php')
-  ) {
+  // 1. Bekannte kaputte / gehackte / alte URLs sofort 410
+  if (isGonePath(pathname)) {
     return gone();
   }
 
-  // Nur bekannte alte WordPress-Paginierungen als 410 behandeln,
-// wenn sie nicht bereits in next.config.js weitergeleitet werden.
-const segments = pathname.split('/').filter(Boolean);
-
-// Sehr kaputte WP-Reste wie /page/41 bleiben 410 oder Redirect über next.config
-// Aber NICHT pauschal jede 2-Segment-URL löschen.
-
-  // 1. www → non-www 301 redirect
+  // 2. www → non-www 301
   if (host.startsWith('www.')) {
     const url = request.nextUrl.clone();
     url.host = host.replace(/^www\./, '');
@@ -130,20 +151,44 @@ const segments = pathname.split('/').filter(Boolean);
     return NextResponse.redirect(url, 301);
   }
 
-  // 2. WordPress legacy query params → redirect to homepage
-  const wpParam = request.nextUrl.searchParams.get('p') || request.nextUrl.searchParams.get('page_id');
+  // 3. WordPress Query-Reste wie /?p=123 oder /?page_id=123 → Startseite
+  const wpParam =
+    request.nextUrl.searchParams.get('p') ||
+    request.nextUrl.searchParams.get('page_id');
+
   if (wpParam && pathname === '/') {
     const url = new URL('/', request.url);
     url.search = '';
     return NextResponse.redirect(url, 301);
   }
 
-  // 3. Admin route protection (skip login page)
+  // 4. RSC Header Restoration für Hostinger/CDN
+  // Wichtig für Next.js Client-Navigation, wenn CDN Header entfernt.
+  if (request.nextUrl.searchParams.has('_rsc') && !request.headers.get('rsc')) {
+    const headers = new Headers(request.headers);
+    headers.set('rsc', '1');
+
+    if (!headers.has('next-router-prefetch')) {
+      headers.set('next-router-prefetch', '1');
+    }
+
+    const response = NextResponse.next({ request: { headers } });
+
+    response.headers.set(
+      'Vary',
+      'RSC, Next-Router-State-Tree, Next-Router-Prefetch, Accept-Encoding',
+    );
+
+    return response;
+  }
+
+  // 5. Admin schützen
   const isAdminPage = pathname.startsWith('/admin') && pathname !== '/admin/login';
   const isAdminApi = pathname.startsWith('/api/admin');
 
   if (isAdminPage || isAdminApi) {
     const token = await getToken({ req: request });
+
     if (!token) {
       if (isAdminApi) {
         return new NextResponse(JSON.stringify({ error: 'Unauthorized' }), {
@@ -151,18 +196,20 @@ const segments = pathname.split('/').filter(Boolean);
           headers: { 'Content-Type': 'application/json' },
         });
       }
+
       const loginUrl = new URL('/admin/login', request.url);
       loginUrl.searchParams.set('callbackUrl', pathname);
       return NextResponse.redirect(loginUrl);
     }
   }
 
-  // 4. Customer account route protection (/konto/*)
+  // 6. Kundenkonto schützen
   const isKontoPage = pathname.startsWith('/konto');
   const isCustomerApi = pathname.startsWith('/api/customer');
 
   if (isKontoPage || isCustomerApi) {
     const session = await getCustomerSessionFromRequest(request);
+
     if (!session) {
       if (isCustomerApi) {
         return new NextResponse(JSON.stringify({ error: 'Nicht angemeldet.' }), {
@@ -170,6 +217,7 @@ const segments = pathname.split('/').filter(Boolean);
           headers: { 'Content-Type': 'application/json' },
         });
       }
+
       const loginUrl = new URL('/anmelden', request.url);
       loginUrl.searchParams.set('redirect', pathname);
       return NextResponse.redirect(loginUrl);
@@ -181,14 +229,13 @@ const segments = pathname.split('/').filter(Boolean);
 
 export const config = {
   matcher: [
-    // Admin routes (auth check)
     '/admin/((?!login).*)',
     '/api/admin/(.*)',
-    // Customer account routes
+
     '/konto/(.*)',
     '/konto',
     '/api/customer/(.*)',
-    // www redirect — exclude static assets and Next.js internals
-    '/((?!_next/static|_next/image|favicon\\.ico|images/|uploads/|robots\\.txt|sitemap\\.xml|site\\.webmanifest).*)',
+
+    '/((?!_next/static|_next/image|favicon\\.ico|images/|uploads/|robots\\.txt|sitemap\\.xml|site\\.webmanifest|icon-.*\\.png|apple-touch-icon\\.png).*)',
   ],
 };
