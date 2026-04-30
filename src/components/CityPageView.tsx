@@ -593,6 +593,9 @@ export default function CityPageView({
   ]);
 
   const baseUrl = stripTrailingSlash(settings.siteUrl);
+  const cityPageUrl = `${baseUrl}/${slug}`;
+  const productUrl = `${baseUrl}/product/fahrzeugabmeldung`;
+  const videosUrl = `${baseUrl}/vedio`;
 
   const heroCtaText = withPrice('Jetzt loslegen', pricing.abmeldungPriceFormatted);
   const compareCtaText = withPrice('Jetzt online abmelden', pricing.abmeldungPriceFormatted);
@@ -601,59 +604,193 @@ export default function CityPageView({
 
   const faqSchema = buildFaqSchema(faqItems);
 
+  const organizationSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    '@id': `${baseUrl}#organization`,
+    name: settings.siteName || 'Online Auto Abmelden',
+    legalName: 'iKFZ Digital Zulassung UG (haftungsbeschränkt)',
+    alternateName: [
+      'Online Auto Abmelden',
+      'iKFZ Digital Zulassung',
+      'iKfz Digitalzulassung',
+      'KFZ Digital Zulassung',
+      'Digitaler Zulassungsdienst',
+      'Online Zulassungsdienst',
+      'KFZ Zulassungsservice',
+      'Auto online abmelden',
+      'KFZ online abmelden',
+      'Fahrzeug online abmelden',
+      'Kfz-Abmeldung online',
+    ],
+    url: baseUrl,
+    logo: {
+      '@type': 'ImageObject',
+      url: `${baseUrl}/logo.svg`,
+    },
+    image: `${baseUrl}/logo.svg`,
+    email: settings.email,
+    telephone: settings.phone?.replace(/\s+/g, '') || '+4915224999190',
+    areaServed: {
+      '@type': 'Country',
+      name: 'Deutschland',
+    },
+    contactPoint: [
+      {
+        '@type': 'ContactPoint',
+        telephone: '+4915224999190',
+        email: settings.email,
+        contactType: 'customer support',
+        areaServed: 'DE',
+        availableLanguage: ['de', 'ar', 'tr', 'en'],
+      },
+      {
+        '@type': 'ContactPoint',
+        telephone: '+4915224999190',
+        contactType: 'WhatsApp support',
+        areaServed: 'DE',
+        availableLanguage: ['de', 'ar', 'tr', 'en'],
+      },
+    ],
+    knowsAbout: [
+      'Auto online abmelden',
+      'KFZ online abmelden',
+      'Fahrzeug online abmelden',
+      'Digitale Fahrzeugabmeldung',
+      'i-Kfz',
+      'Sicherheitscode Fahrzeugschein',
+      'Sicherheitscode Kennzeichen',
+      'Zulassungsservice',
+      'Zulassungsdienst',
+    ],
+    sameAs: [
+      'https://www.facebook.com/ikfzdigitalzulassung',
+      'https://www.instagram.com/ikfz_digital_zulassung/',
+      'https://www.youtube.com/@ikfzdigitalzulassung',
+      'https://www.tiktok.com/@meldino_kfz',
+    ],
+  };
+
   const serviceSchema = {
     '@context': 'https://schema.org',
     '@type': 'Service',
-    name: `Fahrzeugabmeldung Online ${cityName}`,
-    description: model.metaDescription,
-    serviceType: 'KFZ Abmeldung',
+    '@id': `${cityPageUrl}#service`,
+    name: `Auto online abmelden in ${cityName}`,
+    alternateName: [
+      `KFZ online abmelden in ${cityName}`,
+      `Fahrzeug online abmelden in ${cityName}`,
+      `Auto abmelden online ${cityName}`,
+      `KFZ Abmeldung online ${cityName}`,
+      `Online Auto Abmelden ${cityName}`,
+      `Digitaler Zulassungsdienst ${cityName}`,
+      `Online Zulassungsdienst ${cityName}`,
+      `KFZ Zulassungsservice ${cityName}`,
+    ],
+    description:
+      model.metaDescription ||
+      `Auto online abmelden in ${cityName} ab ${pricing.abmeldungPriceFormatted}. Offizielle Bestätigung per E-Mail, bundesweit nutzbar und ohne Termin vor Ort.`,
+    serviceType: [
+      'Digitale Fahrzeugabmeldung',
+      'KFZ-Abmeldung online',
+      'Online-Zulassungsdienst',
+      'KFZ-Zulassungsservice',
+    ],
+    category: 'KFZ-Abmeldung',
+    url: cityPageUrl,
     provider: {
       '@type': 'Organization',
+      '@id': `${baseUrl}#organization`,
       name: settings.siteName,
       url: baseUrl,
     },
     areaServed: [
-      { '@type': 'City', name: cityName },
-      ...(input.state ? [{ '@type': 'State', name: input.state }] : []),
+      {
+        '@type': 'City',
+        name: cityName,
+      },
+      ...(input.state
+        ? [
+            {
+              '@type': 'AdministrativeArea',
+              name: input.state,
+            },
+          ]
+        : []),
+      {
+        '@type': 'Country',
+        name: 'Deutschland',
+      },
     ],
     availableChannel: {
       '@type': 'ServiceChannel',
       serviceType: 'Online',
-      serviceUrl: `${baseUrl}/product/fahrzeugabmeldung`,
-      availableLanguage: { '@type': 'Language', name: 'German' },
+      serviceUrl: productUrl,
+      availableLanguage: ['de', 'ar', 'tr', 'en'],
     },
+    audience: {
+      '@type': 'Audience',
+      audienceType: 'Fahrzeughalter in Deutschland',
+    },
+    termsOfService: `${baseUrl}/allgemeine-geschaeftsbedingungen`,
     offers: {
       '@type': 'Offer',
+      '@id': `${cityPageUrl}#offer`,
+      url: productUrl,
       price: formatOfferPrice(pricing.abmeldungPriceFormatted),
       priceCurrency: 'EUR',
       availability: 'https://schema.org/InStock',
+      eligibleRegion: {
+        '@type': 'Country',
+        name: 'Deutschland',
+      },
+      seller: {
+        '@type': 'Organization',
+        '@id': `${baseUrl}#organization`,
+      },
     },
   };
 
   const videoSchema = {
     '@context': 'https://schema.org',
     '@type': 'ItemList',
+    '@id': `${cityPageUrl}#video-help`,
     name: `Video-Hilfe zur Online-Abmeldung in ${cityName}`,
     itemListElement: [
       {
-        '@type': 'VideoObject',
+        '@type': 'ListItem',
         position: 1,
-        name: 'Sicherheitscode am Kennzeichen freilegen',
-        description:
-          'Video-Hilfe zum Freilegen des Sicherheitscodes am Kennzeichen für die Online-Abmeldung.',
-        thumbnailUrl: 'https://i.ytimg.com/vi/3nsdJSvKAtE/hqdefault.jpg',
-        embedUrl: 'https://www.youtube-nocookie.com/embed/3nsdJSvKAtE',
-        url: `${baseUrl}/vedio`,
+        item: {
+          '@type': 'VideoObject',
+          name: 'Sicherheitscode am Kennzeichen freilegen',
+          description:
+            'Video-Hilfe zum Freilegen des Sicherheitscodes am Kennzeichen für die Online-Abmeldung.',
+          thumbnailUrl: 'https://i.ytimg.com/vi/3nsdJSvKAtE/hqdefault.jpg',
+          embedUrl: 'https://www.youtube-nocookie.com/embed/3nsdJSvKAtE',
+          url: videosUrl,
+          inLanguage: 'de-DE',
+          publisher: {
+            '@type': 'Organization',
+            '@id': `${baseUrl}#organization`,
+          },
+        },
       },
       {
-        '@type': 'VideoObject',
+        '@type': 'ListItem',
         position: 2,
-        name: 'Sicherheitscode im Fahrzeugschein freilegen',
-        description:
-          'Video-Hilfe zum Finden und Freilegen des Sicherheitscodes im Fahrzeugschein.',
-        thumbnailUrl: 'https://i.ytimg.com/vi/u38keaF1QKU/hqdefault.jpg',
-        embedUrl: 'https://www.youtube-nocookie.com/embed/u38keaF1QKU',
-        url: `${baseUrl}/vedio`,
+        item: {
+          '@type': 'VideoObject',
+          name: 'Sicherheitscode im Fahrzeugschein freilegen',
+          description:
+            'Video-Hilfe zum Finden und Freilegen des Sicherheitscodes im Fahrzeugschein.',
+          thumbnailUrl: 'https://i.ytimg.com/vi/u38keaF1QKU/hqdefault.jpg',
+          embedUrl: 'https://www.youtube-nocookie.com/embed/u38keaF1QKU',
+          url: videosUrl,
+          inLanguage: 'de-DE',
+          publisher: {
+            '@type': 'Organization',
+            '@id': `${baseUrl}#organization`,
+          },
+        },
       },
     ],
   };
@@ -662,6 +799,7 @@ export default function CityPageView({
     ? {
         '@context': 'https://schema.org',
         '@type': 'GovernmentOffice',
+        '@id': `${cityPageUrl}#government-office`,
         name: authority.name,
         address: {
           '@type': 'PostalAddress',
@@ -682,6 +820,7 @@ export default function CityPageView({
   const breadcrumbSchema = {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
+    '@id': `${cityPageUrl}#breadcrumb`,
     itemListElement: [
       {
         '@type': 'ListItem',
@@ -699,9 +838,40 @@ export default function CityPageView({
         '@type': 'ListItem',
         position: 3,
         name: `Auto online abmelden in ${cityName}`,
-        item: `${baseUrl}/${slug}`,
+        item: cityPageUrl,
       },
     ],
+  };
+
+  const webPageSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    '@id': `${cityPageUrl}#webpage`,
+    url: cityPageUrl,
+    name: `Auto online abmelden in ${cityName}`,
+    description:
+      model.metaDescription ||
+      `Auto online abmelden in ${cityName} ab ${pricing.abmeldungPriceFormatted}.`,
+    inLanguage: 'de-DE',
+    isPartOf: {
+      '@type': 'WebSite',
+      '@id': `${baseUrl}#website`,
+      url: baseUrl,
+      name: settings.siteName,
+      publisher: {
+        '@id': `${baseUrl}#organization`,
+      },
+    },
+    about: {
+      '@id': `${cityPageUrl}#service`,
+    },
+    breadcrumb: {
+      '@id': `${cityPageUrl}#breadcrumb`,
+    },
+    primaryImageOfPage: {
+      '@type': 'ImageObject',
+      url: `${baseUrl}/logo.svg`,
+    },
   };
 
   const sectionMap: Record<SectionKey, JSX.Element> = {
@@ -1256,6 +1426,14 @@ export default function CityPageView({
     <>
       <script
         type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(webPageSchema) }}
+      />
+      <script
+        type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceSchema) }}
       />
       <script
@@ -1789,5 +1967,8 @@ export default function CityPageView({
         </section>
       </main>
     </>
+  );
+}
+
   );
 }
