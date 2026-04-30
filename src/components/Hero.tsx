@@ -9,7 +9,7 @@ interface HeroProps {
 
 export default function Hero({ abmeldungPrice = '19,70 €' }: HeroProps) {
   return (
-    <section className="relative min-h-screen flex items-start overflow-hidden bg-gradient-to-br from-dark via-primary-900 to-dark">
+    <section className="relative overflow-hidden bg-gradient-to-br from-dark via-primary-900 to-dark">
       {/* Background pattern */}
       <div className="absolute inset-0">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary/20 via-transparent to-transparent" />
@@ -17,7 +17,7 @@ export default function Hero({ abmeldungPrice = '19,70 €' }: HeroProps) {
         <div className="absolute bottom-20 left-20 w-80 h-80 bg-primary/10 rounded-full blur-3xl" />
       </div>
 
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-24 md:pt-28 md:pb-28 lg:pt-24 lg:pb-20">
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-16 md:pt-28 md:pb-20 lg:pt-24 lg:pb-18">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           {/* Left content */}
           <div className="animate-fade-in-up">
@@ -111,7 +111,7 @@ export default function Hero({ abmeldungPrice = '19,70 €' }: HeroProps) {
       </div>
 
       {/* Tip bar */}
-      <div className="absolute bottom-0 left-0 right-0 bg-white/5 backdrop-blur border-t border-white/10 py-3">
+      <div className="bg-white/5 backdrop-blur border-t border-white/10 py-3">
         <div className="max-w-7xl mx-auto px-4 text-center">
           <p className="text-white/60 text-sm">
             <Lightbulb className="w-4 h-4 inline-block mr-1 text-accent" />
