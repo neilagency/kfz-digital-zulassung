@@ -14,6 +14,8 @@ import {
   Star,
   BadgeEuro,
   MailCheck,
+  PlayCircle,
+  Youtube,
   type LucideIcon,
 } from 'lucide-react';
 import {
@@ -1283,7 +1285,92 @@ expertHelp: (
           )
           .map((sectionKey: keyof typeof sectionMap) => sectionMap[sectionKey])
           .filter(Boolean)}
+            <section className="mx-auto mt-16 max-w-5xl px-4 sm:px-6">
+          <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm md:p-10">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-primary">
+              <PlayCircle className="h-4 w-4" />
+              <span className="text-sm font-bold">Video-Hilfe</span>
+            </div>
 
+            <h2 className="mb-4 text-2xl font-extrabold text-primary">
+              Video-Hilfe zur Online-Abmeldung in {cityName}
+            </h2>
+
+            <p className="mb-8 leading-relaxed text-gray-600">
+              Viele Kunden möchten vor dem Start kurz sehen, wo sich die Sicherheitscodes befinden.
+              Unsere Videos zeigen einfach und verständlich, wie Sie den Sicherheitscode am Kennzeichen
+              und im Fahrzeugschein freilegen.
+            </p>
+
+            <div className="grid gap-5 md:grid-cols-2">
+              <div className="rounded-2xl border border-gray-100 bg-gray-50 p-5">
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
+                  <PlayCircle className="h-6 w-6 text-primary" />
+                </div>
+
+                <h3 className="mb-2 text-lg font-bold text-gray-900">
+                  Sicherheitscode am Kennzeichen freilegen
+                </h3>
+
+                <p className="mb-4 text-sm leading-relaxed text-gray-600">
+                  Dieses Video zeigt, wie der Code am Kennzeichen freigelegt wird. Das hilft,
+                  Fehler beim Start der Online-Abmeldung zu vermeiden.
+                </p>
+
+                <Link
+                  href="/vedio"
+                  className="inline-flex items-center gap-1 text-sm font-semibold text-primary hover:underline"
+                >
+                  Video ansehen
+                  <ChevronRight className="h-3.5 w-3.5" />
+                </Link>
+              </div>
+
+              <div className="rounded-2xl border border-gray-100 bg-gray-50 p-5">
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-accent/10">
+                  <Youtube className="h-6 w-6 text-accent" />
+                </div>
+
+                <h3 className="mb-2 text-lg font-bold text-gray-900">
+                  Sicherheitscode im Fahrzeugschein finden
+                </h3>
+
+                <p className="mb-4 text-sm leading-relaxed text-gray-600">
+                  Dieses Video erklärt, wo der Sicherheitscode im Fahrzeugschein steht und worauf
+                  Sie beim Freilegen achten sollten.
+                </p>
+
+                <Link
+                  href="/vedio"
+                  className="inline-flex items-center gap-1 text-sm font-semibold text-primary hover:underline"
+                >
+                  Video-Hilfe öffnen
+                  <ChevronRight className="h-3.5 w-3.5" />
+                </Link>
+              </div>
+            </div>
+
+            <div className="mt-8 flex flex-wrap gap-4">
+              <Link
+                href="/vedio"
+                className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 font-bold text-white transition hover:bg-primary-600"
+              >
+                <PlayCircle className="h-5 w-5" />
+                Alle Videos ansehen
+              </Link>
+
+              <a
+                href={settings.whatsapp}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 rounded-full border border-gray-200 px-6 py-3 font-bold text-primary transition hover:border-primary/30 hover:bg-primary/5"
+              >
+                <MessageCircle className="h-5 w-5" />
+                WhatsApp Hilfe
+              </a>
+            </div>
+          </div>
+        </section>
         <section className="mx-auto mt-16 max-w-5xl px-4 sm:px-6">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {FEATURE_CARDS.map(({ icon: Icon, title, desc }) => (
