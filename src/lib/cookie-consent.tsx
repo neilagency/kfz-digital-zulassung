@@ -36,11 +36,25 @@ export interface CookieConsentState {
   openSettings: () => void;
   closeSettings: () => void;
   reopenBanner: () => void;
+  resetConsent: () => void;
   hasConsent: (category: CookieCategory) => boolean;
 }
 
+type StoredConsent = {
+  version: number;
+  status: ConsentStatus;
+  preferences: Partial<CookiePreferences>;
+  timestamp: number;
+};
+
 const STORAGE_KEY = 'cookie_consent';
-const CONSENT_VERSION = 1;
+const CONSENT_VERSION = 2;
+
+/*
+  180 Tage sind sauberer als "für immer".
+  Danach wird der Banner erneut angezeigt.
+*/
+const CONSENT_MAX_AGE_MS = 1000 * 60 * 60 * 24 * 180;
 
 const DEFAULT_PREFS: CookiePreferences = {
   necessary: true,
@@ -56,16 +70,91 @@ const ALL_ACCEPTED: CookiePreferences = {
   external_media: true,
 };
 
-/* ── Google Consent Mode v2 helpers ────────────── */
-function pushConsentDefault() {
+/* ── Helpers ───────────────────────────────────── */
+function normalizePreferences(prefs?: Partial<CookiePreferences>): CookiePreferences {
+  return {
+    ...DEFAULT_PREFS,
+    ...(prefs || {}),
+    necessary: true,
+  };
+}
+
+function safeGetStorage(): string | null {
+  if (typeof window === 'undefined') return null;
+
+  try {
+    return window.localStorage.getItem(STORAGE_KEY);
+  } catch {
+    return null;
+  }
+}
+
+function safeSetStorage(data: StoredConsent): void {
   if (typeof window === 'undefined') return;
 
-  const w = window as any;
+  try {
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  } catch {
+    /*
+      Wenn localStorage blockiert ist, soll die Seite trotzdem laufen.
+      Dann wird die Auswahl nur für die aktuelle Session im State gehalten.
+    */
+  }
+}
+
+function safeRemoveStorage(): void {
+  if (typeof window === 'undefined') return;
+
+  try {
+    window.localStorage.removeItem(STORAGE_KEY);
+  } catch {}
+}
+
+function isValidStoredConsent(saved: unknown): saved is StoredConsent {
+  if (!saved || typeof saved !== 'object') return false;
+
+  const item = saved as Partial<StoredConsent>;
+
+  if (item.version !== CONSENT_VERSION) return false;
+  if (!item.preferences || typeof item.preferences !== 'object') return false;
+  if (!item.timestamp || typeof item.timestamp !== 'number') return false;
+
+  const allowedStatus: ConsentStatus[] = ['pending', 'accepted_all', 'rejected_all', 'custom'];
+  if (!item.status || !allowedStatus.includes(item.status)) return false;
+
+  const age = Date.now() - item.timestamp;
+  if (age > CONSENT_MAX_AGE_MS) return false;
+
+  return true;
+}
+
+/* ── Google Consent Mode v2 helpers ────────────── */
+function getGtag() {
+  if (typeof window === 'undefined') return null;
+
+  const w = window as typeof window & {
+    dataLayer?: unknown[];
+    gtag?: (...args: unknown[]) => void;
+  };
+
   w.dataLayer = w.dataLayer || [];
 
-  function gtag(...args: any[]) {
-    w.dataLayer.push(args);
+  if (typeof w.gtag === 'function') {
+    return w.gtag;
   }
+
+  const gtag = (...args: unknown[]) => {
+    w.dataLayer?.push(args);
+  };
+
+  w.gtag = gtag;
+
+  return gtag;
+}
+
+function pushConsentDefault() {
+  const gtag = getGtag();
+  if (!gtag) return;
 
   gtag('consent', 'default', {
     ad_storage: 'denied',
@@ -80,22 +169,31 @@ function pushConsentDefault() {
 }
 
 function pushConsentUpdate(prefs: CookiePreferences) {
-  if (typeof window === 'undefined') return;
-
-  const w = window as any;
-  w.dataLayer = w.dataLayer || [];
-
-  function gtag(...args: any[]) {
-    w.dataLayer.push(args);
-  }
+  const gtag = getGtag();
+  if (!gtag) return;
 
   gtag('consent', 'update', {
     ad_storage: prefs.marketing ? 'granted' : 'denied',
     ad_user_data: prefs.marketing ? 'granted' : 'denied',
     ad_personalization: prefs.marketing ? 'granted' : 'denied',
     analytics_storage: prefs.analytics ? 'granted' : 'denied',
+    functionality_storage: 'granted',
     personalization_storage: prefs.external_media ? 'granted' : 'denied',
+    security_storage: 'granted',
   });
+}
+
+function dispatchConsentEvent(prefs: CookiePreferences, status: ConsentStatus) {
+  if (typeof window === 'undefined') return;
+
+  window.dispatchEvent(
+    new CustomEvent('cookie-consent-updated', {
+      detail: {
+        status,
+        preferences: prefs,
+      },
+    }),
+  );
 }
 
 /* ── Context ───────────────────────────────────── */
@@ -103,9 +201,11 @@ const CookieConsentContext = createContext<CookieConsentState | null>(null);
 
 export function useCookieConsent() {
   const ctx = useContext(CookieConsentContext);
+
   if (!ctx) {
     throw new Error('useCookieConsent must be used within CookieConsentProvider');
   }
+
   return ctx;
 }
 
@@ -119,33 +219,39 @@ export function CookieConsentProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     pushConsentDefault();
 
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = safeGetStorage();
 
-      if (raw) {
+    if (raw) {
+      try {
         const saved = JSON.parse(raw);
 
-        if (saved.version === CONSENT_VERSION && saved.preferences) {
-          const normalizedPrefs: CookiePreferences = {
-            ...DEFAULT_PREFS,
-            ...saved.preferences,
-            necessary: true,
-          };
+        if (isValidStoredConsent(saved)) {
+          const normalizedPrefs = normalizePreferences(saved.preferences);
 
           setPreferences(normalizedPrefs);
-          setStatus(saved.status || 'custom');
+          setStatus(saved.status);
+          setShowBanner(false);
+          setShowSettings(false);
+
           pushConsentUpdate(normalizedPrefs);
+          dispatchConsentEvent(normalizedPrefs, saved.status);
+
           return;
         }
-      }
-    } catch {}
 
-    let timeoutId: any = null;
+        safeRemoveStorage();
+      } catch {
+        safeRemoveStorage();
+      }
+    }
+
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
+    let idleId: number | null = null;
 
     const show = () => setShowBanner(true);
 
     if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
-      (window as any).requestIdleCallback(show, { timeout: 1200 });
+      idleId = window.requestIdleCallback(show, { timeout: 1200 });
     } else if (typeof window !== 'undefined') {
       timeoutId = setTimeout(show, 800);
     }
@@ -154,33 +260,37 @@ export function CookieConsentProvider({ children }: { children: ReactNode }) {
       if (timeoutId !== null) {
         clearTimeout(timeoutId);
       }
+
+      if (
+        idleId !== null &&
+        typeof window !== 'undefined' &&
+        'cancelIdleCallback' in window
+      ) {
+        window.cancelIdleCallback(idleId);
+      }
     };
   }, []);
 
-  const saveConsent = useCallback(
-    (prefs: CookiePreferences, newStatus: ConsentStatus) => {
-      const normalizedPrefs: CookiePreferences = {
-        ...DEFAULT_PREFS,
-        ...prefs,
-        necessary: true,
-      };
+  const saveConsent = useCallback((prefs: CookiePreferences, newStatus: ConsentStatus) => {
+    const normalizedPrefs = normalizePreferences(prefs);
 
-      const data = {
-        version: CONSENT_VERSION,
-        status: newStatus,
-        preferences: normalizedPrefs,
-        timestamp: Date.now(),
-      };
+    const data: StoredConsent = {
+      version: CONSENT_VERSION,
+      status: newStatus,
+      preferences: normalizedPrefs,
+      timestamp: Date.now(),
+    };
 
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-      setPreferences(normalizedPrefs);
-      setStatus(newStatus);
-      setShowBanner(false);
-      setShowSettings(false);
-      pushConsentUpdate(normalizedPrefs);
-    },
-    []
-  );
+    safeSetStorage(data);
+
+    setPreferences(normalizedPrefs);
+    setStatus(newStatus);
+    setShowBanner(false);
+    setShowSettings(false);
+
+    pushConsentUpdate(normalizedPrefs);
+    dispatchConsentEvent(normalizedPrefs, newStatus);
+  }, []);
 
   const acceptAll = useCallback(() => {
     saveConsent(ALL_ACCEPTED, 'accepted_all');
@@ -192,14 +302,10 @@ export function CookieConsentProvider({ children }: { children: ReactNode }) {
 
   const acceptSelected = useCallback(
     (partial: Partial<CookiePreferences>) => {
-      const merged: CookiePreferences = {
-        ...DEFAULT_PREFS,
-        ...partial,
-        necessary: true,
-      };
+      const merged = normalizePreferences(partial);
       saveConsent(merged, 'custom');
     },
-    [saveConsent]
+    [saveConsent],
   );
 
   const hasConsent = useCallback(
@@ -207,8 +313,33 @@ export function CookieConsentProvider({ children }: { children: ReactNode }) {
       if (cat === 'necessary') return true;
       return preferences[cat] === true;
     },
-    [preferences]
+    [preferences],
   );
+
+  const openSettings = useCallback(() => {
+    setShowSettings(true);
+  }, []);
+
+  const closeSettings = useCallback(() => {
+    setShowSettings(false);
+  }, []);
+
+  const reopenBanner = useCallback(() => {
+    setShowBanner(true);
+    setShowSettings(false);
+  }, []);
+
+  const resetConsent = useCallback(() => {
+    safeRemoveStorage();
+
+    setStatus('pending');
+    setPreferences(DEFAULT_PREFS);
+    setShowBanner(true);
+    setShowSettings(false);
+
+    pushConsentDefault();
+    dispatchConsentEvent(DEFAULT_PREFS, 'pending');
+  }, []);
 
   return (
     <CookieConsentContext.Provider
@@ -220,9 +351,10 @@ export function CookieConsentProvider({ children }: { children: ReactNode }) {
         acceptAll,
         rejectAll,
         acceptSelected,
-        openSettings: () => setShowSettings(true),
-        closeSettings: () => setShowSettings(false),
-        reopenBanner: () => setShowBanner(true),
+        openSettings,
+        closeSettings,
+        reopenBanner,
+        resetConsent,
         hasConsent,
       }}
     >
