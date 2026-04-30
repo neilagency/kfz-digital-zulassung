@@ -49,15 +49,16 @@ export async function generateMetadata({
   if (!post || post.status !== 'publish') return {};
 
   const baseMeta = buildSEOMetadata(post, settings.siteUrl);
+  const canonicalUrl = `${settings.siteUrl.replace(/\/$/, '')}/insiderwissen/${slug}`;
 
   return {
     ...baseMeta,
     alternates: {
-      canonical: `${settings.siteUrl}/insiderwissen/${slug}`,
+      canonical: canonicalUrl,
     },
     openGraph: {
       ...baseMeta.openGraph,
-      url: `${settings.siteUrl}/insiderwissen/${slug}`,
+      url: canonicalUrl,
     },
   };
 }
@@ -100,16 +101,31 @@ function BlogPostView({
   pricing: Pricing;
 }) {
   const title = stripHtml(post.title);
-  const wordCount = stripHtml(post.content).split(/\s+/).length;
-  const readingTime = Math.ceil(wordCount / 200);
+  const cleanContentText = stripHtml(post.content);
+  const wordCount = cleanContentText.split(/\s+/).filter(Boolean).length;
+  const readingTime = Math.max(1, Math.ceil(wordCount / 200));
 
   const headings: { level: number; id: string; text: string }[] = [];
+
+  const baseUrl = settings.siteUrl.replace(/\/$/, '');
+  const canonicalUrl = `${baseUrl}/insiderwissen/${slug}`;
 
   const normalizedFeaturedImage = post.featuredImage
     ? post.featuredImage.replace(/^https?:\/\/[^/]+(?=\/uploads\/media\/)/i, '')
     : '';
-  // Accept any non-empty featured image: relative /uploads/ paths and CDN absolute URLs alike
+
   const featuredImageReady = !!normalizedFeaturedImage;
+
+  const absoluteImageUrl = normalizedFeaturedImage
+    ? normalizedFeaturedImage.startsWith('/')
+      ? `${baseUrl}${normalizedFeaturedImage}`
+      : normalizedFeaturedImage
+    : `${baseUrl}/logo.svg`;
+
+  const metaDescription = stripHtml(post.excerpt || post.content)
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 220);
 
   const sanitizedContent = sanitizeHtml(post.content);
 
@@ -136,50 +152,98 @@ function BlogPostView({
       });
 
       return `<h${level} id="${id}"${attrs.replace(/id="[^"]*"/, '')}>${inner}</h${level}>`;
-    }
+    },
   );
 
   const publishDate = post.publishedAt || post.createdAt;
-  const canonicalUrl = `${settings.siteUrl}/insiderwissen/${slug}`;
 
   const articleSchema = {
     '@context': 'https://schema.org',
     '@type': 'Article',
+    '@id': `${canonicalUrl}#article`,
     headline: title,
+    description: metaDescription,
+    image: absoluteImageUrl,
     datePublished: new Date(publishDate).toISOString(),
     dateModified: new Date(post.updatedAt).toISOString(),
-    ...(normalizedFeaturedImage && { image: normalizedFeaturedImage.startsWith('/') ? `${settings.siteUrl}${normalizedFeaturedImage}` : normalizedFeaturedImage }),
+    inLanguage: 'de-DE',
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': `${canonicalUrl}#webpage`,
+    },
     author: {
       '@type': 'Organization',
+      '@id': `${baseUrl}#organization`,
       name: settings.siteName,
-      url: settings.siteUrl,
+      url: baseUrl,
     },
     publisher: {
       '@type': 'Organization',
+      '@id': `${baseUrl}#organization`,
       name: settings.siteName,
-      url: settings.siteUrl,
+      url: baseUrl,
+      logo: {
+        '@type': 'ImageObject',
+        url: `${baseUrl}/logo.svg`,
+      },
     },
-    mainEntityOfPage: {
-      '@type': 'WebPage',
-      '@id': canonicalUrl,
+    about: [
+      'Auto online abmelden',
+      'KFZ online abmelden',
+      'Digitale Fahrzeugabmeldung',
+      'i-Kfz',
+      'Zulassungsservice',
+      'Zulassungsdienst',
+      'Sicherheitscode Fahrzeugschein',
+      'Sicherheitscode Kennzeichen',
+    ],
+  };
+
+  const webPageSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    '@id': `${canonicalUrl}#webpage`,
+    url: canonicalUrl,
+    name: title,
+    description: metaDescription,
+    inLanguage: 'de-DE',
+    isPartOf: {
+      '@type': 'WebSite',
+      '@id': `${baseUrl}#website`,
+      url: baseUrl,
+      name: settings.siteName,
+      publisher: {
+        '@id': `${baseUrl}#organization`,
+      },
+    },
+    about: {
+      '@id': `${canonicalUrl}#article`,
+    },
+    breadcrumb: {
+      '@id': `${canonicalUrl}#breadcrumb`,
+    },
+    primaryImageOfPage: {
+      '@type': 'ImageObject',
+      url: absoluteImageUrl,
     },
   };
 
   const breadcrumbSchema = {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
+    '@id': `${canonicalUrl}#breadcrumb`,
     itemListElement: [
       {
         '@type': 'ListItem',
         position: 1,
         name: 'Start',
-        item: settings.siteUrl,
+        item: baseUrl,
       },
       {
         '@type': 'ListItem',
         position: 2,
         name: 'Insiderwissen',
-        item: `${settings.siteUrl}/insiderwissen`,
+        item: `${baseUrl}/insiderwissen`,
       },
       {
         '@type': 'ListItem',
@@ -198,56 +262,60 @@ function BlogPostView({
       />
       <script
         type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(webPageSchema) }}
+      />
+      <script
+        type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
 
       <main className="pb-20">
-        <section className="relative bg-gradient-to-br from-dark via-primary-900 to-dark pt-28 md:pt-32 pb-12 overflow-hidden">
-          <div className="absolute inset-0 pointer-events-none">
-            <div className="absolute top-10 right-20 w-96 h-96 bg-accent/5 rounded-full blur-3xl" />
-            <div className="absolute bottom-0 left-10 w-80 h-80 bg-primary/10 rounded-full blur-3xl" />
+        <section className="relative overflow-hidden bg-gradient-to-br from-dark via-primary-900 to-dark pb-12 pt-28 md:pt-32">
+          <div className="pointer-events-none absolute inset-0">
+            <div className="absolute right-20 top-10 h-96 w-96 rounded-full bg-accent/5 blur-3xl" />
+            <div className="absolute bottom-0 left-10 h-80 w-80 rounded-full bg-primary/10 blur-3xl" />
           </div>
 
-          <div className="relative max-w-5xl mx-auto px-4 sm:px-6">
-            <nav className="flex items-center gap-2 text-sm text-white/50 mb-8">
-              <Link href="/" className="hover:text-white/80 transition-colors">
+          <div className="relative mx-auto max-w-5xl px-4 sm:px-6">
+            <nav className="mb-8 flex items-center gap-2 text-sm text-white/50">
+              <Link href="/" className="transition-colors hover:text-white/80">
                 Startseite
               </Link>
-              <ChevronRight className="w-3.5 h-3.5" />
+              <ChevronRight className="h-3.5 w-3.5" />
               <Link
                 href="/insiderwissen"
-                className="hover:text-white/80 transition-colors"
+                className="transition-colors hover:text-white/80"
               >
                 Blog
               </Link>
-              <ChevronRight className="w-3.5 h-3.5" />
-              <span className="text-white/70 truncate max-w-[200px] md:max-w-xs">
+              <ChevronRight className="h-3.5 w-3.5" />
+              <span className="max-w-[200px] truncate text-white/70 md:max-w-xs">
                 {title}
               </span>
             </nav>
 
-            <div className="flex flex-wrap items-center gap-3 text-white/50 text-xs uppercase tracking-wider mb-5">
+            <div className="mb-5 flex flex-wrap items-center gap-3 text-xs uppercase tracking-wider text-white/50">
               <span className="inline-flex items-center gap-1.5">
-                <Calendar className="w-3.5 h-3.5" />
+                <Calendar className="h-3.5 w-3.5" />
                 {formatDate(publishDate)}
               </span>
-              <span className="w-1 h-1 rounded-full bg-white/30" />
+              <span className="h-1 w-1 rounded-full bg-white/30" />
               <span className="inline-flex items-center gap-1.5">
-                <Clock className="w-3.5 h-3.5" />
+                <Clock className="h-3.5 w-3.5" />
                 {readingTime} Min. Lesezeit
               </span>
             </div>
 
-            <h1 className="text-3xl md:text-5xl lg:text-[3.25rem] font-extrabold text-white leading-[1.15] mb-6 max-w-4xl">
+            <h1 className="mb-6 max-w-4xl text-3xl font-extrabold leading-[1.15] text-white md:text-5xl lg:text-[3.25rem]">
               {title}
             </h1>
 
             <div className="flex flex-wrap items-center gap-4">
               <Link
                 href="/product/fahrzeugabmeldung"
-                className="inline-flex items-center gap-2 bg-accent hover:bg-accent-600 text-primary font-bold text-sm px-6 py-3 rounded-full transition-all hover:shadow-lg hover:shadow-accent/20"
+                className="inline-flex items-center gap-2 rounded-full bg-accent px-6 py-3 text-sm font-bold text-primary transition-all hover:bg-accent-600 hover:shadow-lg hover:shadow-accent/20"
               >
-                <CheckCircle className="w-4 h-4" />
+                <CheckCircle className="h-4 w-4" />
                 Jetzt Auto abmelden – {pricing.abmeldungPriceFormatted}
               </Link>
 
@@ -255,20 +323,20 @@ function BlogPostView({
                 href={settings.whatsapp}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white font-medium text-sm px-5 py-3 rounded-full transition-all backdrop-blur-sm border border-white/10"
+                className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-5 py-3 text-sm font-medium text-white backdrop-blur-sm transition-all hover:bg-white/20"
               >
-                <MessageCircle className="w-4 h-4" />
+                <MessageCircle className="h-4 w-4" />
                 WhatsApp Hilfe
               </a>
             </div>
           </div>
         </section>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10">
-          <div className="flex flex-col lg:flex-row gap-8 lg:gap-10">
-            <article className="flex-1 min-w-0">
+        <div className="mx-auto mt-10 max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col gap-8 lg:flex-row lg:gap-10">
+            <article className="min-w-0 flex-1">
               {featuredImageReady && (
-                <div className="relative w-full aspect-[2/1] rounded-2xl overflow-hidden shadow-xl mb-8">
+                <div className="relative mb-8 aspect-[2/1] w-full overflow-hidden rounded-2xl shadow-xl">
                   <Image
                     src={normalizedFeaturedImage}
                     alt={title}
@@ -281,18 +349,18 @@ function BlogPostView({
                 </div>
               )}
 
-              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-10">
+              <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm md:p-10">
                 <div
                   className="blog-content prose prose-lg max-w-none"
                   dangerouslySetInnerHTML={{ __html: contentWithIds }}
                 />
               </div>
 
-              <div className="mt-8 bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8">
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+              <div className="mt-8 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm md:p-8">
+                <div className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-center">
                   <div className="flex items-center gap-3">
-                    <Share2 className="w-5 h-5 text-gray-400" />
-                    <span className="text-gray-500 text-sm font-medium">
+                    <Share2 className="h-5 w-5 text-gray-400" />
+                    <span className="text-sm font-medium text-gray-500">
                       Teilen:
                     </span>
 
@@ -300,20 +368,20 @@ function BlogPostView({
                       href={`https://wa.me/?text=${encodeURIComponent(title + ' ' + canonicalUrl)}`}
                       target="_blank"
                       rel="nofollow noopener noreferrer"
-                      className="w-10 h-10 flex items-center justify-center rounded-xl bg-green-50 text-green-600 hover:bg-green-100 transition-colors"
+                      className="flex h-10 w-10 items-center justify-center rounded-xl bg-green-50 text-green-600 transition-colors hover:bg-green-100"
                       title="WhatsApp"
                     >
-                      <MessageCircle className="w-5 h-5" />
+                      <MessageCircle className="h-5 w-5" />
                     </a>
 
                     <a
-  href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(canonicalUrl)}`}
-  target="_blank"
-  rel="nofollow noopener noreferrer"
-  className="w-10 h-10 flex items-center justify-center rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors"
-  title="Facebook"
->
-                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                      href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(canonicalUrl)}`}
+                      target="_blank"
+                      rel="nofollow noopener noreferrer"
+                      className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-600 transition-colors hover:bg-blue-100"
+                      title="Facebook"
+                    >
+                      <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
                       </svg>
                     </a>
@@ -321,47 +389,48 @@ function BlogPostView({
 
                   <Link
                     href="/product/fahrzeugabmeldung"
-                    className="inline-flex items-center gap-2 bg-accent hover:bg-accent-600 text-primary font-extrabold px-6 py-3 rounded-full transition-all hover:shadow-lg text-sm"
+                    className="inline-flex items-center gap-2 rounded-full bg-accent px-6 py-3 text-sm font-extrabold text-primary transition-all hover:bg-accent-600 hover:shadow-lg"
                   >
                     Jetzt Auto abmelden
-                    <ArrowRight className="w-4 h-4" />
+                    <ArrowRight className="h-4 w-4" />
                   </Link>
                 </div>
               </div>
 
-              <div className="mt-8 relative overflow-hidden bg-gradient-to-br from-primary via-primary-800 to-dark rounded-2xl p-8 md:p-10 text-center">
-                <div className="absolute inset-0 pointer-events-none">
-                  <div className="absolute -top-20 -right-20 w-60 h-60 bg-accent/10 rounded-full blur-3xl" />
+              <div className="relative mt-8 overflow-hidden rounded-2xl bg-gradient-to-br from-primary via-primary-800 to-dark p-8 text-center md:p-10">
+                <div className="pointer-events-none absolute inset-0">
+                  <div className="absolute -right-20 -top-20 h-60 w-60 rounded-full bg-accent/10 blur-3xl" />
                 </div>
 
                 <div className="relative">
-                  <div className="inline-flex items-center gap-2 bg-white/10 rounded-full px-4 py-1.5 mb-5">
-                    <Shield className="w-4 h-4 text-accent" />
-                    <span className="text-white/90 text-sm font-medium">
+                  <div className="mb-5 inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5">
+                    <Shield className="h-4 w-4 text-accent" />
+                    <span className="text-sm font-medium text-white/90">
                       Offiziell über das KBA
                     </span>
                   </div>
 
-                  <h3 className="text-2xl md:text-3xl font-extrabold text-white mb-3">
+                  <h3 className="mb-3 text-2xl font-extrabold text-white md:text-3xl">
                     Fahrzeug online abmelden – nur {pricing.abmeldungPriceFormatted}
                   </h3>
 
-                  <p className="text-white/60 mb-8 max-w-lg mx-auto">
-                    Keine Wartezeit, kein Termin. Offizielle Bestätigung sofort per E-Mail. Deutschlandweit gültig.
+                  <p className="mx-auto mb-8 max-w-lg text-white/60">
+                    Keine Wartezeit, kein Termin. Offizielle Bestätigung sofort per E-Mail.
+                    Deutschlandweit gültig.
                   </p>
 
                   <div className="flex flex-wrap justify-center gap-4">
                     <Link
                       href="/product/fahrzeugabmeldung"
-                      className="inline-flex items-center gap-2 bg-accent hover:bg-accent-600 text-primary font-bold px-8 py-4 rounded-full transition-all hover:shadow-lg hover:shadow-accent/20"
+                      className="inline-flex items-center gap-2 rounded-full bg-accent px-8 py-4 font-bold text-primary transition-all hover:bg-accent-600 hover:shadow-lg hover:shadow-accent/20"
                     >
-                      <CheckCircle className="w-5 h-5" />
+                      <CheckCircle className="h-5 w-5" />
                       Jetzt Abmeldung starten
                     </Link>
 
                     <Link
                       href="/product/auto-online-anmelden"
-                      className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold px-8 py-4 rounded-full transition-all backdrop-blur-sm"
+                      className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-8 py-4 font-bold text-white backdrop-blur-sm transition-all hover:bg-white/20"
                     >
                       KFZ Sofort Online anmelden
                     </Link>
@@ -370,49 +439,49 @@ function BlogPostView({
               </div>
             </article>
 
-            <aside className="w-full lg:w-80 xl:w-[340px] flex-shrink-0 space-y-6">
-              <div className="bg-gradient-to-br from-primary to-primary-800 rounded-2xl p-6 text-white shadow-lg">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-xl bg-accent/20 flex items-center justify-center">
-                    <FileText className="w-5 h-5 text-accent" />
+            <aside className="w-full flex-shrink-0 space-y-6 lg:w-80 xl:w-[340px]">
+              <div className="rounded-2xl bg-gradient-to-br from-primary to-primary-800 p-6 text-white shadow-lg">
+                <div className="mb-4 flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent/20">
+                    <FileText className="h-5 w-5 text-accent" />
                   </div>
                   <div>
-                    <p className="font-bold text-sm">Direkt starten</p>
-                    <p className="text-white/60 text-xs">In 5 Minuten erledigt</p>
+                    <p className="text-sm font-bold">Direkt starten</p>
+                    <p className="text-xs text-white/60">In 5 Minuten erledigt</p>
                   </div>
                 </div>
 
                 <Link
                   href="/product/fahrzeugabmeldung"
-                  className="block w-full bg-accent hover:bg-accent-600 text-primary font-bold text-center py-3 rounded-xl transition-all hover:shadow-lg text-sm mb-3"
+                  className="mb-3 block w-full rounded-xl bg-accent py-3 text-center text-sm font-bold text-primary transition-all hover:bg-accent-600 hover:shadow-lg"
                 >
                   Auto abmelden – {pricing.abmeldungPriceFormatted}
                 </Link>
 
                 <Link
                   href="/product/auto-online-anmelden"
-                  className="block w-full bg-white/10 hover:bg-white/20 border border-white/20 text-white font-semibold text-center py-3 rounded-xl transition-all text-sm"
+                  className="block w-full rounded-xl border border-white/20 bg-white/10 py-3 text-center text-sm font-semibold text-white transition-all hover:bg-white/20"
                 >
                   Auto anmelden – ab {pricing.anmeldungPriceFormatted}
                 </Link>
               </div>
 
               {headings.length > 2 && (
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sticky top-24">
-                  <h4 className="text-sm font-bold text-primary uppercase tracking-wider mb-4">
+                <div className="sticky top-24 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+                  <h4 className="mb-4 text-sm font-bold uppercase tracking-wider text-primary">
                     Inhaltsverzeichnis
                   </h4>
 
-                  <nav className="space-y-0.5 max-h-[60vh] overflow-y-auto pr-1 -mr-1">
+                  <nav className="-mr-1 max-h-[60vh] space-y-0.5 overflow-y-auto pr-1">
                     {headings.map((h, i) => (
                       <a
-                        key={i}
+                        key={`${h.id}-${i}`}
                         href={`#${h.id}`}
                         className={
-                          'block text-[13px] leading-snug rounded-lg px-3 py-2 transition-colors hover:bg-primary-50 hover:text-primary ' +
+                          'block rounded-lg px-3 py-2 text-[13px] leading-snug transition-colors hover:bg-primary-50 hover:text-primary ' +
                           (h.level === 3
                             ? 'pl-6 text-gray-500'
-                            : 'text-gray-700 font-medium')
+                            : 'font-medium text-gray-700')
                         }
                       >
                         {h.text}
@@ -422,21 +491,21 @@ function BlogPostView({
                 </div>
               )}
 
-              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-                <h4 className="text-sm font-bold text-gray-900 mb-4">
+              <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+                <h4 className="mb-4 text-sm font-bold text-gray-900">
                   Hilfe benötigt?
                 </h4>
-                <p className="text-sm text-gray-500 mb-5">
+                <p className="mb-5 text-sm text-gray-500">
                   Unser Team hilft dir gerne persönlich weiter – kostenlos und ohne Warteschleife.
                 </p>
 
                 <div className="space-y-3">
                   <a
                     href={settings.phoneLink}
-                    className="flex items-center gap-3 bg-primary-50 hover:bg-primary-100 rounded-xl px-4 py-3 transition-colors"
+                    className="flex items-center gap-3 rounded-xl bg-primary-50 px-4 py-3 transition-colors hover:bg-primary-100"
                   >
-                    <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
-                      <Phone className="w-4 h-4 text-primary" />
+                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10">
+                      <Phone className="h-4 w-4 text-primary" />
                     </div>
                     <div>
                       <p className="text-xs text-gray-500">Telefon</p>
@@ -448,10 +517,10 @@ function BlogPostView({
                     href={settings.whatsapp}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-3 bg-green-50 hover:bg-green-100 rounded-xl px-4 py-3 transition-colors"
+                    className="flex items-center gap-3 rounded-xl bg-green-50 px-4 py-3 transition-colors hover:bg-green-100"
                   >
-                    <div className="w-9 h-9 rounded-lg bg-green-100 flex items-center justify-center">
-                      <MessageCircle className="w-4 h-4 text-green-600" />
+                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-green-100">
+                      <MessageCircle className="h-4 w-4 text-green-600" />
                     </div>
                     <div>
                       <p className="text-xs text-gray-500">WhatsApp</p>
@@ -461,7 +530,7 @@ function BlogPostView({
                 </div>
               </div>
 
-              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+              <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
                 <div className="space-y-4">
                   {[
                     {
@@ -481,8 +550,8 @@ function BlogPostView({
                     },
                   ].map(({ icon: Icon, label, sub }) => (
                     <div key={label} className="flex items-start gap-3">
-                      <div className="w-9 h-9 rounded-lg bg-accent/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <Icon className="w-4 h-4 text-accent" />
+                      <div className="mt-0.5 flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-accent/10">
+                        <Icon className="h-4 w-4 text-accent" />
                       </div>
                       <div>
                         <p className="text-sm font-semibold text-gray-900">{label}</p>
@@ -496,12 +565,12 @@ function BlogPostView({
           </div>
         </div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12">
+        <div className="mx-auto mt-12 max-w-7xl px-4 sm:px-6 lg:px-8">
           <Link
             href="/insiderwissen"
-            className="inline-flex items-center gap-2 text-primary hover:text-accent font-semibold transition-colors"
+            className="inline-flex items-center gap-2 font-semibold text-primary transition-colors hover:text-accent"
           >
-            <ArrowLeft className="w-4 h-4" />
+            <ArrowLeft className="h-4 w-4" />
             Alle Artikel ansehen
           </Link>
         </div>
