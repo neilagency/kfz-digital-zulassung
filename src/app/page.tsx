@@ -25,6 +25,10 @@ import {
   Truck,
   PlayCircle,
   Youtube,
+  HelpCircle,
+  CheckCircle,
+  MapPin,
+  ArrowRight,
 } from 'lucide-react';
 
 const FAQ = dynamic(() => import('@/components/FAQ'), { ssr: true });
@@ -78,6 +82,57 @@ const SERVICE_LINKS = [
   { name: 'Unterlagen für die Abmeldung', href: '/auto-online-abmelden-unterlagen' },
   { name: 'Online Auto abmelden', href: '/online-auto-abmelden' },
 ];
+
+const GUIDE_LINKS = [
+  {
+    name: 'Sicherheitscode im Fahrzeugschein finden',
+    href: '/insiderwissen/wo-ist-der-7-stellige-sicherheitscode-im-fahrzeugschein',
+  },
+  {
+    name: 'Kfz-Abmeldung Fehler Sicherheitscode',
+    href: '/insiderwissen/kfz-abmeldung-fehler-sicherheitscode',
+  },
+  {
+    name: 'Kfz online abmelden funktioniert nicht',
+    href: '/insiderwissen/kfz-online-abmeldung-funktioniert-nicht',
+  },
+  {
+    name: 'Auto abmelden ohne TÜV',
+    href: '/insiderwissen/auto-abmelden-ohne-tuev-anleitung',
+  },
+  {
+    name: 'Kosten Autoabmeldung online 2026',
+    href: '/insiderwissen/auto-online-abmelden-kosten-2026',
+  },
+  {
+    name: 'iKFZ funktioniert nicht',
+    href: '/insiderwissen/ikfz-funktioniert-nicht',
+  },
+];
+
+const VIDEO_ITEMS = [
+  {
+    title: 'Sicherheitscode am Kennzeichen freilegen',
+    embedUrl: 'https://www.youtube-nocookie.com/embed/3nsdJSvKAtE',
+    description:
+      'Kurze Video-Hilfe, damit Kunden den Sicherheitscode am Kennzeichen richtig finden und Fehler vermeiden.',
+  },
+  {
+    title: 'Sicherheitscode im Fahrzeugschein freilegen',
+    embedUrl: 'https://www.youtube-nocookie.com/embed/u38keaF1QKU',
+    description:
+      'Einfach erklärt, welche Stelle im Fahrzeugschein wichtig ist und worauf Kunden achten sollten.',
+  },
+];
+
+function stripTrailingSlash(url: string): string {
+  return url.replace(/\/+$/, '');
+}
+
+function formatOfferPrice(price: string): string {
+  const cleaned = price.replace(/[^\d,]/g, '').replace(',', '.');
+  return cleaned || '0';
+}
 
 export async function generateMetadata(): Promise<Metadata> {
   const s = await getSiteSettings();
@@ -135,6 +190,9 @@ export default async function HomePage() {
     getPaymentMethodLabels(),
   ]);
 
+  const baseUrl = stripTrailingSlash(settings.siteUrl);
+  const offerPrice = formatOfferPrice(pricing.abmeldungPriceFormatted);
+
   const homepageFaqItems = [
     {
       question: 'Was kostet die Online-Abmeldung?',
@@ -150,6 +208,16 @@ export default async function HomePage() {
       answer:
         'Nach erfolgreicher Abmeldung erhalten Sie die offizielle Bestätigung direkt als PDF. Versicherung und Kfz-Steuer werden automatisch informiert. Zu viel gezahlte Beträge werden in der Regel entsprechend verarbeitet oder erstattet.',
     },
+    {
+      question: 'Kann ich mein Auto ohne Termin online abmelden?',
+      answer:
+        'Ja, in vielen Fällen ist kein Termin bei der Zulassungsstelle nötig. Sie starten den Vorgang online und erhalten die Bestätigung nach erfolgreicher Bearbeitung per E-Mail.',
+    },
+    {
+      question: 'Gibt es Hilfe, wenn ein Sicherheitscode nicht lesbar ist?',
+      answer:
+        'Ja. Wenn ein Sicherheitscode schwer lesbar ist, können Sie uns ein Foto per WhatsApp senden. Wir prüfen kostenlos und helfen beim weiteren Ablauf.',
+    },
   ];
 
   const structuredData = {
@@ -157,10 +225,10 @@ export default async function HomePage() {
     '@graph': [
       {
         '@type': 'Organization',
-        '@id': `${settings.siteUrl}#organization`,
+        '@id': `${baseUrl}#organization`,
         name: settings.siteName,
-        url: settings.siteUrl,
-        logo: `${settings.siteUrl}/logo.webp`,
+        url: baseUrl,
+        logo: `${baseUrl}/logo.webp`,
         email: settings.email,
         contactPoint: [
           {
@@ -175,24 +243,38 @@ export default async function HomePage() {
       },
       {
         '@type': 'WebSite',
-        '@id': `${settings.siteUrl}#website`,
-        url: settings.siteUrl,
+        '@id': `${baseUrl}#website`,
+        url: baseUrl,
         name: settings.siteName,
         description: settings.siteDescription,
         inLanguage: 'de-DE',
         publisher: {
-          '@id': `${settings.siteUrl}#organization`,
+          '@id': `${baseUrl}#organization`,
+        },
+      },
+      {
+        '@type': 'WebPage',
+        '@id': `${baseUrl}#webpage`,
+        url: baseUrl,
+        name: PAGE_TITLE,
+        description: PAGE_DESCRIPTION,
+        inLanguage: 'de-DE',
+        isPartOf: {
+          '@id': `${baseUrl}#website`,
+        },
+        about: {
+          '@id': `${baseUrl}#service`,
         },
       },
       {
         '@type': 'Service',
-        '@id': `${settings.siteUrl}#service`,
+        '@id': `${baseUrl}#service`,
         name: 'Auto online abmelden',
         serviceType: 'Digitale Fahrzeugabmeldung',
-        url: settings.siteUrl,
+        url: baseUrl,
         description: PAGE_DESCRIPTION,
         provider: {
-          '@id': `${settings.siteUrl}#organization`,
+          '@id': `${baseUrl}#organization`,
         },
         areaServed: {
           '@type': 'Country',
@@ -202,7 +284,57 @@ export default async function HomePage() {
           '@type': 'Audience',
           audienceType: 'Fahrzeughalter in Deutschland',
         },
+        availableChannel: {
+          '@type': 'ServiceChannel',
+          serviceType: 'Online',
+          serviceUrl: `${baseUrl}/product/fahrzeugabmeldung`,
+          availableLanguage: {
+            '@type': 'Language',
+            name: 'German',
+          },
+        },
+        offers: {
+          '@type': 'Offer',
+          url: `${baseUrl}/product/fahrzeugabmeldung`,
+          price: offerPrice,
+          priceCurrency: 'EUR',
+          availability: 'https://schema.org/InStock',
+        },
       },
+      {
+        '@type': 'BreadcrumbList',
+        '@id': `${baseUrl}#breadcrumb`,
+        itemListElement: [
+          {
+            '@type': 'ListItem',
+            position: 1,
+            name: 'Startseite',
+            item: baseUrl,
+          },
+        ],
+      },
+      {
+        '@type': 'FAQPage',
+        '@id': `${baseUrl}#faq`,
+        mainEntity: homepageFaqItems.map((item) => ({
+          '@type': 'Question',
+          name: item.question,
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: item.answer,
+          },
+        })),
+      },
+      ...VIDEO_ITEMS.map((video, index) => ({
+        '@type': 'VideoObject',
+        '@id': `${baseUrl}#video-${index + 1}`,
+        name: video.title,
+        description: video.description,
+        embedUrl: video.embedUrl,
+        publisher: {
+          '@id': `${baseUrl}#organization`,
+        },
+      })),
     ],
   };
 
@@ -221,132 +353,116 @@ export default async function HomePage() {
           anmeldungPrice={pricing.anmeldungPriceFormatted}
         />
 
-        <Steps />
-
         <section
-          className="py-14 md:py-16 bg-white"
-          aria-labelledby="videos-auto-online-abmelden"
+          className="bg-white py-12 md:py-14"
+          aria-labelledby="auto-online-abmelden-kurz-erklaert"
         >
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid lg:grid-cols-2 gap-10 items-center">
-              <div>
-                <span className="inline-flex items-center gap-2 bg-primary/10 text-primary font-semibold text-sm px-5 py-2 rounded-full mb-5 border border-primary/10">
-                  <PlayCircle className="w-4 h-4" />
-                  Video-Hilfe zur Online-Abmeldung
-                </span>
-
-                <h2
-                  id="videos-auto-online-abmelden"
-                  className="text-3xl md:text-4xl font-extrabold text-primary mb-5 leading-tight"
-                >
-                  Auto online abmelden: Sicherheitscodes einfach per Video erklärt
-                </h2>
-
-                <p className="text-gray-600 text-lg leading-relaxed mb-6">
-                  Viele Kunden möchten vorher genau sehen, wo der Sicherheitscode am
-                  Kennzeichen und im Fahrzeugschein zu finden ist. Unsere Erklärvideos
-                  zeigen die wichtigsten Schritte einfach und verständlich.
-                </p>
-
-                <div className="space-y-3 mb-8">
-                  {[
-                    'Sicherheitscode am Kennzeichen richtig freilegen',
-                    'Sicherheitscode im Fahrzeugschein finden',
-                    'Fehler beim Freilegen vermeiden',
-                    'Danach direkt online abmelden',
-                  ].map((item) => (
-                    <div key={item} className="flex items-start gap-3">
-                      <BadgeCheck className="w-5 h-5 text-accent flex-shrink-0 mt-0.5" />
-                      <span className="text-gray-700">{item}</span>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="flex flex-wrap gap-4">
-                  <Link
-                    href="/vedio"
-                    className="inline-flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-full font-bold hover:bg-primary-600 transition-colors"
-                  >
-                    <PlayCircle className="w-5 h-5" />
-                    Videos ansehen
-                  </Link>
-
-                  <a
-                    href="https://www.youtube.com/@ikfzdigitalzulassung"
-                    target="_blank"
-                    rel="nofollow noopener noreferrer"
-                    className="inline-flex items-center gap-2 bg-red-600 text-white px-6 py-3 rounded-full font-bold hover:bg-red-700 transition-colors"
-                  >
-                    <Youtube className="w-5 h-5" />
-                    YouTube öffnen
-                  </a>
-                </div>
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="rounded-3xl border border-primary/10 bg-gradient-to-br from-primary/5 via-white to-accent/5 p-6 shadow-sm md:p-10">
+              <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary/10 bg-primary/10 px-4 py-1.5 text-primary">
+                <Shield className="h-4 w-4" />
+                <span className="text-sm font-bold">Kurz erklärt</span>
               </div>
 
-              <div className="grid gap-5">
-                <div className="bg-gray-50 rounded-2xl border border-gray-100 p-4 shadow-sm">
-                  <div className="aspect-video rounded-xl overflow-hidden bg-black mb-4">
-                    <iframe
-                      className="w-full h-full"
-                      src="https://www.youtube-nocookie.com/embed/3nsdJSvKAtE"
-                      title="Kennzeichen Sicherheitscode freilegen"
-                      loading="lazy"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                      allowFullScreen
-                    />
-                  </div>
+              <div className="grid gap-8 lg:grid-cols-[1fr_0.9fr] lg:items-start">
+                <div>
+                  <h2
+                    id="auto-online-abmelden-kurz-erklaert"
+                    className="mb-4 text-3xl font-extrabold leading-tight text-primary md:text-4xl"
+                  >
+                    Auto online abmelden: Das Wichtigste auf einen Blick
+                  </h2>
 
-                  <h3 className="font-bold text-gray-900 mb-2">
-                    Sicherheitscode am Kennzeichen freilegen
-                  </h3>
-                  <p className="text-sm text-gray-600 leading-relaxed">
-                    Kurze Video-Hilfe, damit Kunden den Code am Kennzeichen richtig finden.
+                  <p className="max-w-3xl text-lg leading-relaxed text-gray-600">
+                    Mit unserem Service können Sie Ihr Auto online abmelden, ohne Termin bei der
+                    Zulassungsstelle. Die Abmeldung startet digital, kostet ab{' '}
+                    {pricing.abmeldungPriceFormatted} und die offizielle Bestätigung kommt nach
+                    erfolgreicher Bearbeitung per E-Mail.
                   </p>
+
+                  <div className="mt-8 flex flex-wrap gap-3">
+                    <Link
+                      href="/product/fahrzeugabmeldung"
+                      className="inline-flex items-center gap-2 rounded-full bg-accent px-7 py-3 font-extrabold text-primary transition hover:bg-accent-600 hover:shadow-lg hover:shadow-accent/20"
+                    >
+                      Jetzt abmelden – {pricing.abmeldungPriceFormatted}
+                      <ArrowRight className="h-4 w-4" />
+                    </Link>
+
+                    <a
+                      href={settings.whatsapp}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-white px-7 py-3 font-bold text-primary transition hover:bg-primary/5"
+                    >
+                      <MessageCircle className="h-4 w-4" />
+                      WhatsApp Hilfe
+                    </a>
+                  </div>
                 </div>
 
-                <div className="bg-gray-50 rounded-2xl border border-gray-100 p-4 shadow-sm">
-                  <div className="aspect-video rounded-xl overflow-hidden bg-black mb-4">
-                    <iframe
-                      className="w-full h-full"
-                      src="https://www.youtube-nocookie.com/embed/u38keaF1QKU"
-                      title="Sicherheitscode im Fahrzeugschein freilegen"
-                      loading="lazy"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                      allowFullScreen
-                    />
-                  </div>
-
-                  <h3 className="font-bold text-gray-900 mb-2">
-                    Sicherheitscode im Fahrzeugschein freilegen
-                  </h3>
-                  <p className="text-sm text-gray-600 leading-relaxed">
-                    Einfach erklärt, welche Stelle im Fahrzeugschein wichtig ist.
-                  </p>
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
+                  {[
+                    {
+                      title: 'Preis',
+                      text: `Online-Abmeldung ab ${pricing.abmeldungPriceFormatted}. Zusätzliche KBA/GKS-Gebühren werden vorher transparent erklärt.`,
+                    },
+                    {
+                      title: 'Unterlagen',
+                      text: 'Fahrzeugschein, Kennzeichenfotos, Sicherheitscodes und Kontaktdaten reichen in vielen Fällen aus.',
+                    },
+                    {
+                      title: 'Bestätigung',
+                      text: 'Nach erfolgreicher Bearbeitung erhalten Sie die offizielle Bestätigung direkt per E-Mail.',
+                    },
+                    {
+                      title: 'Hilfe',
+                      text: 'Bei schwer lesbaren Codes helfen wir per WhatsApp und prüfen Fotos kostenlos vor.',
+                    },
+                  ].map((item) => (
+                    <div
+                      key={item.title}
+                      className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm"
+                    >
+                      <h3 className="mb-2 font-bold text-gray-900">{item.title}</h3>
+                      <p className="text-sm leading-relaxed text-gray-600">{item.text}</p>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
           </div>
         </section>
 
+        <PricingBox price={pricing.abmeldungPriceFormatted} paymentMethods={paymentLabels} />
+
+        <Steps />
+
         <section
-          className="py-14 md:py-16 bg-gray-50"
+          className="bg-gray-50 py-14 md:py-16"
           aria-labelledby="warum-online-auto-abmelden"
         >
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-10 md:mb-12">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="mb-10 text-center md:mb-12">
+              <span className="mb-5 inline-flex items-center gap-2 rounded-full border border-primary/10 bg-primary/10 px-5 py-2 text-sm font-semibold text-primary">
+                <BadgeCheck className="h-4 w-4" />
+                Vertrauen & Sicherheit
+              </span>
+
               <h2
                 id="warum-online-auto-abmelden"
-                className="text-3xl md:text-4xl font-extrabold text-primary mb-4"
+                className="mb-4 text-3xl font-extrabold text-primary md:text-4xl"
               >
                 Warum Online Auto Abmelden?
               </h2>
-              <p className="text-gray-600 max-w-2xl mx-auto">
+
+              <p className="mx-auto max-w-2xl text-gray-600">
                 Offiziell, schnell und bundesweit – mit persönlichem Support per Telefon und
                 WhatsApp.
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 md:gap-6">
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-2 md:gap-6 lg:grid-cols-4">
               {[
                 {
                   icon: Shield,
@@ -371,51 +487,138 @@ export default async function HomePage() {
               ].map(({ icon: Icon, title, desc }) => (
                 <div
                   key={title}
-                  className="bg-white rounded-2xl p-6 border border-gray-100 hover:shadow-lg hover:border-primary/20 transition-all duration-300"
+                  className="rounded-2xl border border-gray-100 bg-white p-6 transition-all duration-300 hover:border-primary/20 hover:shadow-lg"
                 >
-                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
-                    <Icon className="w-6 h-6 text-primary" />
+                  <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
+                    <Icon className="h-6 w-6 text-primary" />
                   </div>
-                  <h3 className="font-bold text-gray-900 mb-2">{title}</h3>
-                  <p className="text-sm text-gray-600 leading-relaxed">{desc}</p>
+                  <h3 className="mb-2 font-bold text-gray-900">{title}</h3>
+                  <p className="text-sm leading-relaxed text-gray-600">{desc}</p>
                 </div>
               ))}
             </div>
           </div>
         </section>
 
-        <PricingBox price={pricing.abmeldungPriceFormatted} paymentMethods={paymentLabels} />
+        <section
+          className="bg-white py-14 md:py-16"
+          aria-labelledby="videos-auto-online-abmelden"
+        >
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="grid items-center gap-10 lg:grid-cols-2">
+              <div>
+                <span className="mb-5 inline-flex items-center gap-2 rounded-full border border-primary/10 bg-primary/10 px-5 py-2 text-sm font-semibold text-primary">
+                  <PlayCircle className="h-4 w-4" />
+                  Video-Hilfe zur Online-Abmeldung
+                </span>
+
+                <h2
+                  id="videos-auto-online-abmelden"
+                  className="mb-5 text-3xl font-extrabold leading-tight text-primary md:text-4xl"
+                >
+                  Sicherheitscodes einfach per Video erklärt
+                </h2>
+
+                <p className="mb-6 text-lg leading-relaxed text-gray-600">
+                  Viele Kunden möchten vorher genau sehen, wo der Sicherheitscode am Kennzeichen
+                  und im Fahrzeugschein zu finden ist. Unsere Erklärvideos zeigen die wichtigsten
+                  Schritte einfach und verständlich.
+                </p>
+
+                <div className="mb-8 space-y-3">
+                  {[
+                    'Sicherheitscode am Kennzeichen richtig freilegen',
+                    'Sicherheitscode im Fahrzeugschein finden',
+                    'Fehler beim Freilegen vermeiden',
+                    'Danach direkt online abmelden',
+                  ].map((item) => (
+                    <div key={item} className="flex items-start gap-3">
+                      <BadgeCheck className="mt-0.5 h-5 w-5 flex-shrink-0 text-accent" />
+                      <span className="text-gray-700">{item}</span>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="flex flex-wrap gap-4">
+                  <Link
+                    href="/vedio"
+                    className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 font-bold text-white transition-colors hover:bg-primary-600"
+                  >
+                    <PlayCircle className="h-5 w-5" />
+                    Videos ansehen
+                  </Link>
+
+                  <a
+                    href="https://www.youtube.com/@ikfzdigitalzulassung"
+                    target="_blank"
+                    rel="nofollow noopener noreferrer"
+                    className="inline-flex items-center gap-2 rounded-full bg-red-600 px-6 py-3 font-bold text-white transition-colors hover:bg-red-700"
+                  >
+                    <Youtube className="h-5 w-5" />
+                    YouTube öffnen
+                  </a>
+                </div>
+              </div>
+
+              <div className="grid gap-5">
+                {VIDEO_ITEMS.map((video) => (
+                  <div
+                    key={video.embedUrl}
+                    className="rounded-2xl border border-gray-100 bg-gray-50 p-4 shadow-sm"
+                  >
+                    <div className="mb-4 aspect-video overflow-hidden rounded-xl bg-black">
+                      <iframe
+                        className="h-full w-full"
+                        src={video.embedUrl}
+                        title={video.title}
+                        loading="lazy"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        allowFullScreen
+                      />
+                    </div>
+
+                    <h3 className="mb-2 font-bold text-gray-900">{video.title}</h3>
+                    <p className="text-sm leading-relaxed text-gray-600">{video.description}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
 
         <section
-          className="py-14 md:py-20 bg-gradient-to-b from-gray-50 via-white to-gray-50 relative overflow-hidden"
+          className="relative overflow-hidden bg-gradient-to-b from-gray-50 via-white to-gray-50 py-14 md:py-20"
           aria-labelledby="so-funktioniert-die-digitale-fahrzeugabmeldung"
         >
-          <div className="absolute inset-0 pointer-events-none">
-            <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/[0.03] rounded-full blur-3xl" />
-            <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-accent/[0.03] rounded-full blur-3xl" />
+          <div className="pointer-events-none absolute inset-0">
+            <div className="absolute left-1/4 top-0 h-96 w-96 rounded-full bg-primary/[0.03] blur-3xl" />
+            <div className="absolute bottom-0 right-1/4 h-96 w-96 rounded-full bg-accent/[0.03] blur-3xl" />
           </div>
 
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-            <div className="text-center mb-12 md:mb-16">
-              <span className="inline-flex items-center gap-2 bg-primary/10 text-primary font-semibold text-sm px-5 py-2 rounded-full mb-5 border border-primary/10">
-                <BadgeCheck className="w-4 h-4" />
+          <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="mb-12 text-center md:mb-16">
+              <span className="mb-5 inline-flex items-center gap-2 rounded-full border border-primary/10 bg-primary/10 px-5 py-2 text-sm font-semibold text-primary">
+                <BadgeCheck className="h-4 w-4" />
                 So funktioniert&apos;s
               </span>
+
               <h2
                 id="so-funktioniert-die-digitale-fahrzeugabmeldung"
-                className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-gray-900 mb-5 leading-tight"
+                className="mb-5 text-3xl font-extrabold leading-tight text-gray-900 md:text-4xl lg:text-5xl"
               >
                 Auto online abmelden –{' '}
-                <span className="text-primary bg-gradient-to-r from-primary to-primary-600 bg-clip-text text-transparent">
-                  So funktioniert die digitale Fahrzeugabmeldung
+                <span className="bg-gradient-to-r from-primary to-primary-600 bg-clip-text text-transparent">
+                  einfach, offiziell und verständlich
                 </span>
               </h2>
-              <p className="text-gray-500 max-w-2xl mx-auto text-lg">
-                Offiziell, sicher und in wenigen Minuten erledigt.
+
+              <p className="mx-auto max-w-2xl text-lg text-gray-500">
+                Der Ablauf ist klar aufgebaut: Unterlagen prüfen, Daten eingeben, Vorgang absenden
+                und die offizielle Bestätigung per E-Mail erhalten.
               </p>
             </div>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 mb-12">
+            <div className="mb-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3 lg:gap-8">
               {[
                 {
                   icon: BadgeCheck,
@@ -426,7 +629,7 @@ export default async function HomePage() {
                 {
                   icon: Banknote,
                   title: 'Steuer & Versicherung automatisch informiert',
-                  desc: 'Nach der Abmeldung werden Kfz-Steuer und Versicherung automatisch informiert. Zu viel gezahlte Beträge werden erstattet.',
+                  desc: 'Nach der Abmeldung werden Kfz-Steuer und Versicherung automatisch informiert. Zu viel gezahlte Beträge werden in der Regel verarbeitet oder erstattet.',
                   color: 'accent' as const,
                 },
                 {
@@ -450,77 +653,79 @@ export default async function HomePage() {
               ].map(({ icon: Icon, title, desc, color }, index) => (
                 <div
                   key={title}
-                  className={`group relative bg-white rounded-2xl p-7 border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-1 ${
+                  className={`group relative rounded-2xl border border-gray-100 bg-white p-7 shadow-sm transition-all duration-500 hover:-translate-y-1 hover:shadow-xl ${
                     index === 4 ? 'md:col-span-2 lg:col-span-1' : ''
                   }`}
                 >
                   <div
-                    className={`absolute top-0 left-8 right-8 h-[3px] rounded-b-full ${
+                    className={`absolute left-8 right-8 top-0 h-[3px] rounded-b-full ${
                       color === 'accent' ? 'bg-accent' : 'bg-primary'
-                    } opacity-0 group-hover:opacity-100 transition-opacity duration-500`}
+                    } opacity-0 transition-opacity duration-500 group-hover:opacity-100`}
                   />
                   <div
-                    className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-5 transition-all duration-500 ${
+                    className={`mb-5 flex h-14 w-14 items-center justify-center rounded-2xl transition-all duration-500 ${
                       color === 'accent'
                         ? 'bg-accent/10 group-hover:bg-accent group-hover:shadow-lg group-hover:shadow-accent/20'
                         : 'bg-primary/10 group-hover:bg-primary group-hover:shadow-lg group-hover:shadow-primary/20'
                     }`}
                   >
                     <Icon
-                      className={`w-7 h-7 transition-colors duration-500 ${
+                      className={`h-7 w-7 transition-colors duration-500 ${
                         color === 'accent'
                           ? 'text-accent group-hover:text-white'
                           : 'text-primary group-hover:text-white'
                       }`}
                     />
                   </div>
-                  <h3 className="font-bold text-gray-900 text-lg mb-2.5">{title}</h3>
-                  <p className="text-gray-500 text-sm leading-relaxed">{desc}</p>
+                  <h3 className="mb-2.5 text-lg font-bold text-gray-900">{title}</h3>
+                  <p className="text-sm leading-relaxed text-gray-500">{desc}</p>
                 </div>
               ))}
 
-              <div className="relative bg-gradient-to-br from-dark via-primary-900 to-dark rounded-2xl p-7 text-white shadow-xl overflow-hidden md:col-span-2 lg:col-span-1">
-                <div className="absolute -top-12 -right-12 w-40 h-40 bg-accent/10 rounded-full blur-2xl" />
-                <div className="absolute -bottom-8 -left-8 w-32 h-32 bg-primary/20 rounded-full blur-2xl" />
+              <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-dark via-primary-900 to-dark p-7 text-white shadow-xl md:col-span-2 lg:col-span-1">
+                <div className="absolute -right-12 -top-12 h-40 w-40 rounded-full bg-accent/10 blur-2xl" />
+                <div className="absolute -bottom-8 -left-8 h-32 w-32 rounded-full bg-primary/20 blur-2xl" />
 
                 <div className="relative">
-                  <div className="w-14 h-14 bg-white/10 backdrop-blur-sm rounded-2xl flex items-center justify-center mb-5 border border-white/10">
-                    <Shield className="w-7 h-7 text-accent" />
+                  <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl border border-white/10 bg-white/10 backdrop-blur-sm">
+                    <Shield className="h-7 w-7 text-accent" />
                   </div>
-                  <div className="flex items-center gap-2 mb-2.5">
-                    <h3 className="font-bold text-white text-lg">Wichtige Information</h3>
-                    <span className="bg-accent/20 text-accent text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
+
+                  <div className="mb-2.5 flex items-center gap-2">
+                    <h3 className="text-lg font-bold text-white">Wichtige Information</h3>
+                    <span className="rounded-full bg-accent/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-accent">
                       Hinweis
                     </span>
                   </div>
-                  <p className="text-white/70 text-sm leading-relaxed mb-5">
-                    Nicht jede Stadt oder jeder Landkreis hat ein eigenes Online-Portal. Wenn
-                    die Abmeldung direkt über unsere GKS/KBA-Anbindung eingereicht werden muss,
-                    können zusätzlich 10,00 € KBA/GKS-Gebühr anfallen. Wir informieren Sie
-                    immer vorher.
+
+                  <p className="mb-5 text-sm leading-relaxed text-white/70">
+                    Nicht jede Stadt oder jeder Landkreis hat ein eigenes Online-Portal. Wenn die
+                    Abmeldung direkt über unsere GKS/KBA-Anbindung eingereicht werden muss, können
+                    zusätzlich 10,00 € KBA/GKS-Gebühr anfallen. Wir informieren Sie immer vorher.
                   </p>
+
                   <a
                     href={settings.whatsapp}
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label="Jetzt kostenlos per WhatsApp prüfen lassen"
-                    className="inline-flex items-center gap-2 bg-accent hover:bg-accent-600 text-white font-semibold text-sm px-6 py-3 rounded-full transition-all hover:shadow-lg hover:shadow-accent/30 hover:-translate-y-0.5"
+                    className="inline-flex items-center gap-2 rounded-full bg-accent px-6 py-3 text-sm font-semibold text-white transition-all hover:-translate-y-0.5 hover:bg-accent-600 hover:shadow-lg hover:shadow-accent/30"
                   >
-                    <MessageCircle className="w-4 h-4" />
+                    <MessageCircle className="h-4 w-4" />
                     Kostenlos prüfen
                   </a>
                 </div>
               </div>
             </div>
 
-            <div className="grid lg:grid-cols-2 gap-6">
+            <div className="grid gap-6 lg:grid-cols-2">
               <section
-                className="group bg-white rounded-2xl p-6 md:p-8 border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300"
+                className="group rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition-all duration-300 hover:shadow-lg md:p-8"
                 aria-labelledby="weitere-informationen-zur-online-abmeldung"
               >
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                    <FileCheck className="w-5 h-5 text-primary" />
+                <div className="mb-6 flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
+                    <FileCheck className="h-5 w-5 text-primary" />
                   </div>
                   <h3
                     id="weitere-informationen-zur-online-abmeldung"
@@ -529,29 +734,48 @@ export default async function HomePage() {
                     Weitere Informationen zur Online-Abmeldung
                   </h3>
                 </div>
+
                 <nav aria-label="Weitere Informationen zur Online-Abmeldung">
-                  <div className="grid md:grid-cols-2 gap-3">
+                  <div className="grid gap-3 md:grid-cols-2">
                     {SERVICE_LINKS.map((link) => (
                       <Link
                         key={link.href}
                         href={link.href}
-                        className="flex items-center gap-2 text-primary font-semibold hover:text-accent transition-colors group/link"
+                        className="group/link flex items-center gap-2 font-semibold text-primary transition-colors hover:text-accent"
                       >
-                        <span className="w-1.5 h-1.5 rounded-full bg-primary group-hover/link:bg-accent transition-colors flex-shrink-0" />
+                        <span className="h-1.5 w-1.5 flex-shrink-0 rounded-full bg-primary transition-colors group-hover/link:bg-accent" />
                         {link.name}
                       </Link>
                     ))}
                   </div>
                 </nav>
+
+                <div className="mt-8 border-t border-gray-100 pt-6">
+                  <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-gray-400">
+                    Häufig gesuchte Ratgeber
+                  </p>
+
+                  <div className="grid gap-3 md:grid-cols-2">
+                    {GUIDE_LINKS.map((link) => (
+                      <Link
+                        key={link.href}
+                        href={link.href}
+                        className="text-sm font-semibold text-gray-600 transition hover:text-primary hover:underline"
+                      >
+                        {link.name}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
               </section>
 
               <section
-                className="group bg-white rounded-2xl p-6 md:p-8 border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300"
+                className="group rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition-all duration-300 hover:shadow-lg md:p-8"
                 aria-labelledby="beliebte-seiten-zur-fahrzeugabmeldung"
               >
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center">
-                    <Truck className="w-5 h-5 text-accent" />
+                <div className="mb-6 flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent/10">
+                    <Truck className="h-5 w-5 text-accent" />
                   </div>
                   <h3
                     id="beliebte-seiten-zur-fahrzeugabmeldung"
@@ -562,33 +786,33 @@ export default async function HomePage() {
                 </div>
 
                 <nav aria-label="Beliebte Seiten zur Fahrzeugabmeldung">
-                  <div className="grid md:grid-cols-2 gap-3">
+                  <div className="grid gap-3 md:grid-cols-2">
                     {CITY_LINKS.slice(0, 8).map((city) => (
                       <Link
                         key={city.slug}
                         href={`/${city.slug}`}
-                        className="flex items-center gap-2 text-primary font-semibold hover:text-accent transition-colors group/link"
+                        className="group/link flex items-center gap-2 font-semibold text-primary transition-colors hover:text-accent"
                       >
-                        <span className="w-1.5 h-1.5 rounded-full bg-accent group-hover/link:bg-primary transition-colors flex-shrink-0" />
+                        <span className="h-1.5 w-1.5 flex-shrink-0 rounded-full bg-accent transition-colors group-hover/link:bg-primary" />
                         {city.name}
                       </Link>
                     ))}
                   </div>
 
                   {CITY_LINKS.length > 8 && (
-                    <details className="mt-5 group/details">
-                      <summary className="cursor-pointer inline-flex items-center gap-2 rounded-full bg-gray-50 hover:bg-gray-100 border border-gray-200 px-4 py-2 text-sm font-bold text-primary transition-colors">
+                    <details className="group/details mt-5">
+                      <summary className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-gray-200 bg-gray-50 px-4 py-2 text-sm font-bold text-primary transition-colors hover:bg-gray-100">
                         Weitere Städte anzeigen
                       </summary>
 
-                      <div className="grid md:grid-cols-2 gap-3 mt-5">
+                      <div className="mt-5 grid gap-3 md:grid-cols-2">
                         {CITY_LINKS.slice(8).map((city) => (
                           <Link
                             key={city.slug}
                             href={`/${city.slug}`}
-                            className="flex items-center gap-2 text-primary font-semibold hover:text-accent transition-colors group/link"
+                            className="group/link flex items-center gap-2 font-semibold text-primary transition-colors hover:text-accent"
                           >
-                            <span className="w-1.5 h-1.5 rounded-full bg-accent group-hover/link:bg-primary transition-colors flex-shrink-0" />
+                            <span className="h-1.5 w-1.5 flex-shrink-0 rounded-full bg-accent transition-colors group-hover/link:bg-primary" />
                             {city.name}
                           </Link>
                         ))}
@@ -597,22 +821,22 @@ export default async function HomePage() {
                   )}
                 </nav>
 
-                <div className="mt-6 pt-5 border-t border-gray-100">
-                  <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">
+                <div className="mt-6 border-t border-gray-100 pt-5">
+                  <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-gray-400">
                     Bundesland-Übersichten
                   </p>
 
                   <details>
-                    <summary className="cursor-pointer inline-flex items-center gap-2 rounded-full bg-gray-50 hover:bg-gray-100 border border-gray-200 px-4 py-2 text-sm font-bold text-primary transition-colors">
+                    <summary className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-gray-200 bg-gray-50 px-4 py-2 text-sm font-bold text-primary transition-colors hover:bg-gray-100">
                       Bundesländer anzeigen
                     </summary>
 
-                    <div className="flex flex-wrap gap-2 mt-4">
+                    <div className="mt-4 flex flex-wrap gap-2">
                       {BUNDESLAND_LINKS.map((bl) => (
                         <Link
                           key={bl.slug}
                           href={`/${bl.slug}`}
-                          className="inline-flex items-center gap-1 text-xs font-medium text-primary/70 hover:text-primary bg-gray-50 hover:bg-gray-100 border border-gray-200 px-2.5 py-1 rounded-full transition-colors"
+                          className="inline-flex items-center gap-1 rounded-full border border-gray-200 bg-gray-50 px-2.5 py-1 text-xs font-medium text-primary/70 transition-colors hover:bg-gray-100 hover:text-primary"
                         >
                           {bl.name}
                         </Link>
@@ -621,8 +845,8 @@ export default async function HomePage() {
                   </details>
                 </div>
 
-                <p className="text-sm text-gray-500 mt-5 flex items-center gap-2">
-                  <Shield className="w-4 h-4 text-primary/40" />
+                <p className="mt-5 flex items-center gap-2 text-sm text-gray-500">
+                  <Shield className="h-4 w-4 text-primary/40" />
                   Unser Service funktioniert bundesweit in jeder Stadt und in jedem Landkreis.
                 </p>
               </section>
@@ -630,15 +854,25 @@ export default async function HomePage() {
           </div>
         </section>
 
-        <section id="ueber-uns" className="py-14 md:py-16 bg-white" aria-labelledby="support-hilfe">
-          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <section
+          id="ueber-uns"
+          className="bg-white py-14 md:py-16"
+          aria-labelledby="support-hilfe"
+        >
+          <div className="mx-auto max-w-5xl px-4 text-center sm:px-6 lg:px-8">
+            <span className="mb-5 inline-flex items-center gap-2 rounded-full border border-primary/10 bg-primary/10 px-5 py-2 text-sm font-semibold text-primary">
+              <HelpCircle className="h-4 w-4" />
+              Persönliche Hilfe
+            </span>
+
             <h2
               id="support-hilfe"
-              className="text-3xl md:text-4xl font-extrabold text-primary mb-6"
+              className="mb-6 text-3xl font-extrabold text-primary md:text-4xl"
             >
               Kostenloser Experten-Support bei Fragen und Problemen
             </h2>
-            <p className="text-gray-600 max-w-3xl mx-auto mb-8 text-lg leading-relaxed">
+
+            <p className="mx-auto mb-8 max-w-3xl text-lg leading-relaxed text-gray-600">
               Für die Abmeldung brauchen Sie bei uns in vielen Fällen keinen Ausweis-Upload. Meist
               reichen Fahrzeugschein, Kennzeichenfotos und die benötigten Codes. Wenn etwas unklar
               ist, helfen wir sofort per Telefon oder WhatsApp.
@@ -648,9 +882,9 @@ export default async function HomePage() {
               <a
                 href={settings.phoneLink}
                 aria-label={`Jetzt anrufen unter ${settings.phone}`}
-                className="inline-flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-full font-bold hover:bg-primary-600 transition-colors"
+                className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 font-bold text-white transition-colors hover:bg-primary-600"
               >
-                <Phone className="w-5 h-5" />
+                <Phone className="h-5 w-5" />
                 {settings.phone}
               </a>
 
@@ -659,9 +893,9 @@ export default async function HomePage() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="WhatsApp Live-Chat öffnen"
-                className="inline-flex items-center gap-2 bg-green-500 text-white px-6 py-3 rounded-full font-bold hover:bg-green-600 transition-colors"
+                className="inline-flex items-center gap-2 rounded-full bg-green-500 px-6 py-3 font-bold text-white transition-colors hover:bg-green-600"
               >
-                <MessageCircle className="w-5 h-5" />
+                <MessageCircle className="h-5 w-5" />
                 WhatsApp Live-Chat
               </a>
             </div>
@@ -671,30 +905,33 @@ export default async function HomePage() {
         <FAQ items={homepageFaqItems} withSchema />
 
         {posts.length > 0 && (
-          <section className="py-14 md:py-16 bg-gray-50" aria-labelledby="ratgeber-online-auto-abmelden">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="flex items-end justify-between mb-10 md:mb-12">
+          <section
+            className="bg-gray-50 py-14 md:py-16"
+            aria-labelledby="ratgeber-online-auto-abmelden"
+          >
+            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+              <div className="mb-10 flex items-end justify-between md:mb-12">
                 <div>
                   <h2
                     id="ratgeber-online-auto-abmelden"
-                    className="text-3xl md:text-4xl font-extrabold text-primary"
+                    className="text-3xl font-extrabold text-primary md:text-4xl"
                   >
                     Ratgeber zu Online Auto Abmelden
                   </h2>
-                  <p className="text-gray-600 mt-2">
+                  <p className="mt-2 text-gray-600">
                     Aktuelle Artikel und Ratgeber rund um die digitale Fahrzeugabmeldung
                   </p>
                 </div>
 
                 <Link
                   href="/insiderwissen"
-                  className="hidden md:inline-flex items-center gap-2 text-primary font-bold hover:text-accent transition-colors"
+                  className="hidden font-bold text-primary transition-colors hover:text-accent md:inline-flex md:items-center md:gap-2"
                 >
                   Alle Artikel →
                 </Link>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {posts.map((post) => (
                   <BlogCard key={post.id} post={post} />
                 ))}
@@ -703,7 +940,7 @@ export default async function HomePage() {
               <div className="mt-8 text-center md:hidden">
                 <Link
                   href="/insiderwissen"
-                  className="inline-flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-full font-bold"
+                  className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 font-bold text-white"
                 >
                   Jetzt noch mehr zu Online Auto Abmelden
                 </Link>
@@ -713,26 +950,29 @@ export default async function HomePage() {
         )}
 
         <section
-          className="py-14 md:py-16 bg-gradient-to-br from-dark via-primary-900 to-dark text-center"
+          className="bg-gradient-to-br from-dark via-primary-900 to-dark py-14 text-center md:py-16"
           aria-labelledby="jetzt-auto-online-abmelden"
         >
-          <div className="max-w-3xl mx-auto px-4">
+          <div className="mx-auto max-w-3xl px-4">
             <h2
               id="jetzt-auto-online-abmelden"
-              className="text-3xl md:text-4xl font-extrabold text-white mb-6"
+              className="mb-6 text-3xl font-extrabold text-white md:text-4xl"
             >
               Bereit? Jetzt Auto online abmelden!
             </h2>
-            <p className="text-white/70 text-lg mb-8">
+
+            <p className="mb-8 text-lg text-white/70">
               In nur 2 Minuten erledigt. In vielen Fällen kein Ausweis-Upload nötig. Offizielle
               Bestätigung direkt erhalten.
             </p>
+
             <Link
               href="/product/fahrzeugabmeldung"
               aria-label={`Jetzt Auto online abmelden für ${pricing.abmeldungPriceFormatted}`}
-              className="inline-flex items-center gap-2 bg-accent hover:bg-accent-600 text-primary font-extrabold px-10 py-5 rounded-full text-xl transition-all hover:shadow-xl hover:shadow-accent/30 hover:-translate-y-0.5"
+              className="inline-flex items-center gap-2 rounded-full bg-accent px-10 py-5 text-xl font-extrabold text-primary transition-all hover:-translate-y-0.5 hover:bg-accent-600 hover:shadow-xl hover:shadow-accent/30"
             >
               Jetzt für {pricing.abmeldungPriceFormatted} abmelden
+              <ArrowRight className="h-5 w-5" />
             </Link>
           </div>
         </section>
