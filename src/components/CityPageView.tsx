@@ -23,10 +23,10 @@ import {
   buildFaqSchema,
   compareTable,
   type CityPageModelInput,
+  type SectionKey,
 } from '@/lib/cityPageContent';
 import { getLokaleBehoerde } from '@/lib/behoerde';
 import { getCityMeta } from '@/lib/city-metadata';
-import { type SectionKey } from '@/lib/cityPageContent';
 import { type LocalPage } from '@/lib/db';
 import { getCityNameBySlug } from '@/lib/city-slugs';
 import AuthorityHubsSection from '@/components/AuthorityHubsSection';
@@ -82,38 +82,40 @@ const PRICE_FEATURES = [
   'Kein Ausweis / AusweisApp nötig',
   'Digitale Abwicklung',
 ] as const;
-  const CITY_GUIDE_LINKS = [
+
+const CITY_GUIDE_LINKS = [
   {
-    href: "/insiderwissen/kfz-abmeldung-fehler-sicherheitscode",
-    title: "Kfz-Abmeldung Fehler Sicherheitscode",
-    text: "Wenn der Sicherheitscode nicht klappt oder eine Fehlermeldung erscheint, hilft diese Anleitung oft sofort weiter.",
+    href: '/insiderwissen/kfz-abmeldung-fehler-sicherheitscode',
+    title: 'Kfz-Abmeldung Fehler Sicherheitscode',
+    text: 'Wenn der Sicherheitscode nicht klappt oder eine Fehlermeldung erscheint, hilft diese Anleitung oft sofort weiter.',
   },
   {
-    href: "/insiderwissen/auto-abmelden-ohne-tuev-anleitung",
-    title: "Auto abmelden ohne TÜV",
-    text: "Hier sehen Nutzer schnell, ob und wie die Abmeldung auch ohne gültigen TÜV möglich ist.",
+    href: '/insiderwissen/auto-abmelden-ohne-tuev-anleitung',
+    title: 'Auto abmelden ohne TÜV',
+    text: 'Hier sehen Nutzer schnell, ob und wie die Abmeldung auch ohne gültigen TÜV möglich ist.',
   },
   {
-    href: "/insiderwissen/kfz-online-abmeldung-funktioniert-nicht",
-    title: "Kfz online abmelden funktioniert nicht",
-    text: "Hilfreich bei technischen Problemen, Fehlermeldungen oder wenn die Online-Abmeldung nicht richtig startet.",
+    href: '/insiderwissen/kfz-online-abmeldung-funktioniert-nicht',
+    title: 'Kfz online abmelden funktioniert nicht',
+    text: 'Hilfreich bei technischen Problemen, Fehlermeldungen oder wenn die Online-Abmeldung nicht richtig startet.',
   },
   {
-    href: "/insiderwissen/ikfz-funktioniert-nicht",
-    title: "iKFZ funktioniert nicht",
-    text: "Dieser Ratgeber hilft weiter, wenn iKFZ Probleme macht oder der digitale Ablauf unerwartet abbricht.",
+    href: '/insiderwissen/ikfz-funktioniert-nicht',
+    title: 'iKFZ funktioniert nicht',
+    text: 'Dieser Ratgeber hilft weiter, wenn iKFZ Probleme macht oder der digitale Ablauf unerwartet abbricht.',
   },
   {
-    href: "/insiderwissen/auto-online-abmelden-kosten-2026",
-    title: "Kosten Autoabmeldung online",
-    text: "Wer vor dem Start die Kosten wissen möchte, findet hier eine einfache und klare Übersicht.",
+    href: '/insiderwissen/auto-online-abmelden-kosten-2026',
+    title: 'Kosten Autoabmeldung online',
+    text: 'Wer vor dem Start die Kosten wissen möchte, findet hier eine einfache und klare Übersicht.',
   },
   {
-    href: "/insiderwissen/wo-ist-der-7-stellige-sicherheitscode-im-fahrzeugschein",
-    title: "Wo ist der 7-stellige Sicherheitscode im Fahrzeugschein",
-    text: "Besonders hilfreich, wenn Nutzer nicht wissen, wo der benötigte Code auf den Unterlagen zu finden ist.",
+    href: '/insiderwissen/wo-ist-der-7-stellige-sicherheitscode-im-fahrzeugschein',
+    title: 'Wo ist der 7-stellige Sicherheitscode im Fahrzeugschein',
+    text: 'Besonders hilfreich, wenn Nutzer nicht wissen, wo der benötigte Code auf den Unterlagen zu finden ist.',
   },
 ];
+
 function normalizeCompareText(value: string): string {
   return value
     .toLowerCase()
@@ -127,15 +129,19 @@ function normalizeCompareText(value: string): string {
 
 function dedupeStrings(values: string[] | undefined): string[] {
   if (!Array.isArray(values)) return [];
+
   const seen = new Set<string>();
   const result: string[] = [];
 
   for (const value of values) {
     if (typeof value !== 'string') continue;
+
     const trimmed = value.trim();
     if (!trimmed) continue;
+
     const normalized = normalizeCompareText(trimmed);
     if (!normalized || seen.has(normalized)) continue;
+
     seen.add(normalized);
     result.push(trimmed);
   }
@@ -147,13 +153,16 @@ function dedupeFaq(
   items: Array<{ q: string; a: string }> | undefined,
 ): Array<{ q: string; a: string }> {
   if (!Array.isArray(items)) return [];
+
   const seen = new Set<string>();
   const result: Array<{ q: string; a: string }> = [];
 
   for (const item of items) {
     if (!item?.q?.trim() || !item?.a?.trim()) continue;
+
     const key = normalizeCompareText(item.q);
     if (!key || seen.has(key)) continue;
+
     seen.add(key);
     result.push({ q: item.q.trim(), a: item.a.trim() });
   }
@@ -163,13 +172,16 @@ function dedupeFaq(
 
 function dedupeTextObjects<T extends { slug: string; name: string }>(items: T[] | undefined): T[] {
   if (!Array.isArray(items)) return [];
+
   const seen = new Set<string>();
   const result: T[] = [];
 
   for (const item of items) {
     if (!item?.slug || !item?.name) continue;
+
     const key = `${item.slug}::${normalizeCompareText(item.name)}`;
     if (seen.has(key)) continue;
+
     seen.add(key);
     result.push(item);
   }
@@ -182,7 +194,9 @@ function excludeExisting(values: string[], existing: string[]): string[] {
   return values.filter((item) => !blocked.has(normalizeCompareText(item)));
 }
 
-function renderInlineLinkedText(text: string) {
+function renderInlineLinkedText(text?: string) {
+  if (!text) return '';
+
   const tokens = [...text.matchAll(/\[\[([^|\]]+)\|([^\]]+)\]\]/g)];
   if (tokens.length === 0) return text;
 
@@ -200,7 +214,11 @@ function renderInlineLinkedText(text: string) {
     }
 
     parts.push(
-      <Link key={`${href}-${index}`} href={href} className="font-semibold text-primary hover:underline">
+      <Link
+        key={`${href}-${index}`}
+        href={href}
+        className="font-semibold text-primary hover:underline"
+      >
         {anchorText}
       </Link>,
     );
@@ -243,12 +261,18 @@ function withPrice(label: string, price: string): string {
 
 function buildStrongHeroSummary(cityName: string, existing?: string): string {
   const strongLead = `Auto online abmelden in ${cityName} – offiziell, bundesweit und ohne Termin.`;
+
   if (!existing?.trim()) {
     return `${strongLead} Starten Sie jetzt digital ab 19,70 € und erhalten Sie die Bestätigung per E-Mail.`;
   }
 
   const normalized = normalizeCompareText(existing);
-  if (normalized.includes('19 70') || normalized.includes('19 70 eur') || normalized.includes('ohne termin')) {
+
+  if (
+    normalized.includes('19 70') ||
+    normalized.includes('19 70 eur') ||
+    normalized.includes('ohne termin')
+  ) {
     return existing.trim();
   }
 
@@ -275,6 +299,7 @@ function buildCityInput(page: LocalPage): {
   const region = getExtraString(page, 'region') || meta?.region || cityName;
   const authority = getLokaleBehoerde(cityName, state);
   const nearbySlugs = getExtraStringArray(page, 'nearby') || meta?.nearby || [];
+
   const nearbyNames = nearbySlugs
     .map((item) => getCityNameBySlug(item))
     .filter((item): item is string => !!item);
@@ -317,13 +342,21 @@ export default function CityPageView({
 
   const legacyContent = model.content ?? {};
   model.content ??= {};
+
   model.content.intro = Array.isArray(model.content.intro)
     ? dedupeStrings(model.content.intro)
     : typeof legacyContent.intro === 'string' && legacyContent.intro.trim().length > 0
       ? [legacyContent.intro.trim()]
       : [];
-  model.content.intent = Array.isArray(model.content.intent) ? dedupeStrings(model.content.intent) : [];
-  model.content.faq = Array.isArray(model.content.faq) ? dedupeFaq(model.content.faq) : [];
+
+  model.content.intent = Array.isArray(model.content.intent)
+    ? dedupeStrings(model.content.intent)
+    : [];
+
+  model.content.faq = Array.isArray(model.content.faq)
+    ? dedupeFaq(model.content.faq)
+    : [];
+
   model.content.nearbyIntro =
     typeof model.content.nearbyIntro === 'string' ? model.content.nearbyIntro : '';
 
@@ -352,30 +385,36 @@ export default function CityPageView({
     paragraphs: model.content.intro,
   };
 
-  model.intentBullets = Array.isArray(model.intentBullets) ? dedupeStrings(model.intentBullets) : [];
+  model.intentBullets = Array.isArray(model.intentBullets)
+    ? dedupeStrings(model.intentBullets)
+    : [];
+
   model.localInsights = Array.isArray(model.localInsights) ? model.localInsights : [];
+
   model.sectionOrder = Array.isArray(model.sectionOrder)
     ? model.sectionOrder
     : Array.isArray(model.content?.sectionOrder)
       ? model.content.sectionOrder
       : [
-  'benefits',
-  'preparation',
-  'trust',
-  'documents',
-  'expertHelp',
-  'process',
-  'compare',
-  'target',
-  'local',
-  'note',
-  'faq',
-  'links',
-  'cta',
-];
+          'benefits',
+          'preparation',
+          'trust',
+          'documents',
+          'expertHelp',
+          'process',
+          'compare',
+          'target',
+          'local',
+          'note',
+          'faq',
+          'links',
+          'cta',
+        ];
+
   model.archetype = typeof model.archetype === 'string' ? model.archetype : 'default';
   model.layoutStrategy = typeof model.layoutStrategy === 'string' ? model.layoutStrategy : 'default';
   model.seoGate ??= { indexable: true };
+
   model.authority ??= {
     narrative: authority
       ? `${authority.name} ist die zuständige Behörde für die Kfz-Abmeldung in ${cityName}.`
@@ -385,11 +424,13 @@ export default function CityPageView({
   };
 
   model.sections ??= {};
+
   model.sections.benefits ??= {
     heading: 'Vorteile der Online-Abmeldung',
     intro: '',
     items: Array.isArray(legacyContent.benefits) ? legacyContent.benefits : [],
   };
+
   model.sections.preparation ??= {
     heading: 'Vorbereitung',
     paragraphs:
@@ -397,28 +438,34 @@ export default function CityPageView({
         ? [legacyContent.preparation]
         : [],
   };
+
   model.sections.trust ??= {
     heading: 'Sicherheit & Datenschutz',
-    paragraphs: typeof legacyContent.trust === 'string' && legacyContent.trust.trim().length > 0
-      ? [legacyContent.trust]
-      : [],
+    paragraphs:
+      typeof legacyContent.trust === 'string' && legacyContent.trust.trim().length > 0
+        ? [legacyContent.trust]
+        : [],
   };
+
   model.sections.documents ??= {
     heading: 'Erforderliche Unterlagen',
     intro: legacyContent.documentsIntro || '',
     items: Array.isArray(legacyContent.documentsList) ? legacyContent.documentsList : [],
   };
+
   model.sections.process ??= {
     heading: 'Ablauf der Abmeldung',
     intro: legacyContent.processIntro || '',
     steps: Array.isArray(legacyContent.processList) ? legacyContent.processList : [],
   };
+
   model.sections.compare ??= {
     heading: 'Online vs. Vor Ort',
     intro: legacyContent.compareIntro || '',
     note: legacyContent.note || '',
     ctaLabel: legacyContent.ctaButton || 'Jetzt online abmelden',
   };
+
   model.sections.target ??= {
     heading: 'Für wen ist diese Abmeldung?',
     intro: legacyContent.targetIntro || '',
@@ -426,22 +473,27 @@ export default function CityPageView({
     ctaLabel: legacyContent.ctaButton || 'Online starten',
     items: Array.isArray(legacyContent.targetList) ? legacyContent.targetList : [],
   };
+
   model.sections.local ??= {
     heading: `Zuständige Behörde in ${cityName}`,
     intro: legacyContent.localBlockText || '',
     paragraphs: [],
     alternativeText: '',
   };
+
   model.sections.note ??= {
     heading: 'Wichtige Hinweise',
-    paragraphs: typeof legacyContent.note === 'string' && legacyContent.note.trim().length > 0
-      ? [legacyContent.note]
-      : [],
+    paragraphs:
+      typeof legacyContent.note === 'string' && legacyContent.note.trim().length > 0
+        ? [legacyContent.note]
+        : [],
   };
+
   model.sections.faq ??= {
     heading: 'Häufig gestellte Fragen',
     items: Array.isArray(model.content.faq) ? model.content.faq : [],
   };
+
   model.sections.links ??= {
     heading: 'Weitere Städte',
     intro: '',
@@ -458,15 +510,15 @@ export default function CityPageView({
     stateHubHref: '',
     stateHubLabel: '',
   };
+
   model.sections.cta ??= {
     heading: 'Jetzt Fahrzeug online abmelden',
     text: legacyContent.ctaText || '',
     buttonLabel: legacyContent.ctaButton || 'Jetzt online abmelden',
   };
+
   const datenschutzJoker =
-  typeof model.content?.datenschutzJoker === 'string'
-    ? model.content.datenschutzJoker
-    : '';
+    typeof model.content?.datenschutzJoker === 'string' ? model.content.datenschutzJoker : '';
 
   model.sections.benefits.items = dedupeStrings(model.sections.benefits.items);
   model.sections.preparation.paragraphs = dedupeStrings(model.sections.preparation.paragraphs);
@@ -478,38 +530,55 @@ export default function CityPageView({
   model.sections.faq.items = dedupeFaq(model.sections.faq.items);
   model.sections.links.links = dedupeTextObjects(model.sections.links.links);
 
-  const contentIntro = Array.isArray(model.content?.intro) ? dedupeStrings(model.content.intro) : [];
+  const contentIntro = Array.isArray(model.content?.intro)
+    ? dedupeStrings(model.content.intro)
+    : [];
+
   const fallbackIntro = Array.isArray(model.intro?.paragraphs)
     ? dedupeStrings(model.intro.paragraphs)
     : [model.hero?.detail].filter((value): value is string => !!value);
+
   const introParagraphs = contentIntro.length > 0 ? contentIntro : fallbackIntro;
 
-  const contentIntent = Array.isArray(model.content?.intent) ? dedupeStrings(model.content.intent) : [];
-  const fallbackIntent = Array.isArray(model.intentBullets) ? dedupeStrings(model.intentBullets) : [];
+  const contentIntent = Array.isArray(model.content?.intent)
+    ? dedupeStrings(model.content.intent)
+    : [];
+
+  const fallbackIntent = Array.isArray(model.intentBullets)
+    ? dedupeStrings(model.intentBullets)
+    : [];
+
   const intentLines = contentIntent.length > 0 ? contentIntent : fallbackIntent;
 
-  const contentFaq = Array.isArray(model.content?.faq) ? dedupeFaq(model.content.faq) : [];
-  const fallbackFaq = Array.isArray(model.sections?.faq?.items) ? dedupeFaq(model.sections.faq.items) : [];
+  const contentFaq = Array.isArray(model.content?.faq)
+    ? dedupeFaq(model.content.faq)
+    : [];
+
+  const fallbackFaq = Array.isArray(model.sections?.faq?.items)
+    ? dedupeFaq(model.sections.faq.items)
+    : [];
+
   const faqItems = contentFaq.length > 0 ? contentFaq : fallbackFaq;
 
   const contentNearbyIntro =
     typeof model.content?.nearbyIntro === 'string' ? model.content.nearbyIntro : '';
+
   const nearbyIntro =
     contentNearbyIntro.trim().length > 0 ? contentNearbyIntro : (model.sections?.links?.intro ?? '');
 
   const prepParagraphs = model.sections.preparation.paragraphs;
-  const trustParagraphs = excludeExisting(
-    model.sections.trust.paragraphs,
-    prepParagraphs,
-  );
-  const noteParagraphs = excludeExisting(
-    model.sections.note.paragraphs,
-    [...prepParagraphs, ...trustParagraphs, model.sections.compare.note || ''],
-  );
-  const localParagraphs = excludeExisting(
-    dedupeStrings(model.sections.local.paragraphs),
-    [model.sections.local.intro || ''],
-  );
+
+  const trustParagraphs = excludeExisting(model.sections.trust.paragraphs, prepParagraphs);
+
+  const noteParagraphs = excludeExisting(model.sections.note.paragraphs, [
+    ...prepParagraphs,
+    ...trustParagraphs,
+    model.sections.compare.note || '',
+  ]);
+
+  const localParagraphs = excludeExisting(dedupeStrings(model.sections.local.paragraphs), [
+    model.sections.local.intro || '',
+  ]);
 
   const baseUrl = stripTrailingSlash(settings.siteUrl);
 
@@ -519,6 +588,7 @@ export default function CityPageView({
   const closingCtaText = withPrice('Jetzt online abmelden', pricing.abmeldungPriceFormatted);
 
   const faqSchema = buildFaqSchema(faqItems);
+
   const serviceSchema = {
     '@context': 'https://schema.org',
     '@type': 'Service',
@@ -598,9 +668,12 @@ export default function CityPageView({
     benefits: (
       <section className="mx-auto mt-16 max-w-5xl px-4 sm:px-6" key="benefits">
         <div className="rounded-2xl bg-gradient-to-br from-primary to-primary-800 p-8 text-white md:p-10">
-          <h2 className="mb-3 text-2xl font-extrabold md:text-3xl">{model.sections.benefits.heading}</h2>
+          <h2 className="mb-3 text-2xl font-extrabold md:text-3xl">
+            {model.sections.benefits.heading}
+          </h2>
           <p className="mb-8 text-sm leading-relaxed text-white/75">
-            {model.sections.benefits.intro || `Viele Kunden aus ${cityName} entscheiden sich für den digitalen Weg, weil er klar, schnell und ohne Termin vorbereitet werden kann.`}
+            {model.sections.benefits.intro ||
+              `Viele Kunden aus ${cityName} entscheiden sich für den digitalen Weg, weil er klar, schnell und ohne Termin vorbereitet werden kann.`}
           </p>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -621,11 +694,13 @@ export default function CityPageView({
     preparation: (
       <section className="mx-auto mt-16 max-w-5xl px-4 sm:px-6" key="preparation">
         <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm md:p-10">
-          <h2 className="mb-4 text-2xl font-extrabold text-primary">{model.sections.preparation.heading}</h2>
+          <h2 className="mb-4 text-2xl font-extrabold text-primary">
+            {model.sections.preparation.heading}
+          </h2>
           <div className="space-y-4">
             {prepParagraphs.map((paragraph: string) => (
               <p key={paragraph} className="leading-relaxed text-gray-600">
-                {paragraph}
+                {renderInlineLinkedText(paragraph)}
               </p>
             ))}
           </div>
@@ -634,46 +709,51 @@ export default function CityPageView({
     ),
 
     trust: (
-  <section className="mx-auto mt-16 max-w-5xl px-4 sm:px-6" key="trust">
-    <div className="rounded-2xl border border-primary/10 bg-primary/5 p-8 md:p-10">
-      <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-primary">
-        <Shield className="h-4 w-4" />
-        <span className="text-sm font-bold">Trust & Sicherheit</span>
-      </div>
-      <h2 className="mb-4 text-2xl font-extrabold text-primary">
-        {model.sections.trust.heading}
-      </h2>
-
-      <div className="space-y-4">
-        {trustParagraphs.length > 0 ? (
-          trustParagraphs.map((paragraph: string) => (
-            <p key={paragraph} className="leading-relaxed text-gray-700">
-              {paragraph}
-            </p>
-          ))
-        ) : (
-          <p className="leading-relaxed text-gray-700">
-            Viele Kunden möchten vor dem Start wissen, dass der Ablauf klar, sicher und verständlich ist. Genau deshalb setzen wir auf einfache Schritte, offiziellen Ablauf und direkte Hilfe per WhatsApp oder Telefon.
-          </p>
-        )}
-
-        {datenschutzJoker && (
-          <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4">
-            <p className="leading-relaxed text-gray-700">
-              {datenschutzJoker}
-            </p>
+      <section className="mx-auto mt-16 max-w-5xl px-4 sm:px-6" key="trust">
+        <div className="rounded-2xl border border-primary/10 bg-primary/5 p-8 md:p-10">
+          <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-primary">
+            <Shield className="h-4 w-4" />
+            <span className="text-sm font-bold">Trust & Sicherheit</span>
           </div>
-        )}
-      </div>
-    </div>
-  </section>
-),
+
+          <h2 className="mb-4 text-2xl font-extrabold text-primary">
+            {model.sections.trust.heading}
+          </h2>
+
+          <div className="space-y-4">
+            {trustParagraphs.length > 0 ? (
+              trustParagraphs.map((paragraph: string) => (
+                <p key={paragraph} className="leading-relaxed text-gray-700">
+                  {renderInlineLinkedText(paragraph)}
+                </p>
+              ))
+            ) : (
+              <p className="leading-relaxed text-gray-700">
+                Viele Kunden möchten vor dem Start wissen, dass der Ablauf klar, sicher und
+                verständlich ist. Genau deshalb setzen wir auf einfache Schritte, offiziellen Ablauf
+                und direkte Hilfe per WhatsApp oder Telefon.
+              </p>
+            )}
+
+            {datenschutzJoker && (
+              <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4">
+                <p className="leading-relaxed text-gray-700">{datenschutzJoker}</p>
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+    ),
 
     documents: (
       <section className="mx-auto mt-16 max-w-5xl px-4 sm:px-6" key="documents">
         <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm md:p-10">
-          <h2 className="mb-4 text-2xl font-extrabold text-primary">{model.sections.documents.heading}</h2>
-          <p className="mb-6 leading-relaxed text-gray-600">{model.sections.documents.intro}</p>
+          <h2 className="mb-4 text-2xl font-extrabold text-primary">
+            {model.sections.documents.heading}
+          </h2>
+          <p className="mb-6 leading-relaxed text-gray-600">
+            {model.sections.documents.intro}
+          </p>
 
           <div className="grid gap-3 sm:grid-cols-2">
             {model.sections.documents.items.map((item: string) => (
@@ -689,66 +769,68 @@ export default function CityPageView({
         </div>
       </section>
     ),
-expertHelp: (
-  <section className="mx-auto mt-16 max-w-5xl px-4 sm:px-6" key="expertHelp">
-    <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm md:p-10">
-      <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-primary">
-        <HelpCircle className="h-4 w-4" />
-        <span className="text-sm font-bold">Praxis-Hilfe</span>
-      </div>
 
-      <h2 className="mb-4 text-2xl font-extrabold text-primary">
-        Wichtige Hinweise zur Online-Abmeldung in {cityName}
-      </h2>
+    expertHelp: (
+      <section className="mx-auto mt-16 max-w-5xl px-4 sm:px-6" key="expertHelp">
+        <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm md:p-10">
+          <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-primary">
+            <HelpCircle className="h-4 w-4" />
+            <span className="text-sm font-bold">Praxis-Hilfe</span>
+          </div>
 
-      <p className="mb-8 leading-relaxed text-gray-600">
-        {renderInlineLinkedText(model.content.expertAccordionIntro)}
-      </p>
+          <h2 className="mb-4 text-2xl font-extrabold text-primary">
+            Wichtige Hinweise zur Online-Abmeldung in {cityName}
+          </h2>
 
-      <div className="space-y-3">
-        {model.content.expertAccordionItems?.map(
-          (item: { title: string; paragraphs: string[] }) => (
-            <details
-              key={item.title}
-              className="group overflow-hidden rounded-xl border border-gray-200 bg-gray-50"
-            >
-              <summary className="flex cursor-pointer items-center justify-between p-5 font-bold text-gray-900">
-                {item.title}
-                <span className="ml-3 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-                  <svg
-                    className="h-4 w-4 transition-transform group-open:rotate-180"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M19 9l-7 7-7-7"
-                    />
-                  </svg>
-                </span>
-              </summary>
+          <p className="mb-8 leading-relaxed text-gray-600">
+            {renderInlineLinkedText(model.content.expertAccordionIntro)}
+          </p>
 
-              <div className="space-y-4 border-t border-gray-200 bg-white px-5 pb-5 pt-4">
-                {item.paragraphs.map((paragraph) => (
-                  <p key={paragraph} className="leading-relaxed text-gray-600">
-                    {renderInlineLinkedText(paragraph)}
-                  </p>
-                ))}
-              </div>
-            </details>
-          ),
-        )}
-      </div>
+          <div className="space-y-3">
+            {model.content.expertAccordionItems?.map(
+              (item: { title: string; paragraphs: string[] }) => (
+                <details
+                  key={item.title}
+                  className="group overflow-hidden rounded-xl border border-gray-200 bg-gray-50"
+                >
+                  <summary className="flex cursor-pointer items-center justify-between p-5 font-bold text-gray-900">
+                    {item.title}
+                    <span className="ml-3 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                      <svg
+                        className="h-4 w-4 transition-transform group-open:rotate-180"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M19 9l-7 7-7-7"
+                        />
+                      </svg>
+                    </span>
+                  </summary>
 
-      <p className="mt-8 leading-relaxed text-gray-600">
-        {renderInlineLinkedText(model.content.expertAccordionOutro)}
-      </p>
-    </div>
-  </section>
-),
+                  <div className="space-y-4 border-t border-gray-200 bg-white px-5 pb-5 pt-4">
+                    {item.paragraphs.map((paragraph) => (
+                      <p key={paragraph} className="leading-relaxed text-gray-600">
+                        {renderInlineLinkedText(paragraph)}
+                      </p>
+                    ))}
+                  </div>
+                </details>
+              ),
+            )}
+          </div>
+
+          <p className="mt-8 leading-relaxed text-gray-600">
+            {renderInlineLinkedText(model.content.expertAccordionOutro)}
+          </p>
+        </div>
+      </section>
+    ),
+
     process: (
       <section className="mx-auto mt-16 max-w-5xl px-4 sm:px-6" key="process">
         <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm md:p-10">
@@ -761,7 +843,9 @@ expertHelp: (
             {model.sections.process.heading}
           </h2>
 
-          <p className="mb-8 leading-relaxed text-gray-600">{model.sections.process.intro}</p>
+          <p className="mb-8 leading-relaxed text-gray-600">
+            {model.sections.process.intro}
+          </p>
 
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             {model.sections.process.steps.map((step: string, index: number) => (
@@ -784,8 +868,12 @@ expertHelp: (
     compare: (
       <section className="mx-auto mt-16 max-w-5xl px-4 sm:px-6" key="compare">
         <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm md:p-10">
-          <h2 className="mb-4 text-2xl font-extrabold text-primary">{model.sections.compare.heading}</h2>
-          <p className="mb-6 leading-relaxed text-gray-600">{model.sections.compare.intro}</p>
+          <h2 className="mb-4 text-2xl font-extrabold text-primary">
+            {model.sections.compare.heading}
+          </h2>
+          <p className="mb-6 leading-relaxed text-gray-600">
+            {model.sections.compare.intro}
+          </p>
 
           <div className="overflow-x-auto rounded-2xl border border-gray-200">
             <table className="min-w-full bg-white">
@@ -805,7 +893,10 @@ expertHelp: (
                 {compareTable.rows.map((row) => (
                   <tr key={row[0]} className="border-t border-gray-100">
                     {row.map((cell, index) => (
-                      <td key={`${row[0]}-${index}`} className="px-4 py-3 text-sm text-gray-600">
+                      <td
+                        key={`${row[0]}-${index}`}
+                        className="px-4 py-3 text-sm text-gray-600"
+                      >
                         {cell}
                       </td>
                     ))}
@@ -816,7 +907,9 @@ expertHelp: (
           </div>
 
           {model.sections.compare.note ? (
-            <p className="mt-6 leading-relaxed text-gray-600">{model.sections.compare.note}</p>
+            <p className="mt-6 leading-relaxed text-gray-600">
+              {renderInlineLinkedText(model.sections.compare.note)}
+            </p>
           ) : null}
 
           <Link
@@ -833,12 +926,17 @@ expertHelp: (
     target: (
       <section className="mx-auto mt-16 max-w-5xl px-4 sm:px-6" key="target">
         <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm md:p-10">
-          <h2 className="mb-4 text-2xl font-extrabold text-primary">{model.sections.target.heading}</h2>
-          <p className="mb-6 leading-relaxed text-gray-600">{model.sections.target.intro}</p>
+          <h2 className="mb-4 text-2xl font-extrabold text-primary">
+            {model.sections.target.heading}
+          </h2>
+          <p className="mb-6 leading-relaxed text-gray-600">
+            {model.sections.target.intro}
+          </p>
 
           <div className="mb-6 border-l-4 border-accent/30 pl-4">
             <p className="text-sm leading-relaxed text-gray-500">
-              {model.sections.target.actionText || `Wer sein Fahrzeug in ${cityName} bequem, schnell und ohne Vor-Ort-Termin abmelden möchte, kann jetzt direkt digital starten.`}
+              {model.sections.target.actionText ||
+                `Wer sein Fahrzeug in ${cityName} bequem, schnell und ohne Vor-Ort-Termin abmelden möchte, kann jetzt direkt digital starten.`}
             </p>
             <Link
               href="/product/fahrzeugabmeldung"
@@ -871,16 +969,26 @@ expertHelp: (
             <MapPin className="h-4 w-4" />
             <span className="text-sm font-bold">Lokale Differenzierung</span>
           </div>
-          <h2 className="mb-4 text-2xl font-extrabold text-primary">{model.sections.local.heading}</h2>
-          <p className="leading-relaxed text-gray-700">{model.sections.local.intro}</p>
+
+          <h2 className="mb-4 text-2xl font-extrabold text-primary">
+            {model.sections.local.heading}
+          </h2>
+          <p className="leading-relaxed text-gray-700">
+            {renderInlineLinkedText(model.sections.local.intro)}
+          </p>
 
           <div className="mt-6 grid gap-4 md:grid-cols-3">
             {model.localInsights.map((insight: any) => (
-              <div key={insight.id} className="rounded-2xl border border-primary/10 bg-white/70 p-5">
+              <div
+                key={insight.id}
+                className="rounded-2xl border border-primary/10 bg-white/70 p-5"
+              >
                 <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary/60">
                   {insight.label}
                 </p>
-                <p className="mt-3 text-sm leading-relaxed text-gray-700">{renderInlineLinkedText(insight.text)}</p>
+                <p className="mt-3 text-sm leading-relaxed text-gray-700">
+                  {renderInlineLinkedText(insight.text)}
+                </p>
               </div>
             ))}
           </div>
@@ -909,16 +1017,22 @@ expertHelp: (
             <HelpCircle className="h-4 w-4" />
             <span className="text-sm font-bold">Bitte beachten</span>
           </div>
-          <h2 className="mb-4 text-2xl font-extrabold text-amber-900">{model.sections.note.heading}</h2>
+
+          <h2 className="mb-4 text-2xl font-extrabold text-amber-900">
+            {model.sections.note.heading}
+          </h2>
+
           {noteParagraphs.length > 0 ? (
             noteParagraphs.map((paragraph: string) => (
               <p key={paragraph} className="leading-relaxed text-amber-900/80">
-                {paragraph}
+                {renderInlineLinkedText(paragraph)}
               </p>
             ))
           ) : (
             <p className="leading-relaxed text-amber-900/80">
-              Prüfen Sie Kennzeichen, Fahrzeugschein, Sicherheitscodes und Fahrzeugdaten vor dem Absenden noch einmal sorgfältig. Gut lesbare und vollständige Angaben vermeiden unnötige Rückfragen.
+              Prüfen Sie Kennzeichen, Fahrzeugschein, Sicherheitscodes und Fahrzeugdaten vor dem
+              Absenden noch einmal sorgfältig. Gut lesbare und vollständige Angaben vermeiden
+              unnötige Rückfragen.
             </p>
           )}
         </div>
@@ -933,7 +1047,9 @@ expertHelp: (
               <HelpCircle className="h-4 w-4" />
               <span className="text-sm font-bold">FAQ</span>
             </div>
-            <h2 className="text-2xl font-extrabold text-primary">{model.sections.faq.heading}</h2>
+            <h2 className="text-2xl font-extrabold text-primary">
+              {model.sections.faq.heading}
+            </h2>
           </div>
 
           <div className="space-y-3">
@@ -982,7 +1098,9 @@ expertHelp: (
     links: (
       <section className="mx-auto mt-16 max-w-5xl px-4 sm:px-6" key="links">
         <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm">
-          <h2 className="mb-4 text-2xl font-extrabold text-primary">{model.sections.links.heading}</h2>
+          <h2 className="mb-4 text-2xl font-extrabold text-primary">
+            {model.sections.links.heading}
+          </h2>
           <p className="mb-4 text-gray-600">
             {nearbyIntro || 'Diese Seiten können ebenfalls hilfreich sein:'}
           </p>
@@ -1002,7 +1120,7 @@ expertHelp: (
 
           {model.sections.links.contextText ? (
             <p className="mb-6 text-sm leading-relaxed text-gray-500">
-              {model.sections.links.contextText}
+              {renderInlineLinkedText(model.sections.links.contextText)}
             </p>
           ) : null}
 
@@ -1020,12 +1138,15 @@ expertHelp: (
             </div>
           ) : (
             <p className="text-sm leading-relaxed text-gray-500">
-              Für diese Seite konnten noch nicht genug gleichrangige Peer-Behörden validiert werden. Der Nearby-Graph bleibt daher bewusst leer.
+              Für diese Seite konnten noch nicht genug gleichrangige Peer-Behörden validiert werden.
+              Der Nearby-Graph bleibt daher bewusst leer.
             </p>
           )}
 
           {model.sections.links.closingText ? (
-            <p className="mt-6 text-sm text-gray-500">{model.sections.links.closingText}</p>
+            <p className="mt-6 text-sm text-gray-500">
+              {renderInlineLinkedText(model.sections.links.closingText)}
+            </p>
           ) : null}
 
           {model.sections.links.stateHubHref && model.sections.links.stateHubLabel && (
@@ -1059,7 +1180,8 @@ expertHelp: (
             </h2>
 
             <p className="mx-auto mb-8 max-w-2xl text-white/70">
-              {model.sections.cta.text || `Wer sein Fahrzeug in ${cityName} schnell, offiziell und ohne Termin abmelden möchte, kann jetzt direkt digital starten.`}
+              {model.sections.cta.text ||
+                `Wer sein Fahrzeug in ${cityName} schnell, offiziell und ohne Termin abmelden möchte, kann jetzt direkt digital starten.`}
             </p>
 
             <Link
@@ -1151,7 +1273,9 @@ expertHelp: (
               </div>
               <div className="inline-flex items-center gap-2 rounded-2xl bg-white/10 px-4 py-3">
                 <BadgeEuro className="h-4 w-4 text-accent" />
-                <span className="text-sm font-medium text-white/90">Ab {pricing.abmeldungPriceFormatted}</span>
+                <span className="text-sm font-medium text-white/90">
+                  Ab {pricing.abmeldungPriceFormatted}
+                </span>
               </div>
               <div className="inline-flex items-center gap-2 rounded-2xl bg-white/10 px-4 py-3">
                 <MailCheck className="h-4 w-4 text-accent" />
@@ -1167,7 +1291,10 @@ expertHelp: (
                 <ul className="space-y-3 text-sm leading-relaxed text-white/85 md:text-base">
                   {intentLines.map((line: string) => (
                     <li key={line} className="flex gap-2">
-                      <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-accent" aria-hidden />
+                      <span
+                        className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-accent"
+                        aria-hidden
+                      />
                       <span>{renderInlineLinkedText(line)}</span>
                     </li>
                   ))}
@@ -1216,7 +1343,18 @@ expertHelp: (
             <h2 className="mb-4 text-2xl font-extrabold text-primary md:text-3xl">
               {model.intro.heading}
             </h2>
-                <section className="mx-auto mt-12 max-w-5xl px-4 sm:px-6">
+
+            <div className="space-y-4">
+              {introParagraphs.map((paragraph: string) => (
+                <p key={paragraph} className="leading-relaxed text-gray-600">
+                  {renderInlineLinkedText(paragraph)}
+                </p>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="mx-auto mt-12 max-w-5xl px-4 sm:px-6">
           <div className="rounded-2xl border border-primary/10 bg-white p-8 shadow-sm md:p-10">
             <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-primary">
               <Shield className="h-4 w-4" />
@@ -1244,8 +1382,8 @@ expertHelp: (
                   Was kostet die Online-Abmeldung in {cityName}?
                 </h3>
                 <p className="text-sm leading-relaxed text-gray-600">
-                  Die Online-Abmeldung kostet bei uns ab {pricing.abmeldungPriceFormatted}.
-                  Sie erhalten nach erfolgreicher Bearbeitung eine offizielle Bestätigung per E-Mail.
+                  Die Online-Abmeldung kostet bei uns ab {pricing.abmeldungPriceFormatted}. Sie
+                  erhalten nach erfolgreicher Bearbeitung eine offizielle Bestätigung per E-Mail.
                 </p>
               </div>
 
@@ -1264,101 +1402,15 @@ expertHelp: (
                   Gibt es Hilfe, wenn ein Code nicht lesbar ist?
                 </h3>
                 <p className="text-sm leading-relaxed text-gray-600">
-                  Ja. Wenn ein Sicherheitscode schwer lesbar ist oder Unsicherheit besteht,
-                  können Sie uns ein Foto per WhatsApp senden. Wir prüfen kostenlos.
+                  Ja. Wenn ein Sicherheitscode schwer lesbar ist oder Unsicherheit besteht, können
+                  Sie uns ein Foto per WhatsApp senden. Wir prüfen kostenlos.
                 </p>
               </div>
-            </div>
-
-            <div className="mt-6 flex flex-wrap gap-4">
-              <Link
-                href="/product/fahrzeugabmeldung"
-                className="inline-flex items-center gap-2 rounded-full bg-accent px-6 py-3 font-bold text-primary transition hover:bg-accent-600"
-              >
-                Jetzt online abmelden – {pricing.abmeldungPriceFormatted}
-              </Link>
-
-              <a
-                href={settings.whatsapp}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-full border border-gray-200 px-6 py-3 font-bold text-primary transition hover:border-primary/30 hover:bg-primary/5"
-              >
-                <MessageCircle className="h-5 w-5" />
-                WhatsApp Hilfe
-              </a>
-            </div>
-          </div>
-        </section>
-            <div className="space-y-4">
-              {introParagraphs.map((paragraph: string) => (
-                <p key={paragraph} className="leading-relaxed text-gray-600">
-                  {renderInlineLinkedText(paragraph)}
-                </p>
-              ))}
             </div>
           </div>
         </section>
 
-        {authority && (
-          <section className="relative z-10 mx-auto mt-12 max-w-5xl px-4 sm:px-6">
-            <div className="flex flex-col items-start justify-between gap-8 rounded-2xl border border-gray-100 bg-white p-8 shadow-sm md:flex-row">
-              <div>
-                <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-primary">
-                  <MapPin className="h-4 w-4" />
-                  <span className="text-sm font-bold">Zuständige Behörde in {cityName}</span>
-                </div>
-                <h3 className="mb-2 text-xl font-bold text-gray-900">{authority.name}</h3>
-                <p className="mb-1 text-gray-600">{authority.adresse}</p>
-                <p className="mb-4 text-gray-600">
-                  {authority.plz} {authority.ort || cityName}
-                </p>
-              </div>
-
-              <div className="flex w-full flex-col gap-3 md:w-auto">
-                {authority.telefon && (
-                  <a
-                    href={`tel:${authority.telefon}`}
-                    className="flex items-center gap-3 rounded-lg border border-gray-100 bg-gray-50 p-3 transition-colors hover:bg-gray-100"
-                  >
-                    <Phone className="h-5 w-5 text-primary" />
-                    <span className="font-medium text-gray-700">{authority.telefon}</span>
-                  </a>
-                )}
-
-                {authority.email && (
-                  <a
-                    href={`mailto:${authority.email}`}
-                    className="flex items-center gap-3 rounded-lg border border-gray-100 bg-gray-50 p-3 transition-colors hover:bg-gray-100"
-                  >
-                    <MessageCircle className="h-5 w-5 text-primary" />
-                    <span className="font-medium text-gray-700">{authority.email}</span>
-                  </a>
-                )}
-              </div>
-            </div>
-          </section>
-        )}
-
-        <section className="mx-auto mt-8 max-w-5xl px-4 sm:px-6">
-          <div className="rounded-2xl border border-primary/10 bg-primary/5 p-8">
-            <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-primary">
-              <Shield className="h-4 w-4" />
-              <span className="text-sm font-bold">Verwaltungsbezug vor Ort</span>
-            </div>
-            <p className="font-medium leading-relaxed text-gray-700">{model.authority.narrative}</p>
-            <p className="mt-4 text-sm leading-relaxed text-gray-600">{model.authority.processNote}</p>
-          </div>
-        </section>
-
-        {model.sectionOrder
-          .filter(
-            (sectionKey: keyof typeof sectionMap) =>
-              CITY_AUTHORITY_HUBS_ENABLED || sectionKey !== 'authorityHubs',
-          )
-          .map((sectionKey: keyof typeof sectionMap) => sectionMap[sectionKey])
-          .filter(Boolean)}
-            <section className="mx-auto mt-16 max-w-5xl px-4 sm:px-6">
+        <section className="mx-auto mt-12 max-w-5xl px-4 sm:px-6">
           <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm md:p-10">
             <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-primary">
               <PlayCircle className="h-4 w-4" />
@@ -1370,9 +1422,9 @@ expertHelp: (
             </h2>
 
             <p className="mb-8 leading-relaxed text-gray-600">
-              Viele Kunden möchten vor dem Start kurz sehen, wo sich die Sicherheitscodes befinden.
-              Unsere Videos zeigen einfach und verständlich, wie Sie den Sicherheitscode am Kennzeichen
-              und im Fahrzeugschein freilegen.
+              Viele Kunden aus {cityName} möchten vor dem Start kurz sehen, wo sich die
+              Sicherheitscodes befinden. Unsere Videos zeigen einfach und verständlich, wie Sie den
+              Sicherheitscode am Kennzeichen und im Fahrzeugschein freilegen.
             </p>
 
             <div className="grid gap-5 md:grid-cols-2">
@@ -1444,6 +1496,72 @@ expertHelp: (
             </div>
           </div>
         </section>
+
+        {authority && (
+          <section className="relative z-10 mx-auto mt-12 max-w-5xl px-4 sm:px-6">
+            <div className="flex flex-col items-start justify-between gap-8 rounded-2xl border border-gray-100 bg-white p-8 shadow-sm md:flex-row">
+              <div>
+                <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-primary">
+                  <MapPin className="h-4 w-4" />
+                  <span className="text-sm font-bold">
+                    Zuständige Behörde in {cityName}
+                  </span>
+                </div>
+                <h3 className="mb-2 text-xl font-bold text-gray-900">{authority.name}</h3>
+                <p className="mb-1 text-gray-600">{authority.adresse}</p>
+                <p className="mb-4 text-gray-600">
+                  {authority.plz} {authority.ort || cityName}
+                </p>
+              </div>
+
+              <div className="flex w-full flex-col gap-3 md:w-auto">
+                {authority.telefon && (
+                  <a
+                    href={`tel:${authority.telefon}`}
+                    className="flex items-center gap-3 rounded-lg border border-gray-100 bg-gray-50 p-3 transition-colors hover:bg-gray-100"
+                  >
+                    <Phone className="h-5 w-5 text-primary" />
+                    <span className="font-medium text-gray-700">{authority.telefon}</span>
+                  </a>
+                )}
+
+                {authority.email && (
+                  <a
+                    href={`mailto:${authority.email}`}
+                    className="flex items-center gap-3 rounded-lg border border-gray-100 bg-gray-50 p-3 transition-colors hover:bg-gray-100"
+                  >
+                    <MessageCircle className="h-5 w-5 text-primary" />
+                    <span className="font-medium text-gray-700">{authority.email}</span>
+                  </a>
+                )}
+              </div>
+            </div>
+          </section>
+        )}
+
+        <section className="mx-auto mt-8 max-w-5xl px-4 sm:px-6">
+          <div className="rounded-2xl border border-primary/10 bg-primary/5 p-8">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-primary">
+              <Shield className="h-4 w-4" />
+              <span className="text-sm font-bold">Verwaltungsbezug vor Ort</span>
+            </div>
+            <p className="font-medium leading-relaxed text-gray-700">
+              {model.authority.narrative}
+            </p>
+            <p className="mt-4 text-sm leading-relaxed text-gray-600">
+              {model.authority.processNote}
+            </p>
+          </div>
+        </section>
+
+        {model.sectionOrder
+          .filter(
+            (sectionKey: keyof typeof sectionMap) =>
+              CITY_AUTHORITY_HUBS_ENABLED || sectionKey !== 'authorityHubs',
+          )
+          .map((sectionKey: keyof typeof sectionMap) => sectionMap[sectionKey])
+          .filter(Boolean)}
+
         <section className="mx-auto mt-16 max-w-5xl px-4 sm:px-6">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {FEATURE_CARDS.map(({ icon: Icon, title, desc }) => (
@@ -1460,40 +1578,42 @@ expertHelp: (
             ))}
           </div>
         </section>
+
         <section className="mx-auto mt-16 max-w-5xl px-4 sm:px-6">
-  <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm md:p-10">
-    <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-primary">
-      <HelpCircle className="h-4 w-4" />
-      <span className="text-sm font-bold">Insider-Wissen</span>
-    </div>
+          <div className="rounded-2xl border border-gray-100 bg-white p-8 shadow-sm md:p-10">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-primary">
+              <HelpCircle className="h-4 w-4" />
+              <span className="text-sm font-bold">Insider-Wissen</span>
+            </div>
 
-    <h2 className="mb-4 text-2xl font-extrabold text-primary">
-      Hilfreiche Anleitungen zur Online-Abmeldung
-    </h2>
+            <h2 className="mb-4 text-2xl font-extrabold text-primary">
+              Hilfreiche Anleitungen zur Online-Abmeldung
+            </h2>
 
-    <p className="mb-8 leading-relaxed text-gray-600">
-      Viele Fragen lassen sich vor dem Start schnell klären. Diese Beiträge helfen oft weiter, wenn Codes,
-      Kosten, Unterlagen oder technische Probleme unklar sind.
-    </p>
+            <p className="mb-8 leading-relaxed text-gray-600">
+              Viele Fragen lassen sich vor dem Start schnell klären. Diese Beiträge helfen oft
+              weiter, wenn Codes, Kosten, Unterlagen oder technische Probleme unklar sind.
+            </p>
 
-    <div className="grid gap-4 md:grid-cols-2">
-      {CITY_GUIDE_LINKS.map((item) => (
-        <Link
-          key={item.href}
-          href={item.href}
-          className="rounded-2xl border border-gray-100 bg-gray-50 p-5 transition hover:border-primary/20 hover:bg-white"
-        >
-          <h3 className="mb-2 text-base font-bold text-gray-900">{item.title}</h3>
-          <p className="text-sm leading-relaxed text-gray-600">{item.text}</p>
-          <span className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-primary">
-            Jetzt lesen
-            <ChevronRight className="h-3.5 w-3.5" />
-          </span>
-        </Link>
-      ))}
-    </div>
-  </div>
-</section>
+            <div className="grid gap-4 md:grid-cols-2">
+              {CITY_GUIDE_LINKS.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="rounded-2xl border border-gray-100 bg-gray-50 p-5 transition hover:border-primary/20 hover:bg-white"
+                >
+                  <h3 className="mb-2 text-base font-bold text-gray-900">{item.title}</h3>
+                  <p className="text-sm leading-relaxed text-gray-600">{item.text}</p>
+                  <span className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-primary">
+                    Jetzt lesen
+                    <ChevronRight className="h-3.5 w-3.5" />
+                  </span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+
         <section className="mx-auto mt-16 max-w-5xl px-4 sm:px-6">
           <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
             <div className="grid items-center md:grid-cols-2">
