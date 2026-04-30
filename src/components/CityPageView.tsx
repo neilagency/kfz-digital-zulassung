@@ -765,6 +765,7 @@ export default function CityPageView({
           description:
             'Video-Hilfe zum Freilegen des Sicherheitscodes am Kennzeichen für die Online-Abmeldung.',
           thumbnailUrl: 'https://i.ytimg.com/vi/3nsdJSvKAtE/hqdefault.jpg',
+          uploadDate: '2026-04-27T08:00:00+02:00',
           embedUrl: 'https://www.youtube-nocookie.com/embed/3nsdJSvKAtE',
           url: videosUrl,
           inLanguage: 'de-DE',
@@ -783,6 +784,7 @@ export default function CityPageView({
           description:
             'Video-Hilfe zum Finden und Freilegen des Sicherheitscodes im Fahrzeugschein.',
           thumbnailUrl: 'https://i.ytimg.com/vi/u38keaF1QKU/hqdefault.jpg',
+          uploadDate: '2026-04-27T08:00:00+02:00',
           embedUrl: 'https://www.youtube-nocookie.com/embed/u38keaF1QKU',
           url: videosUrl,
           inLanguage: 'de-DE',
