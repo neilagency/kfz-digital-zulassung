@@ -1,5 +1,13 @@
 import Link from 'next/link';
-import { CheckCircle, Shield, Clock, Lightbulb, Star } from 'lucide-react';
+import {
+  CheckCircle,
+  Shield,
+  Clock,
+  Lightbulb,
+  Star,
+  MailCheck,
+  BadgeEuro,
+} from 'lucide-react';
 import DynamicContact from './DynamicContact';
 
 interface HeroProps {
@@ -7,45 +15,61 @@ interface HeroProps {
   anmeldungPrice?: string;
 }
 
-export default function Hero({ abmeldungPrice = '19,70 €' }: HeroProps) {
+export default function Hero({
+  abmeldungPrice = '19,70 €',
+  anmeldungPrice = '99,70 €',
+}: HeroProps) {
   return (
-    <section className="relative overflow-hidden bg-gradient-to-br from-dark via-primary-900 to-dark">
+    <section
+      className="relative overflow-hidden bg-gradient-to-br from-dark via-primary-900 to-dark"
+      aria-labelledby="hero-title"
+    >
       {/* Background pattern */}
-      <div className="absolute inset-0">
+      <div className="absolute inset-0" aria-hidden="true">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary/20 via-transparent to-transparent" />
-        <div className="absolute top-20 right-20 w-96 h-96 bg-accent/5 rounded-full blur-3xl" />
-        <div className="absolute bottom-20 left-20 w-80 h-80 bg-primary/10 rounded-full blur-3xl" />
+        <div className="absolute right-20 top-20 h-96 w-96 rounded-full bg-accent/5 blur-3xl" />
+        <div className="absolute bottom-20 left-20 h-80 w-80 rounded-full bg-primary/10 blur-3xl" />
       </div>
 
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-16 md:pt-28 md:pb-20 lg:pt-24 lg:pb-18">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+      <div className="relative mx-auto max-w-7xl px-4 pb-16 pt-24 sm:px-6 md:pb-20 md:pt-28 lg:px-8 lg:pb-18 lg:pt-24">
+        <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
           {/* Left content */}
           <div className="animate-fade-in-up">
             {/* Badge */}
-            <div className="flex flex-wrap gap-3 mb-6">
-              <span className="inline-flex items-center gap-1.5 bg-primary/30 backdrop-blur text-white text-xs font-medium px-3 py-1.5 rounded-full border border-primary/40">
-                <Shield className="w-3.5 h-3.5" />
+            <div className="mb-6 flex flex-wrap gap-3">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/40 bg-primary/30 px-3 py-1.5 text-xs font-medium text-white backdrop-blur">
+                <Shield className="h-3.5 w-3.5" />
                 Offiziell · Bundesweit · Sicher
+              </span>
+
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-accent/30 bg-accent/15 px-3 py-1.5 text-xs font-bold text-accent backdrop-blur">
+                <BadgeEuro className="h-3.5 w-3.5" />
+                Ab {abmeldungPrice}
               </span>
             </div>
 
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white leading-tight mb-6">
-  Auto online abmelden in 2 Minuten
-</h1>
+            <h1
+              id="hero-title"
+              className="mb-6 text-4xl font-extrabold leading-tight text-white md:text-5xl lg:text-6xl"
+            >
+              Auto online abmelden in 2 Minuten
+            </h1>
 
-            <h2 className="text-lg md:text-xl text-white/80 font-medium mb-8 max-w-lg">
-  Jetzt offiziell ab 19,70 €. Kein Ausweis nötig. Bestätigung direkt per E-Mail.
-</h2>
+            <p className="mb-8 max-w-lg text-lg font-medium text-white/80 md:text-xl">
+              Jetzt offiziell ab {abmeldungPrice}. Kein Ausweis nötig. Bestätigung direkt per
+              E-Mail.
+            </p>
 
             {/* Feature list */}
-            <ul className="space-y-3 mb-8">
+            <ul className="mb-8 space-y-3">
               {[
-                { icon: Clock, text: '24/7 möglich' },
-                { icon: CheckCircle, text: 'Offizielle Bestätigung direkt per E-Mail' },
+                { icon: Clock, text: '24/7 möglich – ohne Termin bei der Zulassungsstelle' },
+                { icon: MailCheck, text: 'Offizielle Bestätigung direkt per E-Mail' },
+                { icon: CheckCircle, text: 'Steuer & Versicherung werden automatisch informiert' },
               ].map(({ icon: Icon, text }) => (
                 <li key={text} className="flex items-start gap-3">
-                  <Icon className="w-5 h-5 text-accent flex-shrink-0 mt-0.5" />
-                  <span className="text-white/90 text-sm md:text-base">{text}</span>
+                  <Icon className="mt-0.5 h-5 w-5 flex-shrink-0 text-accent" />
+                  <span className="text-sm text-white/90 md:text-base">{text}</span>
                 </li>
               ))}
             </ul>
@@ -54,55 +78,71 @@ export default function Hero({ abmeldungPrice = '19,70 €' }: HeroProps) {
             <div className="flex flex-wrap gap-4">
               <Link
                 href="/product/fahrzeugabmeldung"
-                className="inline-flex items-center justify-center gap-2 bg-accent hover:bg-accent-600 text-primary font-extrabold px-8 py-4 rounded-full text-lg transition-all hover:shadow-xl hover:shadow-accent/30 hover:-translate-y-0.5"
+                className="inline-flex items-center justify-center gap-2 rounded-full bg-accent px-8 py-4 text-lg font-extrabold text-primary transition-all hover:-translate-y-0.5 hover:bg-accent-600 hover:shadow-xl hover:shadow-accent/30"
               >
                 Jetzt abmelden — {abmeldungPrice}
               </Link>
+
               <Link
                 href="/product/auto-online-anmelden"
-                className="inline-flex items-center justify-center gap-2 border-2 border-white/30 hover:border-accent hover:bg-accent/10 text-white font-semibold px-6 py-4 rounded-full text-base transition-all hover:-translate-y-0.5"
+                className="inline-flex items-center justify-center gap-2 rounded-full border-2 border-white/30 px-6 py-4 text-base font-semibold text-white transition-all hover:-translate-y-0.5 hover:border-accent hover:bg-accent/10"
               >
-                Auch Auto anmelden
+                Auch Auto anmelden ab {anmeldungPrice}
               </Link>
             </div>
 
             {/* Trust badge */}
-            <div className="mt-8 inline-flex items-center gap-3 bg-white/10 backdrop-blur rounded-2xl px-4 py-3 animate-fade-in">
-              <div className="flex items-center gap-1">
+            <div className="mt-8 inline-flex items-center gap-3 rounded-2xl bg-white/10 px-4 py-3 backdrop-blur animate-fade-in">
+              <div className="flex items-center gap-1" aria-label="5 von 5 Sterne">
                 {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+                  <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
                 ))}
               </div>
               <div>
-                <span className="text-white font-bold text-sm">5.0</span>
-                <span className="text-white/60 text-xs ml-1">Google · Bestbewerteter Service 2026</span>
+                <span className="text-sm font-bold text-white">5.0</span>
+                <span className="ml-1 text-xs text-white/60">
+                  Google · Bestbewerteter Service 2026
+                </span>
               </div>
             </div>
           </div>
 
           {/* Right side: Info card */}
-          <div className="hidden lg:block animate-fade-in-right">
-            <div className="bg-white/10 backdrop-blur-xl rounded-3xl p-8 border border-white/20 shadow-2xl">
-              <h3 className="text-xl font-bold text-accent mb-2">Steuer & Sicherheit</h3>
-              <p className="text-white/70 text-sm mb-6">Wichtig ist nur die offizielle Bestätigung.</p>
+          <div className="hidden animate-fade-in-right lg:block">
+            <div className="rounded-3xl border border-white/20 bg-white/10 p-8 shadow-2xl backdrop-blur-xl">
+              <h2 className="mb-2 text-xl font-bold text-accent">Steuer & Sicherheit</h2>
+
+              <p className="mb-6 text-sm text-white/70">
+                Wichtig ist die offizielle Bestätigung. Danach werden die zuständigen Stellen
+                automatisch informiert.
+              </p>
 
               <div className="space-y-4">
                 {[
-                  { color: 'bg-green-400', title: 'Kfz-Steuer endet', desc: 'ab dem Tag der offiziellen Bestätigung.' },
-                  { color: 'bg-green-400', title: 'Versicherung & Hauptzollamt', desc: 'werden automatisch informiert.' },
-                  { color: 'bg-green-400', title: 'E-Mail & Telefon', desc: 'nutzen wir nur für Bestätigung und Hilfe bei Rückfragen.' },
+                  {
+                    title: 'Kfz-Steuer endet',
+                    desc: 'ab dem Tag der offiziellen Bestätigung.',
+                  },
+                  {
+                    title: 'Versicherung & Hauptzollamt',
+                    desc: 'werden automatisch informiert.',
+                  },
+                  {
+                    title: 'E-Mail & Telefon',
+                    desc: 'nutzen wir nur für Bestätigung und Hilfe bei Rückfragen.',
+                  },
                 ].map((item) => (
                   <div key={item.title} className="flex items-start gap-3">
-                    <div className={`w-2.5 h-2.5 rounded-full ${item.color} flex-shrink-0 mt-1.5`} />
+                    <div className="mt-1.5 h-2.5 w-2.5 flex-shrink-0 rounded-full bg-green-400" />
                     <div>
-                      <span className="text-white font-semibold text-sm">{item.title}</span>
-                      <span className="text-white/60 text-sm"> {item.desc}</span>
+                      <span className="text-sm font-semibold text-white">{item.title}</span>
+                      <span className="text-sm text-white/60"> {item.desc}</span>
                     </div>
                   </div>
                 ))}
               </div>
 
-              <div className="mt-8 pt-6 border-t border-white/10 flex items-center justify-between">
+              <div className="mt-8 flex items-center justify-between border-t border-white/10 pt-6">
                 <DynamicContact />
               </div>
             </div>
@@ -111,10 +151,10 @@ export default function Hero({ abmeldungPrice = '19,70 €' }: HeroProps) {
       </div>
 
       {/* Tip bar */}
-      <div className="bg-white/5 backdrop-blur border-t border-white/10 py-3">
-        <div className="max-w-7xl mx-auto px-4 text-center">
-          <p className="text-white/60 text-sm">
-            <Lightbulb className="w-4 h-4 inline-block mr-1 text-accent" />
+      <div className="border-t border-white/10 bg-white/5 py-3 backdrop-blur">
+        <div className="mx-auto max-w-7xl px-4 text-center">
+          <p className="text-sm text-white/60">
+            <Lightbulb className="mr-1 inline-block h-4 w-4 text-accent" />
             Code schlecht lesbar? Einfach Foto per WhatsApp senden – wir prüfen kostenlos.
           </p>
         </div>
