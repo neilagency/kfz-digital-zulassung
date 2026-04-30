@@ -1216,7 +1216,80 @@ expertHelp: (
             <h2 className="mb-4 text-2xl font-extrabold text-primary md:text-3xl">
               {model.intro.heading}
             </h2>
+                <section className="mx-auto mt-12 max-w-5xl px-4 sm:px-6">
+          <div className="rounded-2xl border border-primary/10 bg-white p-8 shadow-sm md:p-10">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-primary">
+              <Shield className="h-4 w-4" />
+              <span className="text-sm font-bold">Kurz erklärt</span>
+            </div>
 
+            <h2 className="mb-4 text-2xl font-extrabold text-primary">
+              Auto online abmelden in {cityName}: Das Wichtigste auf einen Blick
+            </h2>
+
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="rounded-xl border border-gray-100 bg-gray-50 p-5">
+                <h3 className="mb-2 font-bold text-gray-900">
+                  Kann ich mein Auto in {cityName} online abmelden?
+                </h3>
+                <p className="text-sm leading-relaxed text-gray-600">
+                  Ja, die Fahrzeugabmeldung kann in vielen Fällen online vorbereitet und digital
+                  eingereicht werden. Sie brauchen dafür vor allem Fahrzeugschein, Kennzeichen,
+                  Sicherheitscodes und Ihre Kontaktdaten.
+                </p>
+              </div>
+
+              <div className="rounded-xl border border-gray-100 bg-gray-50 p-5">
+                <h3 className="mb-2 font-bold text-gray-900">
+                  Was kostet die Online-Abmeldung in {cityName}?
+                </h3>
+                <p className="text-sm leading-relaxed text-gray-600">
+                  Die Online-Abmeldung kostet bei uns ab {pricing.abmeldungPriceFormatted}.
+                  Sie erhalten nach erfolgreicher Bearbeitung eine offizielle Bestätigung per E-Mail.
+                </p>
+              </div>
+
+              <div className="rounded-xl border border-gray-100 bg-gray-50 p-5">
+                <h3 className="mb-2 font-bold text-gray-900">
+                  Muss ich zur Zulassungsstelle in {cityName}?
+                </h3>
+                <p className="text-sm leading-relaxed text-gray-600">
+                  In vielen Fällen ist kein Termin vor Ort nötig. Der digitale Weg spart Anfahrt,
+                  Wartezeit und unnötige Behördengänge.
+                </p>
+              </div>
+
+              <div className="rounded-xl border border-gray-100 bg-gray-50 p-5">
+                <h3 className="mb-2 font-bold text-gray-900">
+                  Gibt es Hilfe, wenn ein Code nicht lesbar ist?
+                </h3>
+                <p className="text-sm leading-relaxed text-gray-600">
+                  Ja. Wenn ein Sicherheitscode schwer lesbar ist oder Unsicherheit besteht,
+                  können Sie uns ein Foto per WhatsApp senden. Wir prüfen kostenlos.
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-6 flex flex-wrap gap-4">
+              <Link
+                href="/product/fahrzeugabmeldung"
+                className="inline-flex items-center gap-2 rounded-full bg-accent px-6 py-3 font-bold text-primary transition hover:bg-accent-600"
+              >
+                Jetzt online abmelden – {pricing.abmeldungPriceFormatted}
+              </Link>
+
+              <a
+                href={settings.whatsapp}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 rounded-full border border-gray-200 px-6 py-3 font-bold text-primary transition hover:border-primary/30 hover:bg-primary/5"
+              >
+                <MessageCircle className="h-5 w-5" />
+                WhatsApp Hilfe
+              </a>
+            </div>
+          </div>
+        </section>
             <div className="space-y-4">
               {introParagraphs.map((paragraph: string) => (
                 <p key={paragraph} className="leading-relaxed text-gray-600">
