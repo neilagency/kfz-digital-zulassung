@@ -22,9 +22,8 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     metadataBase: new URL(siteUrl),
     title: {
-      default: `${s.siteName} – KFZ online abmelden in 2 Minuten`,
-      template: `%s | ${s.siteName}`,
-    },
+  default: `${s.siteName} – KFZ online abmelden in 2 Minuten`,
+},
     description: s.siteDescription,
     keywords: [
       'Auto abmelden',
