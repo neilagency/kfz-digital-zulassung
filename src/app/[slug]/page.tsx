@@ -1,4 +1,4 @@
-import { Metadata } from 'next';
+import type { Metadata } from 'next';
 import {
   getPageBySlug,
   getPostBySlug,
@@ -6,15 +6,12 @@ import {
   buildSEOMetadata,
   getSiteSettings,
   getHomepagePricing,
-  LocalPage,
 } from '@/lib/db';
+import type { LocalPage } from '@/lib/db';
 import { sanitizeHtml } from '@/lib/sanitize';
 import { notFound, permanentRedirect } from 'next/navigation';
 import CityPageView from '@/components/CityPageView';
-import {
-  isCitySlug,
-  getResolvedCitySlug,
-} from '@/lib/city-slugs';
+import { isCitySlug, getResolvedCitySlug } from '@/lib/city-slugs';
 import { getCityPageForSlug } from '@/lib/city-page-data';
 import {
   isBundeslandSlug,
@@ -40,6 +37,10 @@ const RESERVED_SLUGS = new Set([
   'product',
   'api',
 ]);
+
+function stripTrailingSlash(url: string): string {
+  return url.replace(/\/+$/, '');
+}
 
 function buildCityPage(slug: string): LocalPage {
   const { cityName, model, input } = getCityPageForSlug(slug);
@@ -113,10 +114,14 @@ export async function generateStaticParams() {
     'aachen',
   ];
 
-  const allSlugs = new Set([...pageSlugs, ...TOP_CITY_SLUGS, ...ALL_BUNDESLAND_SLUGS]);
+  const allSlugs = new Set([
+    ...pageSlugs,
+    ...TOP_CITY_SLUGS,
+    ...ALL_BUNDESLAND_SLUGS,
+  ]);
 
   return Array.from(allSlugs)
-    .filter((slug) => !RESERVED_SLUGS.has(slug))
+    .filter((slug) => slug && !RESERVED_SLUGS.has(slug))
     .map((slug) => ({ slug }));
 }
 
@@ -125,39 +130,63 @@ export async function generateMetadata({ params }: SlugPageProps): Promise<Metad
 
   if (RESERVED_SLUGS.has(slug)) return {};
 
+  const settings = await getSiteSettings();
+  const baseUrl = stripTrailingSlash(settings.siteUrl);
   const effectiveSlug = getResolvedCitySlug(slug) || slug;
 
   if (isBundeslandSlug(effectiveSlug)) {
-    const stateName = getStateForHubSlug(effectiveSlug)!;
-    const settings = await getSiteSettings();
+    const stateName = getStateForHubSlug(effectiveSlug);
+
+    if (!stateName) return {};
+
+    const title = `KFZ abmelden in ${stateName} – online ab 19,70 €`;
+    const description = `Fahrzeug online abmelden in ${stateName}. Ohne Termin, digital ab 19,70 € und mit offizieller Bestätigung per E-Mail.`;
+
     return {
-      title: `KFZ abmelden in ${stateName} – Online, ohne Termin | ab 19,70 €`,
-      description: `Fahrzeug online abmelden in allen Städten und Landkreisen in ${stateName}. Ohne Termin, ohne Ausweis-App, digital ab 19,70 €. Offizielle Bestätigung per E-Mail.`,
-      alternates: { canonical: `${settings.siteUrl}/${effectiveSlug}` },
-      robots: { index: true, follow: true },
+      metadataBase: new URL(baseUrl),
+      title,
+      description,
+      alternates: {
+        canonical: `${baseUrl}/${effectiveSlug}`,
+      },
+      robots: {
+        index: true,
+        follow: true,
+      },
       openGraph: {
-        title: `KFZ abmelden in ${stateName} – alle Städte im Überblick`,
-        description: `Digitale Fahrzeugabmeldung in ${stateName} – ohne Termin, ab 19,70 €.`,
-        url: `${settings.siteUrl}/${effectiveSlug}`,
+        title,
+        description,
+        url: `${baseUrl}/${effectiveSlug}`,
+        siteName: settings.siteName,
         type: 'website',
         locale: 'de_DE',
+        images: [
+          {
+            url: `${baseUrl}/logo.svg`,
+            width: 1200,
+            height: 630,
+            alt: `${settings.siteName} – KFZ online abmelden in ${stateName}`,
+          },
+        ],
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title,
+        description,
+        images: [`${baseUrl}/logo.svg`],
       },
     };
   }
 
   if (isCitySlug(effectiveSlug)) {
-    const settings = await getSiteSettings();
     const cityPage = buildCityPage(effectiveSlug);
-    return buildSEOMetadata(cityPage, settings.siteUrl);
+    return buildSEOMetadata(cityPage, baseUrl);
   }
 
-  const [settings, page] = await Promise.all([
-    getSiteSettings(),
-    getPageBySlug(effectiveSlug),
-  ]);
+  const page = await getPageBySlug(effectiveSlug);
 
   if (page && page.status === 'publish') {
-    return buildSEOMetadata(page, settings.siteUrl);
+    return buildSEOMetadata(page, baseUrl);
   }
 
   return {};
@@ -166,7 +195,9 @@ export async function generateMetadata({ params }: SlugPageProps): Promise<Metad
 export default async function SlugPage({ params }: SlugPageProps) {
   const { slug } = await params;
 
-  if (RESERVED_SLUGS.has(slug)) notFound();
+  if (RESERVED_SLUGS.has(slug)) {
+    notFound();
+  }
 
   const effectiveSlug = getResolvedCitySlug(slug) || slug;
 
@@ -175,12 +206,19 @@ export default async function SlugPage({ params }: SlugPageProps) {
   }
 
   if (isBundeslandSlug(effectiveSlug)) {
-    const stateName = getStateForHubSlug(effectiveSlug)!;
+    const stateName = getStateForHubSlug(effectiveSlug);
+
+    if (!stateName) {
+      notFound();
+    }
+
     const [settings, pricing] = await Promise.all([
       getSiteSettings(),
       getHomepagePricing(),
     ]);
+
     const cities = getCitiesForState(stateName);
+
     return (
       <StateHubView
         stateName={stateName}
@@ -197,42 +235,87 @@ export default async function SlugPage({ params }: SlugPageProps) {
       getSiteSettings(),
       getHomepagePricing(),
     ]);
+
     const cityPage = buildCityPage(effectiveSlug);
-    return <CityPageView page={cityPage} settings={settings} pricing={pricing} />;
+
+    return (
+      <CityPageView
+        page={cityPage}
+        settings={settings}
+        pricing={pricing}
+      />
+    );
   }
 
-  const [settings, pricing, page] = await Promise.all([
-    getSiteSettings(),
-    getHomepagePricing(),
-    getPageBySlug(effectiveSlug),
-  ]);
+  const page = await getPageBySlug(effectiveSlug);
 
   if (!page || page.status !== 'publish') {
     const post = await getPostBySlug(effectiveSlug);
+
     if (post && post.status === 'publish') {
       permanentRedirect(`/insiderwissen/${effectiveSlug}`);
     }
+
     notFound();
   }
 
-  return <PageView page={page} />;
+  const settings = await getSiteSettings();
+  const baseUrl = stripTrailingSlash(settings.siteUrl);
+
+  return <PageView page={page} baseUrl={baseUrl} siteName={settings.siteName} />;
 }
 
-function PageView({ page }: { page: LocalPage }) {
-  const breadcrumbSchema = {
+function PageView({
+  page,
+  baseUrl,
+  siteName,
+}: {
+  page: LocalPage;
+  baseUrl: string;
+  siteName: string;
+}) {
+  const pageUrl = `${baseUrl}/${page.slug}`;
+
+  const structuredData = {
     '@context': 'https://schema.org',
-    '@type': 'BreadcrumbList',
-    itemListElement: [
+    '@graph': [
       {
-        '@type': 'ListItem',
-        position: 1,
-        name: 'Start',
-        item: 'https://onlineautoabmelden.com',
+        '@type': 'WebPage',
+        '@id': `${pageUrl}#webpage`,
+        url: pageUrl,
+        name: page.metaTitle || page.title,
+        description: page.metaDescription || page.excerpt || page.title,
+        inLanguage: 'de-DE',
+        isPartOf: {
+          '@type': 'WebSite',
+          '@id': `${baseUrl}#website`,
+          name: siteName,
+          url: baseUrl,
+        },
+        publisher: {
+          '@type': 'Organization',
+          '@id': `${baseUrl}#organization`,
+          name: siteName,
+          url: baseUrl,
+        },
       },
       {
-        '@type': 'ListItem',
-        position: 2,
-        name: page.title,
+        '@type': 'BreadcrumbList',
+        '@id': `${pageUrl}#breadcrumb`,
+        itemListElement: [
+          {
+            '@type': 'ListItem',
+            position: 1,
+            name: 'Startseite',
+            item: baseUrl,
+          },
+          {
+            '@type': 'ListItem',
+            position: 2,
+            name: page.title,
+            item: pageUrl,
+          },
+        ],
       },
     ],
   };
@@ -241,7 +324,7 @@ function PageView({ page }: { page: LocalPage }) {
     <main className="pb-20">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
 
       <section className="bg-gradient-to-br from-dark via-primary-900 to-dark pb-12 pt-28 md:pt-32">
