@@ -21,6 +21,7 @@ import { CITY_SLUG_ALIASES, getResolvedCitySlug } from '@/lib/city-slugs';
 const ALIAS_SOURCE_SLUGS = new Set(Object.keys(CITY_SLUG_ALIASES));
 
 // ─── Types ──────────────────────────────────────
+
 export interface LocalPost {
   id: string;
   wpPostId: number | null;
@@ -157,9 +158,9 @@ export async function getAllPostSlugs(): Promise<string[]> {
   } catch (error) {
     console.warn(
       '[DB] getAllPostSlugs failed (likely build-time database unavailability), returning empty array for on-demand generation:',
-      error instanceof Error ? error.message : String(error)
+      error instanceof Error ? error.message : String(error),
     );
-    // Return empty array to allow dynamicParams to generate pages on-demand
+
     return [];
   }
 }
@@ -204,8 +205,9 @@ export async function getAllPageSlugs(): Promise<string[]> {
   } catch (error) {
     console.warn(
       '[DB] getAllPageSlugs failed (likely build-time database unavailability), returning empty array for on-demand generation:',
-      error instanceof Error ? error.message : String(error)
+      error instanceof Error ? error.message : String(error),
     );
+
     return [];
   }
 }
@@ -289,15 +291,15 @@ export async function getAllProductSlugs(): Promise<string[]> {
   } catch (error) {
     console.warn(
       '[DB] getAllProductSlugs failed (likely build-time database unavailability), returning empty array for on-demand generation:',
-      error instanceof Error ? error.message : String(error)
+      error instanceof Error ? error.message : String(error),
     );
+
     return [];
   }
 }
 
 // ─── Payment Gateways ───────────────────────────
 
-// Map DB gatewayId to checkout paymentMethod ID (Mollie-friendly)
 const GATEWAY_ID_MAP: Record<string, string> = {
   mollie_creditcard: 'credit_card',
   mollie_applepay: 'apple_pay',
@@ -306,7 +308,6 @@ const GATEWAY_ID_MAP: Record<string, string> = {
   sepa: 'sepa',
 };
 
-// Reverse map: checkout ID → DB gatewayId
 const REVERSE_GATEWAY_MAP: Record<string, string> = Object.fromEntries(
   Object.entries(GATEWAY_ID_MAP).map(([dbId, checkoutId]) => [checkoutId, dbId]),
 );
@@ -341,10 +342,6 @@ export async function getEnabledPaymentMethods() {
   }));
 }
 
-/**
- * Get a payment gateway config by checkout method ID (e.g. 'credit_card').
- * Used server-side in checkout to get the fee & label from DB (NOT hardcoded).
- */
 export async function getPaymentGatewayByCheckoutId(checkoutId: string) {
   const dbId = REVERSE_GATEWAY_MAP[checkoutId] || checkoutId;
 
@@ -364,12 +361,8 @@ export async function getPaymentGatewayByCheckoutId(checkoutId: string) {
   };
 }
 
-// ─── Product Pricing (cached) ───────────────────
+// ─── Product Pricing ────────────────────────────
 
-/**
- * Get the base pricing info for products shown on the homepage.
- * Cached with tag 'products' for quick revalidation.
- */
 export const getHomepagePricing = unstable_cache(
   async () => {
     const [abmeldung, anmeldung] = await Promise.all([
@@ -394,10 +387,6 @@ export const getHomepagePricing = unstable_cache(
   { tags: ['products'], revalidate: 60 },
 );
 
-/**
- * Get enabled payment method labels for display purposes (e.g. PricingBox).
- * Cached with tag 'payment-gateways'.
- */
 export const getPaymentMethodLabels = unstable_cache(
   async () => {
     const methods = await getEnabledPaymentMethods();
@@ -407,10 +396,8 @@ export const getPaymentMethodLabels = unstable_cache(
   { tags: ['payment-gateways'], revalidate: 60 },
 );
 
-/**
- * Read site settings from the Setting table and return a normalized object
- * with sensible fallbacks to constants defined in `src/lib/constants.ts`.
- */
+// ─── Site Settings ──────────────────────────────
+
 export const getSiteSettings = unstable_cache(
   async () => {
     const rows = await prisma.setting.findMany();
@@ -425,7 +412,6 @@ export const getSiteSettings = unstable_cache(
     const siteDescription =
       map['general/site_description'] || map['site_description'] || SITE_DESCRIPTION;
 
-    // Always use production URL — never expose localhost in live responses
     const rawSiteUrl = map['general/site_url'] || map['site_url'] || SITE_URL;
     const siteUrl =
       rawSiteUrl.includes('localhost') || rawSiteUrl.includes('127.0.0.1')
@@ -470,7 +456,6 @@ export function stripHtml(html: string): string {
   return html.replace(/<[^>]*>/g, '').replace(/&[^;]+;/g, ' ').trim();
 }
 
-/** Decode common HTML entities in titles/descriptions */
 export function decodeHtmlEntities(text: string): string {
   return text
     .replace(/&amp;/g, '&')
@@ -484,6 +469,15 @@ export function decodeHtmlEntities(text: string): string {
     .replace(/&#8230;/g, '…');
 }
 
+export function cleanSeoTitle(text: string): string {
+  return decodeHtmlEntities(text)
+    .replace(/\s*[|–-]\s*Online[-\s]?Auto\s+Abmelden\s*$/i, '')
+    .replace(/\s*[|–-]\s*Online\s+Auto\s+Abmelden\s*$/i, '')
+    .replace(/\s*[|–-]\s*onlineautoabmelden\.com\s*$/i, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 export function formatDate(dateInput: string | Date): string {
   const d = typeof dateInput === 'string' ? new Date(dateInput) : dateInput;
 
@@ -494,16 +488,24 @@ export function formatDate(dateInput: string | Date): string {
   });
 }
 
-/**
- * Format a number as a German-style price string (e.g. "19,70 €").
- */
 export function formatPrice(price: number): string {
   return price.toFixed(2).replace('.', ',') + ' €';
 }
 
+function toAbsoluteImageUrl(image: string, cleanSiteUrl: string): string {
+  if (image.startsWith('http://') || image.startsWith('https://')) {
+    return image;
+  }
+
+  return `${cleanSiteUrl}${image.startsWith('/') ? image : `/${image}`}`;
+}
+
 /**
  * Build SEO metadata for a page or post.
- * Respects item.canonical first; otherwise falls back to siteUrl + slug.
+ * Important:
+ * - Does NOT append site name to every title.
+ * - Removes duplicated "Online Auto Abmelden" from the end of stored meta titles.
+ * - Always outputs complete Open Graph image data.
  */
 export function buildSEOMetadata(
   item: {
@@ -528,7 +530,10 @@ export function buildSEOMetadata(
   },
   siteUrl: string,
 ) {
-  const rawTitle = decodeHtmlEntities(item.metaTitle || item.title);
+  const cleanSiteUrl = siteUrl.replace(/\/$/, '');
+  const cleanSlug = item.slug.replace(/^\/|\/$/g, '');
+
+  const rawTitle = cleanSeoTitle(item.metaTitle || item.title);
   const maxTitleLen = 60;
 
   const title =
@@ -540,16 +545,26 @@ export function buildSEOMetadata(
     item.metaDescription || (item.excerpt ? stripHtml(item.excerpt).slice(0, 160) : ''),
   );
 
-  const cleanSiteUrl = siteUrl.replace(/\/$/, '');
-  const cleanSlug = item.slug.replace(/^\/|\/$/g, '');
-
   const canonicalUrl = item.canonical
     ? item.canonical.startsWith('http://') || item.canonical.startsWith('https://')
       ? item.canonical.replace(/\/$/, '')
       : `${cleanSiteUrl}/${item.canonical.replace(/^\/|\/$/g, '')}`
     : `${cleanSiteUrl}/${cleanSlug}`;
 
-  const image = item.ogImage || item.featuredImage || '';
+  const image =
+    item.ogImage ||
+    item.featuredImage ||
+    `${cleanSiteUrl}/logo.webp`;
+
+  const imageUrl = toAbsoluteImageUrl(image, cleanSiteUrl);
+
+  const twitterImage = item.twitterImage
+    ? toAbsoluteImageUrl(item.twitterImage, cleanSiteUrl)
+    : imageUrl;
+
+  const ogTitle = cleanSeoTitle(item.ogTitle || title);
+  const twitterTitle = cleanSeoTitle(item.twitterTitle || ogTitle || title);
+  const imageAlt = ogTitle || title || 'Online Auto Abmelden';
 
   return {
     title,
@@ -567,7 +582,7 @@ export function buildSEOMetadata(
             }
           : { index: true, follow: true },
     openGraph: {
-      title: item.ogTitle || title,
+      title: ogTitle,
       description: item.ogDescription || description,
       url: canonicalUrl,
       type: (
@@ -594,15 +609,20 @@ export function buildSEOMetadata(
       ...(item.updatedAt && {
         modifiedTime: new Date(item.updatedAt).toISOString(),
       }),
-      ...(image && {
-        images: [{ url: image, width: 1200, height: 630 }],
-      }),
+      images: [
+        {
+          url: imageUrl,
+          width: 1200,
+          height: 630,
+          alt: imageAlt,
+        },
+      ],
     },
     twitter: {
       card: (item.twitterCard as any) || 'summary_large_image',
-      title: item.twitterTitle || item.ogTitle || title,
+      title: twitterTitle,
       description: item.twitterDescription || item.ogDescription || description,
-      ...(item.twitterImage || image ? { images: [item.twitterImage || image] } : {}),
+      images: [twitterImage],
     },
   };
 }
