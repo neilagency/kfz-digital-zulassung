@@ -212,6 +212,51 @@ const nextConfig = {
   permanent: true,
 },
       {
+  source: '/abmeldung-digital/:id(\\d+)',
+  destination: '/insiderwissen/zulassung-digital',
+  permanent: true,
+},
+{
+  source: '/online-zulassung-kfz/:id(\\d+)',
+  destination: '/online-zulassung-kfz',
+  permanent: true,
+},
+{
+  source: '/online-kfz-abmelden/:id(\\d+)',
+  destination: '/online-kfz-abmelden',
+  permanent: true,
+},
+{
+  source: '/online-auto-abmelden-ikfz/:id(\\d+)',
+  destination: '/insiderwissen/wie-melde-ich-mein-auto-online-ab',
+  permanent: true,
+},
+{
+  source: '/motorrad-abmelden-online/:id(\\d+)',
+  destination: '/motorrad-abmelden-online',
+  permanent: true,
+},
+{
+  source: '/wohnmobil-abmelden/:id(\\d+)',
+  destination: '/wohnmobil-abmelden',
+  permanent: true,
+},
+{
+  source: '/lkw-abmelden-online/:id(\\d+)',
+  destination: '/lkw-abmelden-online',
+  permanent: true,
+},
+{
+  source: '/anhaenger-abmelden-2/:id(\\d+)',
+  destination: '/anhaenger-abmelden',
+  permanent: true,
+},
+{
+  source: '/kurzzeitkennzeichen-lkw/:id(\\d+)',
+  destination: '/kurzzeitkennzeichen-lkw',
+  permanent: true,
+},
+      {
         source: '/leichlingen',
         destination: '/insiderwissen',
         permanent: true,
