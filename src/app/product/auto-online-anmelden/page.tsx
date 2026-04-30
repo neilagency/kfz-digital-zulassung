@@ -83,7 +83,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function AutoOnlineAnmeldenPage() {
-  const showFullContent = false;
+  const showFullContent = true;
 
   const [product, settings, pricing] = await Promise.all([
     getProductBySlug('auto-online-anmelden'),
@@ -132,64 +132,172 @@ export default async function AutoOnlineAnmeldenPage() {
     options.find((o) => o.key === 'ummeldung')?.price ?? 119.7;
 
   const fmt = (n: number) => n.toFixed(2).replace('.', ',');
+  const pageUrl = `${settings.siteUrl}/product/auto-online-anmelden`;
 
-  const serviceSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'Service',
-    name: 'Auto Online Anmelden – KFZ Zulassung',
-    description:
-      'Online-Zulassung Ihres Fahrzeugs beim KBA. 10-Tage-PDF sofort, Original per Post in 2–3 Werktagen.',
-    provider: {
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
       '@type': 'Organization',
-      name: settings.siteName,
+      '@id': `${settings.siteUrl}#organization`,
+      name: settings.siteName || 'Online Auto Abmelden',
+      legalName: 'iKFZ Digital Zulassung UG (haftungsbeschränkt)',
+      alternateName: [
+        'Online Auto Abmelden',
+        'iKFZ Digital Zulassung',
+        'iKfz Digitalzulassung',
+        'KFZ Digital Zulassung',
+        'Digitaler Zulassungsdienst',
+        'Online Zulassungsdienst',
+        'KFZ Zulassungsservice',
+        'Auto online anmelden',
+        'KFZ online anmelden',
+        'Fahrzeug online anmelden',
+        'Kfz-Zulassung online',
+      ],
       url: settings.siteUrl,
-    },
-    areaServed: {
-      '@type': 'Country',
-      name: 'DE',
-    },
-    offers: {
-      '@type': 'Offer',
-      price: neuzulassungPrice.toFixed(2),
-      priceCurrency: 'EUR',
-      availability: 'https://schema.org/InStock',
-    },
-  };
-
-  const organizationSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'Organization',
-    name: 'iKFZ Digital Zulassung UG',
-    url: settings.siteUrl,
-    logo: `${settings.siteUrl}/logo.svg`,
-    telephone: '+4915224999190',
-    contactPoint: {
-      '@type': 'ContactPoint',
+      logo: `${settings.siteUrl}/logo.svg`,
+      image: `${settings.siteUrl}/logo.svg`,
+      email: settings.email,
       telephone: '+4915224999190',
-      contactType: 'customer service',
-      availableLanguage: 'German',
+      areaServed: {
+        '@type': 'Country',
+        name: 'Deutschland',
+      },
+      contactPoint: [
+        {
+          '@type': 'ContactPoint',
+          telephone: '+4915224999190',
+          email: settings.email,
+          contactType: 'customer support',
+          areaServed: 'DE',
+          availableLanguage: ['de', 'ar', 'tr', 'en'],
+        },
+      ],
+      sameAs: [
+        'https://www.facebook.com/ikfzdigitalzulassung',
+        'https://www.instagram.com/ikfz_digital_zulassung/',
+        'https://www.youtube.com/@ikfzdigitalzulassung',
+        'https://www.tiktok.com/@meldino_kfz',
+      ],
     },
-    sameAs: [
-      'https://www.facebook.com/ikfzdigitalzulassung',
-      'https://www.instagram.com/ikfz_digital_zulassung/',
-      'https://www.youtube.com/@ikfzdigitalzulassung',
-      'https://www.tiktok.com/@meldino_kfz',
-    ],
-  };
+    {
+      '@type': 'WebPage',
+      '@id': `${pageUrl}#webpage`,
+      url: pageUrl,
+      name: 'Auto online anmelden',
+      description:
+        'Fahrzeug online anmelden, ummelden oder wieder zulassen. Online-Zulassung mit persönlicher Hilfe, bundesweit nutzbar und digital vorbereitet.',
+      inLanguage: 'de-DE',
+      isPartOf: {
+        '@type': 'WebSite',
+        '@id': `${settings.siteUrl}#website`,
+        url: settings.siteUrl,
+        name: settings.siteName,
+        publisher: {
+          '@id': `${settings.siteUrl}#organization`,
+        },
+      },
+      about: {
+        '@id': `${pageUrl}#service`,
+      },
+    },
+    {
+      '@type': 'Service',
+      '@id': `${pageUrl}#service`,
+      name: 'Auto online anmelden',
+      alternateName: [
+        'KFZ online anmelden',
+        'Fahrzeug online anmelden',
+        'Auto online zulassen',
+        'KFZ online zulassen',
+        'Fahrzeug online zulassen',
+        'Online Zulassungsdienst',
+        'KFZ Zulassungsservice',
+        'Digitale Fahrzeugzulassung',
+        'Online Ummeldung',
+        'Wiederzulassung online',
+      ],
+      description:
+        'Online-Zulassung Ihres Fahrzeugs. Anmeldung, Ummeldung oder Wiederzulassung digital vorbereiten. Persönlicher Support per Telefon und WhatsApp.',
+      serviceType: [
+        'Digitale Fahrzeugzulassung',
+        'KFZ-Zulassung online',
+        'Online-Zulassungsdienst',
+        'KFZ-Zulassungsservice',
+        'Fahrzeug anmelden',
+        'Fahrzeug ummelden',
+        'Fahrzeug wieder zulassen',
+      ],
+      category: 'KFZ-Zulassung',
+      url: pageUrl,
+      provider: {
+        '@type': 'Organization',
+        '@id': `${settings.siteUrl}#organization`,
+        name: settings.siteName,
+        url: settings.siteUrl,
+      },
+      areaServed: {
+        '@type': 'Country',
+        name: 'Deutschland',
+      },
+      availableChannel: {
+        '@type': 'ServiceChannel',
+        serviceType: 'Online',
+        serviceUrl: pageUrl,
+        availableLanguage: ['de', 'ar', 'tr', 'en'],
+      },
+      audience: {
+        '@type': 'Audience',
+        audienceType: 'Fahrzeughalter in Deutschland',
+      },
+      offers: {
+        '@type': 'Offer',
+        '@id': `${pageUrl}#offer`,
+        url: pageUrl,
+        price: neuzulassungPrice.toFixed(2),
+        priceCurrency: 'EUR',
+        availability: 'https://schema.org/InStock',
+        eligibleRegion: {
+          '@type': 'Country',
+          name: 'Deutschland',
+        },
+        seller: {
+          '@type': 'Organization',
+          '@id': `${settings.siteUrl}#organization`,
+        },
+      },
+    },
+    {
+      '@type': 'BreadcrumbList',
+      '@id': `${pageUrl}#breadcrumb`,
+      itemListElement: [
+        {
+          '@type': 'ListItem',
+          position: 1,
+          name: 'Startseite',
+          item: settings.siteUrl,
+        },
+        {
+          '@type': 'ListItem',
+          position: 2,
+          name: 'Auto online anmelden',
+          item: pageUrl,
+        },
+      ],
+    },
+  ],
+};
 
   return (
     <>
       <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceSchema) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
-      />
+  type="application/ld+json"
+  dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+/>
 
       <main className="pb-20 bg-gray-50 min-h-screen">
-        <h1 className="sr-only">Auto online anmelden</h1>
+        {!showFullContent && <h1 className="sr-only">Auto online anmelden</h1>}
 
         <div className="bg-gradient-to-br from-dark via-primary-900 to-dark pt-28 md:pt-32 pb-14">
           {showFullContent && (
