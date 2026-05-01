@@ -9,7 +9,12 @@ import {
   KeyRound,
   ShieldCheck,
 } from 'lucide-react';
-import { CITY_ENTRIES, isCitySlug } from '@/lib/city-slugs';
+import {
+  CITY_ENTRIES,
+  isCitySlug,
+  getResolvedCitySlug,
+  getCityNameBySlug,
+} from '@/lib/city-slugs';
 
 export async function generateMetadata(): Promise<Metadata> {
   const s = await getSiteSettings();
@@ -82,16 +87,29 @@ const NAME_FIXES: Record<string, string> = {
 };
 
 function buildCityLinks(): CityLink[] {
-  return Array.from(
-    new Map<string, CityLink>(
-      CITY_ENTRIES.filter(
-        ([, slug]) => !EXCLUDED_SLUGS.has(slug) && isCitySlug(slug)
-      ).map(([name, slug]) => {
-        const fixedName = NAME_FIXES[slug] || name;
-        return [slug, { name: fixedName, slug }];
-      })
-    ).values()
-  ).sort((a, b) => a.name.localeCompare(b.name, 'de'));
+  const map = new Map<string, CityLink>();
+
+  for (const [name, rawSlug] of CITY_ENTRIES) {
+    const finalSlug = getResolvedCitySlug(rawSlug) || rawSlug;
+
+    if (EXCLUDED_SLUGS.has(rawSlug) || EXCLUDED_SLUGS.has(finalSlug)) continue;
+    if (!isCitySlug(finalSlug)) continue;
+
+    const fixedName =
+      NAME_FIXES[finalSlug] ||
+      NAME_FIXES[rawSlug] ||
+      getCityNameBySlug(finalSlug) ||
+      name;
+
+    map.set(finalSlug, {
+      name: fixedName,
+      slug: finalSlug,
+    });
+  }
+
+  return Array.from(map.values()).sort((a, b) =>
+    a.name.localeCompare(b.name, 'de')
+  );
 }
 
 export default async function AlleStaedtePage() {
@@ -106,7 +124,9 @@ export default async function AlleStaedtePage() {
     grouped[letter].push(city);
   }
 
-  const sortedLetters = Object.keys(grouped).sort((a, b) => a.localeCompare(b, 'de'));
+  const sortedLetters = Object.keys(grouped).sort((a, b) =>
+    a.localeCompare(b, 'de')
+  );
 
   return (
     <main className="pb-20">
@@ -311,9 +331,9 @@ export default async function AlleStaedtePage() {
               </p>
 
               <p>
-                <strong>Wie schnell erhalte ich die Bestätigung?</strong> Die
-                amtliche Abmeldebestätigung erhältst du nach erfolgreicher Bearbeitung
-                per E-Mail.
+                <strong>Wie schnell erhalte ich die Bestätigung?</strong> Die amtliche
+                Abmeldebestätigung erhältst du nach erfolgreicher Bearbeitung per
+                E-Mail.
               </p>
             </div>
           </div>
