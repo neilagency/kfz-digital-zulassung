@@ -47,7 +47,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function FahrzeugabmeldungPage() {
   // Toggle to true to show full page (Hero + Content). false = Form-only landing page.
-  const showFullContent = true;
+  const showFullContent = false;
 
   const [product, settings, pricing] = await Promise.all([
     getProductBySlug('fahrzeugabmeldung'),
