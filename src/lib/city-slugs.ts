@@ -1050,6 +1050,10 @@ function resolveCityNameForSlug(slug: string): string {
 
 function sanitizeCityDisplayName(name: string): string {
   const cleaned = name
+    .replace(/^kfz[-\s]+online[-\s]+abmelden[-\s]+in[-\s]+/i, '')
+    .replace(/^kfz[-\s]+online[-\s]+abmelden[-\s]+/i, '')
+    .replace(/^auto[-\s]+online[-\s]+abmelden[-\s]+in[-\s]+/i, '')
+    .replace(/^auto[-\s]+online[-\s]+abmelden[-\s]+/i, '')
     .replace(/^(?:auto|kfz)\s+online\s+abmelden(?:\s+in)?\s+/i, '')
     .replace(/^auto\s+abmelden\s+online(?:\s+in)?\s+/i, '')
     .replace(/^zulassungsservice\s+/i, '')
