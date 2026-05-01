@@ -6,8 +6,14 @@ const cdnRemotePattern = (() => {
   if (!cdnBase) return null;
   try {
     const url = new URL(cdnBase);
-    return { protocol: url.protocol.replace(':', ''), hostname: url.hostname, pathname: '/**' };
-  } catch { return null; }
+    return {
+      protocol: url.protocol.replace(':', ''),
+      hostname: url.hostname,
+      pathname: '/**',
+    };
+  } catch {
+    return null;
+  }
 })();
 
 const nextConfig = {
@@ -28,19 +34,83 @@ const nextConfig = {
   },
 
   experimental: {
-  instrumentationHook: false,
-  optimizePackageImports: ['lucide-react', 'recharts', 'date-fns'],
-},
+    instrumentationHook: false,
+    optimizePackageImports: ['lucide-react', 'recharts', 'date-fns'],
+  },
 
-serverExternalPackages: [
-  'better-sqlite3',
-  '@libsql/client',
-  '@prisma/adapter-libsql',
-  '@prisma/adapter-better-sqlite3',
-],
+  serverExternalPackages: [
+    'better-sqlite3',
+    '@libsql/client',
+    '@prisma/adapter-libsql',
+    '@prisma/adapter-better-sqlite3',
+  ],
 
   async redirects() {
     return [
+      // -----------------------------
+      // Priority 1: GSC 404 Fixes
+      // -----------------------------
+      {
+        source: '/alle-staedte',
+        destination: '/kfz-zulassung-abmeldung-in-deiner-stadt',
+        permanent: true,
+      },
+      {
+        source: '/kfz-abmeldung',
+        destination: '/product/fahrzeugabmeldung',
+        permanent: true,
+      },
+      {
+        source: '/kfz-abmelden',
+        destination: '/product/fahrzeugabmeldung',
+        permanent: true,
+      },
+      {
+        source: '/kfz-abmelden/:path*',
+        destination: '/product/fahrzeugabmeldung',
+        permanent: true,
+      },
+      {
+        source: '/kosten-autoabmeldung-online',
+        destination: '/insiderwissen/was-kostet-auto-abmelden-online-vs-zulassungsstelle',
+        permanent: true,
+      },
+      {
+        source: '/kosten-autoabmeldung-online/:path*',
+        destination: '/insiderwissen/was-kostet-auto-abmelden-online-vs-zulassungsstelle',
+        permanent: true,
+      },
+      {
+        source: '/online-auto-anmelden',
+        destination: '/product/auto-online-anmelden',
+        permanent: true,
+      },
+      {
+        source: '/rotes-kennzeichen-beantragen',
+        destination: '/kurzzeitkennzeichen',
+        permanent: true,
+      },
+      {
+        source: '/anhaenger-abmelden-2',
+        destination: '/anhaenger-abmelden',
+        permanent: true,
+      },
+      {
+        source: '/anhaenger-abmelden-2/:path*',
+        destination: '/anhaenger-abmelden',
+        permanent: true,
+      },
+      {
+        source: '/kurzzeitkennzeichen/:path*',
+        destination: '/kurzzeitkennzeichen',
+        permanent: true,
+      },
+      {
+        source: '/kurzzeitkennzeichen-lkw/:path*',
+        destination: '/kurzzeitkennzeichen-lkw',
+        permanent: true,
+      },
+
       // -----------------------------
       // Sitemaps
       // -----------------------------
@@ -61,7 +131,7 @@ serverExternalPackages: [
       },
 
       // -----------------------------
-      // Blog / archive / feed remnants
+      // Blog / Archive / Feed remnants
       // -----------------------------
       {
         source: '/blog',
@@ -125,159 +195,23 @@ serverExternalPackages: [
       },
 
       // -----------------------------
-      // Product / taxonomy / embed remnants
+      // Product / Taxonomy / Embed remnants
       // -----------------------------
       {
-        source: '/zulassungsservice-bremen',
-        destination: '/kfz-online-abmelden-bremen',
+        source: '/product',
+        destination: '/product/fahrzeugabmeldung',
         permanent: true,
       },
       {
-        source: '/bochum',
-        destination: '/auto-online-abmelden-in-bochum',
+        source: '/product/auto-online-abmelden',
+        destination: '/product/fahrzeugabmeldung',
         permanent: true,
       },
       {
-        source: '/hamburg',
-        destination: '/kfz-online-abmelden-in-hamburg',
+        source: '/product/fahrzeug-online-anmelden',
+        destination: '/product/auto-online-anmelden',
         permanent: true,
       },
-      {
-        source: '/darmstadt',
-        destination: '/insiderwissen',
-        permanent: true,
-      },
-      {
-        source: '/offenbach-am-main',
-        destination: '/insiderwissen',
-        permanent: true,
-      },
-      {
-        source: '/kusel-2',
-        destination: '/kusel',
-        permanent: true,
-      },
-      {
-        source: '/test-cron-e2e',
-        destination: '/',
-        permanent: true,
-      },
-      {
-        source: '/laichingen-stadt',
-        destination: '/auto-online-abmelden-in-laichingen',
-        permanent: true,
-      },
-      {
-        source: '/rhein-kreis-neuss',
-        destination: '/auto-online-abmelden-in-neuss',
-        permanent: true,
-      },
-      {
-        source: '/idioten-test',
-        destination: '/',
-        permanent: true,
-      },
-      {
-        source: '/auto-online-abmelden-in-laupheim',
-        destination: '/laupheim',
-        permanent: true,
-      },
-      {
-        source: '/gelsenkirchen',
-        destination: '/auto-abmelden-online-in-gelsenkirchen',
-        permanent: true,
-      },
-      {
-        source: '/auto-abmelden-hamburg',
-        destination: '/kfz-online-abmelden-in-hamburg',
-        permanent: true,
-      },
-      {
-  source: '/mercedes-rueckruf-lenkprobleme',
-  destination: '/insiderwissen',
-  permanent: true,
-},
-{
-  source: '/auto-verkaufen-tuev-pflicht',
-  destination: '/auto-verkaufen',
-  permanent: true,
-},
-{
-  source: '/wo-ist-der-7-stellige-sicherheitscode-im-fahrzeugschein-einfach-erklaert',
-  destination: '/insiderwissen/wo-ist-der-7-stellige-sicherheitscode-im-fahrzeugschein',
-  permanent: true,
-},
-      {
-  source: '/abmeldung-digital/:id(\\d+)',
-  destination: '/insiderwissen/zulassung-digital',
-  permanent: true,
-},
-{
-  source: '/online-zulassung-kfz/:id(\\d+)',
-  destination: '/online-zulassung-kfz',
-  permanent: true,
-},
-{
-  source: '/online-kfz-abmelden/:id(\\d+)',
-  destination: '/online-kfz-abmelden',
-  permanent: true,
-},
-{
-  source: '/online-auto-abmelden-ikfz/:id(\\d+)',
-  destination: '/insiderwissen/wie-melde-ich-mein-auto-online-ab',
-  permanent: true,
-},
-{
-  source: '/motorrad-abmelden-online/:id(\\d+)',
-  destination: '/motorrad-abmelden-online',
-  permanent: true,
-},
-{
-  source: '/wohnmobil-abmelden/:id(\\d+)',
-  destination: '/wohnmobil-abmelden',
-  permanent: true,
-},
-{
-  source: '/lkw-abmelden-online/:id(\\d+)',
-  destination: '/lkw-abmelden-online',
-  permanent: true,
-},
-{
-  source: '/anhaenger-abmelden-2/:id(\\d+)',
-  destination: '/anhaenger-abmelden',
-  permanent: true,
-},
-{
-  source: '/kurzzeitkennzeichen-lkw/:id(\\d+)',
-  destination: '/kurzzeitkennzeichen-lkw',
-  permanent: true,
-},
-      {
-        source: '/leichlingen',
-        destination: '/insiderwissen',
-        permanent: true,
-      },
-      {
-        source: '/probleme-mit-zulassung-digital-blackbird',
-        destination: '/insiderwissen/online-zulassung-funktioniert-nicht',
-        permanent: true,
-      },
-      {
-        source: '/kfz',
-        destination: '/kfz-abmelden',
-        permanent: true,
-      },
-      {
-        source: '/wuppertal',
-        destination: '/auto-online-abmelden-in-wuppertal',
-        permanent: true,
-      },
-      {
-        source: '/ist-der-halter-im-fahrzeugbrief-auch-der-eigentuemer',
-        destination: '/insiderwissen',
-        permanent: true,
-      },
-      // NOTE: /product-category/*, /product-tag/* → 410 Gone (middleware)
       {
         source: '/product/:slug/embed',
         destination: '/product/:slug',
@@ -286,13 +220,6 @@ serverExternalPackages: [
       {
         source: '/:slug/embed',
         destination: '/:slug',
-        permanent: true,
-      },
-
-      // NOTE: /Ihre_URL_zum_Upgrade_Checkout → 410 Gone (middleware)
-      {
-        source: '/kfz-abmelden/Ihre_URL_zum_Upgrade_Checkout',
-        destination: '/kfz-abmelden',
         permanent: true,
       },
 
@@ -320,16 +247,6 @@ serverExternalPackages: [
         permanent: true,
       },
       {
-        source: '/product/fahrzeug-online-anmelden',
-        destination: '/product/auto-online-anmelden',
-        permanent: true,
-      },
-      {
-        source: '/product/auto-online-abmelden',
-        destination: '/product/fahrzeugabmeldung',
-        permanent: true,
-      },
-      {
         source: '/datenschutz',
         destination: '/datenschutzhinweise',
         permanent: true,
@@ -339,18 +256,6 @@ serverExternalPackages: [
         destination: '/allgemeine-geschaeftsbedingungen',
         permanent: true,
       },
-
-      // -----------------------------
-      // Commerce leftovers
-      // NOTE: /shop, /kasse, /warenkorb, /mein-konto, /my-account → 410 Gone (middleware)
-      // -----------------------------
-      {
-        source: '/product',
-        destination: '/product/fahrzeugabmeldung',
-        permanent: false,
-      },
-
-      // NOTE: /wp-admin, system URLs → 410 Gone (middleware)
 
       // -----------------------------
       // Old category / taxonomy pages
@@ -471,7 +376,7 @@ serverExternalPackages: [
       },
       {
         source: '/kfz-abmeldung-2',
-        destination: '/kfz-abmeldung',
+        destination: '/product/fahrzeugabmeldung',
         permanent: true,
       },
       {
@@ -479,12 +384,44 @@ serverExternalPackages: [
         destination: '/insiderwissen/was-kostet-auto-abmelden',
         permanent: true,
       },
+      {
+        source: '/abmeldung-digital/:id(\\d+)',
+        destination: '/insiderwissen/zulassung-digital',
+        permanent: true,
+      },
+      {
+        source: '/online-zulassung-kfz/:id(\\d+)',
+        destination: '/online-zulassung-kfz',
+        permanent: true,
+      },
+      {
+        source: '/online-kfz-abmelden/:id(\\d+)',
+        destination: '/online-kfz-abmelden',
+        permanent: true,
+      },
+      {
+        source: '/online-auto-abmelden-ikfz/:id(\\d+)',
+        destination: '/insiderwissen/wie-melde-ich-mein-auto-online-ab',
+        permanent: true,
+      },
+      {
+        source: '/motorrad-abmelden-online/:id(\\d+)',
+        destination: '/motorrad-abmelden-online',
+        permanent: true,
+      },
+      {
+        source: '/wohnmobil-abmelden/:id(\\d+)',
+        destination: '/wohnmobil-abmelden',
+        permanent: true,
+      },
+      {
+        source: '/lkw-abmelden-online/:id(\\d+)',
+        destination: '/lkw-abmelden-online',
+        permanent: true,
+      },
 
       // -----------------------------
-      // Important SEO redirects
-      // -----------------------------
-            // -----------------------------
-      // Essen SEO canonical redirects
+      // City / Local redirects
       // -----------------------------
       {
         source: '/essen',
@@ -527,8 +464,8 @@ serverExternalPackages: [
         permanent: true,
       },
       {
-        source: '/kfz-online-abmelden-hamburg',
-        destination: '/kfz-online-abmelden-in-hamburg',
+        source: '/berlin',
+        destination: '/berlin-zulassungsstelle',
         permanent: true,
       },
       {
@@ -547,28 +484,18 @@ serverExternalPackages: [
         permanent: true,
       },
       {
-        source: '/kfz-online-anmelden',
-        destination: '/product/auto-online-anmelden',
+        source: '/kfz-online-abmelden-hamburg',
+        destination: '/kfz-online-abmelden-in-hamburg',
         permanent: true,
       },
       {
-        source: '/evb-nummer-anfordern',
-        destination: '/evb',
+        source: '/hamburg',
+        destination: '/kfz-online-abmelden-in-hamburg',
         permanent: true,
       },
       {
-        source: '/ikfz-kosten-preise',
-        destination: '/online-zulassung-kfz',
-        permanent: true,
-      },
-      {
-        source: '/online-auto-abmelden-2024',
-        destination: '/insiderwissen/auto-online-abmelden-2026',
-        permanent: true,
-      },
-      {
-        source: '/kfz-online-abmelden-2-0',
-        destination: '/kfz-abmelden-online',
+        source: '/auto-abmelden-hamburg',
+        destination: '/kfz-online-abmelden-in-hamburg',
         permanent: true,
       },
       {
@@ -582,18 +509,48 @@ serverExternalPackages: [
         permanent: true,
       },
       {
-        source: '/blackbird-gmbh',
-        destination: '/',
+        source: '/bochum',
+        destination: '/auto-online-abmelden-in-bochum',
         permanent: true,
       },
       {
-        source: '/blackbird-gmbh-telefonnummer',
-        destination: '/insiderwissen/abmeldung-digital-telefonnummer',
+        source: '/gelsenkirchen',
+        destination: '/auto-abmelden-online-in-gelsenkirchen',
         permanent: true,
       },
       {
-        source: '/unsere-partner',
-        destination: '/',
+        source: '/auto-online-abmelden-in-gelsenkirchen',
+        destination: '/insiderwissen/auto-abmelden-gelsenkirchen',
+        permanent: true,
+      },
+      {
+        source: '/wuppertal',
+        destination: '/auto-online-abmelden-in-wuppertal',
+        permanent: true,
+      },
+      {
+        source: '/rhein-kreis-neuss',
+        destination: '/auto-online-abmelden-in-neuss',
+        permanent: true,
+      },
+      {
+        source: '/zulassungsservice-bremen',
+        destination: '/kfz-online-abmelden-bremen',
+        permanent: true,
+      },
+      {
+        source: '/auto-online-abmelden-in-laupheim',
+        destination: '/laupheim',
+        permanent: true,
+      },
+      {
+        source: '/laupenheim',
+        destination: '/laupheim',
+        permanent: true,
+      },
+      {
+        source: '/laichingen-stadt',
+        destination: '/auto-online-abmelden-in-laichingen',
         permanent: true,
       },
 
@@ -671,16 +628,6 @@ serverExternalPackages: [
         permanent: true,
       },
       {
-        source: '/anhaenger-abmelden-2',
-        destination: '/anhaenger-abmelden',
-        permanent: true,
-      },
-      {
-        source: '/laupenheim',
-        destination: '/laupheim',
-        permanent: true,
-      },
-      {
         source: '/hagen-2',
         destination: '/hagen',
         permanent: true,
@@ -710,44 +657,105 @@ serverExternalPackages: [
         destination: '/auto-online-abmelden-muenchen',
         permanent: true,
       },
-      {
-        source: '/berlin',
-        destination: '/berlin-zulassungsstelle',
-        permanent: true,
-      },
 
       // -----------------------------
-      // Spelling / older variant fixes
+      // Other safe mappings
       // -----------------------------
       {
-        source: '/kfz-zulassung-online-schritt-fuer-schritt-erklaert',
-        destination: '/insiderwissen/kfz-zulassung-online-schritt-fuer-schritt',
+        source: '/darmstadt',
+        destination: '/insiderwissen',
         permanent: true,
       },
       {
-        source: '/was-benotige-ich-fur-eine-autoanmeldung',
-        destination: '/insiderwissen/was-benoetige-ich-fuer-ein-autoanmeldung',
+        source: '/offenbach-am-main',
+        destination: '/insiderwissen',
         permanent: true,
       },
       {
-        source: '/kann-ich-mein-fahrzeug-angemeldet-ubergeben',
+        source: '/kusel-2',
+        destination: '/kusel',
+        permanent: true,
+      },
+      {
+        source: '/test-cron-e2e',
+        destination: '/',
+        permanent: true,
+      },
+      {
+        source: '/idioten-test',
+        destination: '/',
+        permanent: true,
+      },
+      {
+        source: '/leichlingen',
+        destination: '/insiderwissen',
+        permanent: true,
+      },
+      {
+        source: '/blackbird-gmbh',
+        destination: '/',
+        permanent: true,
+      },
+      {
+        source: '/blackbird-gmbh-telefonnummer',
+        destination: '/insiderwissen/abmeldung-digital-telefonnummer',
+        permanent: true,
+      },
+      {
+        source: '/unsere-partner',
+        destination: '/',
+        permanent: true,
+      },
+      {
+        source: '/mercedes-rueckruf-lenkprobleme',
+        destination: '/insiderwissen',
+        permanent: true,
+      },
+      {
+        source: '/auto-verkaufen-tuev-pflicht',
         destination: '/auto-verkaufen',
         permanent: true,
       },
       {
-        source: '/rotes-kennzeichen-beantragen',
-        destination: '/kurzzeitkennzeichen',
+        source: '/wo-ist-der-7-stellige-sicherheitscode-im-fahrzeugschein-einfach-erklaert',
+        destination: '/insiderwissen/wo-ist-der-7-stellige-sicherheitscode-im-fahrzeugschein',
         permanent: true,
       },
       {
-        source: '/auto-online-abmelden-im-winter',
-        destination: '/insiderwissen/kfz-abmelden-im-winter',
+        source: '/probleme-mit-zulassung-digital-blackbird',
+        destination: '/insiderwissen/online-zulassung-funktioniert-nicht',
         permanent: true,
       },
-
-      // -----------------------------
-      // Redirect fixes from GSC / Ahrefs
-      // -----------------------------
+      {
+        source: '/kfz',
+        destination: '/product/fahrzeugabmeldung',
+        permanent: true,
+      },
+      {
+        source: '/ist-der-halter-im-fahrzeugbrief-auch-der-eigentuemer',
+        destination: '/insiderwissen',
+        permanent: true,
+      },
+      {
+        source: '/evb-nummer-anfordern',
+        destination: '/evb',
+        permanent: true,
+      },
+      {
+        source: '/ikfz-kosten-preise',
+        destination: '/online-zulassung-kfz',
+        permanent: true,
+      },
+      {
+        source: '/online-auto-abmelden-2024',
+        destination: '/insiderwissen/auto-online-abmelden-2026',
+        permanent: true,
+      },
+      {
+        source: '/kfz-online-abmelden-2-0',
+        destination: '/kfz-abmelden-online',
+        permanent: true,
+      },
       {
         source: '/auto-online-abmelden-erfahrungen-risiken-sicherheit',
         destination: '/insiderwissen/auto-online-abmelden-erfahrungen',
@@ -776,6 +784,26 @@ serverExternalPackages: [
       {
         source: '/auto-online-ummelden-wie-geht-das',
         destination: '/insiderwissen/fahrzeug-ummelden',
+        permanent: true,
+      },
+      {
+        source: '/kfz-zulassung-online-schritt-fuer-schritt-erklaert',
+        destination: '/insiderwissen/kfz-zulassung-online-schritt-fuer-schritt',
+        permanent: true,
+      },
+      {
+        source: '/was-benotige-ich-fur-eine-autoanmeldung',
+        destination: '/insiderwissen/was-benoetige-ich-fuer-ein-autoanmeldung',
+        permanent: true,
+      },
+      {
+        source: '/kann-ich-mein-fahrzeug-angemeldet-ubergeben',
+        destination: '/auto-verkaufen',
+        permanent: true,
+      },
+      {
+        source: '/auto-online-abmelden-im-winter',
+        destination: '/insiderwissen/kfz-abmelden-im-winter',
         permanent: true,
       },
 
@@ -858,11 +886,6 @@ serverExternalPackages: [
         permanent: true,
       },
       {
-        source: '/auto-online-abmelden-in-gelsenkirchen',
-        destination: '/insiderwissen/auto-abmelden-gelsenkirchen',
-        permanent: true,
-      },
-      {
         source: '/auto-online-abmelden-ohne-elster',
         destination: '/insiderwissen/wie-melde-ich-mein-auto-online-ab',
         permanent: true,
@@ -921,10 +944,6 @@ serverExternalPackages: [
         destination: '/insiderwissen/fahrzeugschein',
         permanent: true,
       },
-
-      // -----------------------------
-      // Existing safe page mappings
-      // -----------------------------
       {
         source: '/insiderwissen/auto-abmelden-duisburg',
         destination: '/duisburg',
@@ -938,6 +957,7 @@ serverExternalPackages: [
 
       // -----------------------------
       // Numeric leftovers - keep last
+      // Important: direct targets only, no redirect chains.
       // -----------------------------
       {
         source: '/auto-abmelden/:id(\\d+)',
@@ -945,18 +965,8 @@ serverExternalPackages: [
         permanent: true,
       },
       {
-        source: '/kosten-autoabmeldung-online/:id(\\d+)',
-        destination: '/kosten-autoabmeldung-online',
-        permanent: true,
-      },
-      {
         source: '/anhaenger-abmelden/:id(\\d+)',
         destination: '/anhaenger-abmelden',
-        permanent: true,
-      },
-      {
-        source: '/kurzzeitkennzeichen/:id(\\d+)',
-        destination: '/kurzzeitkennzeichen',
         permanent: true,
       },
       {
@@ -973,7 +983,7 @@ serverExternalPackages: [
 
   async headers() {
     return [
-            {
+      {
         source: '/:path*',
         headers: [
           {
