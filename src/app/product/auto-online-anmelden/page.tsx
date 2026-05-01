@@ -97,7 +97,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function AutoOnlineAnmeldenPage() {
-  const showFullContent = true;
+  const showFullContent = false;
 
   const [product, settings, pricing] = await Promise.all([
     getProductBySlug('auto-online-anmelden'),
