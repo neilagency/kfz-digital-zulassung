@@ -32,6 +32,7 @@ import { type LocalPage } from '@/lib/db';
 import { getCityNameBySlug } from '@/lib/city-slugs';
 import AuthorityHubsSection from '@/components/AuthorityHubsSection';
 import { CITY_AUTHORITY_HUBS_ENABLED } from '@/lib/city-feature-flags';
+import { TOP_CITY_CONTENT } from '@/data/top-city-content';
 
 type SiteSettings = {
   siteName: string;
@@ -614,6 +615,7 @@ export default function CityPageView({
   const productUrl = `${baseUrl}/product/fahrzeugabmeldung`;
   const videosUrl = `${baseUrl}/vedio`;
   const areaSchemaType = getAreaSchemaType(cityName, slug);
+  const extraCityContent = TOP_CITY_CONTENT[slug];
   const heroCtaText = withPrice('Jetzt loslegen', pricing.abmeldungPriceFormatted);
   const compareCtaText = withPrice('Jetzt online abmelden', pricing.abmeldungPriceFormatted);
   const targetCtaText = withPrice('Jetzt online starten', pricing.abmeldungPriceFormatted);
@@ -659,6 +661,10 @@ export default function CityPageView({
         '@type': areaSchemaType,
         name: cityName,
       },
+      ...(extraCityContent?.districts?.map((district) => ({
+  '@type': 'Place',
+  name: `${district}, ${cityName}`,
+})) ?? []),
       ...(input.state
         ? [
             {
@@ -1726,20 +1732,47 @@ export default function CityPageView({
           </SectionShell>
         )}
 
-        <SectionShell className="mt-8">
-          <div className="rounded-2xl border border-primary/10 bg-primary/5 p-8">
-            <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-primary">
-              <Shield className="h-4 w-4" />
-              <span className="text-sm font-bold">Verwaltungsbezug vor Ort</span>
+                </SectionShell>
+
+        {extraCityContent && (
+          <SectionShell>
+            <div className="rounded-2xl border border-primary/10 bg-white p-8 shadow-sm md:p-10">
+              <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-primary">
+                <MapPin className="h-4 w-4" />
+                <span className="text-sm font-bold">Lokaler Hinweis</span>
+              </div>
+
+              <h2 className="mb-4 text-2xl font-extrabold text-primary">
+                Auto online abmelden in {cityName}: Stadtteile, Kennzeichen & Ablauf
+              </h2>
+
+              <div className="space-y-4 leading-relaxed text-gray-700">
+                {extraCityContent.intro && <p>{extraCityContent.intro}</p>}
+
+                {extraCityContent.districts?.length ? (
+                  <p>
+                    Besonders häufig betrifft das Fahrzeughalter aus{' '}
+                    <strong>{extraCityContent.districts.join(', ')}</strong>.
+                  </p>
+                ) : null}
+
+                {extraCityContent.licensePlates?.length ? (
+                  <p>
+                    Für Fahrzeuge mit dem Kennzeichen{' '}
+                    <strong>{extraCityContent.licensePlates.join(', ')}</strong> kann die
+                    Online-Abmeldung bequem digital vorbereitet werden.
+                  </p>
+                ) : null}
+
+                {extraCityContent.painPoint && <p>{extraCityContent.painPoint}</p>}
+                {extraCityContent.authorityHint && <p>{extraCityContent.authorityHint}</p>}
+                {extraCityContent.conversionText && <p>{extraCityContent.conversionText}</p>}
+              </div>
             </div>
-            <p className="font-medium leading-relaxed text-gray-700">
-              {model.authority.narrative}
-            </p>
-            <p className="mt-4 text-sm leading-relaxed text-gray-600">
-              {model.authority.processNote}
-            </p>
-          </div>
-        </SectionShell>
+          </SectionShell>
+        )}
+
+        {orderedSections
 
         {orderedSections
           .filter(
