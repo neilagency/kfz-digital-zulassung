@@ -1732,8 +1732,6 @@ export default function CityPageView({
           </SectionShell>
         )}
 
-                </SectionShell>
-
         {extraCityContent && (
           <SectionShell>
             <div className="rounded-2xl border border-primary/10 bg-white p-8 shadow-sm md:p-10">
