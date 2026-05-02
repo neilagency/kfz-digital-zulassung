@@ -26,7 +26,7 @@ export default function PricingBox({ price = '19,70 €', paymentMethods = [] }:
                   'Kostenloser Experten-Support',
                   '100% Geld-zurück-Garantie',
                   'Bundesweit gültig',
-                  'KBA §34 FZV registriert',
+                  'GKS-Anbindung gemäß § 34 FZV',
                 ].map((feature) => (
                   <li key={feature} className="flex items-start gap-3">
                     <CheckCircle className="w-5 h-5 text-accent flex-shrink-0 mt-0.5" />
