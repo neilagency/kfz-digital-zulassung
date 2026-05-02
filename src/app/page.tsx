@@ -472,8 +472,8 @@ export default async function HomePage() {
               {[
                 {
                   icon: Shield,
-                  title: 'Offiziell & rechtssicher',
-                  desc: 'Digitale Bearbeitung über unsere GKS-Anbindung. Bundesweit zuverlässig und offiziell.',
+                  title: 'Offiziell eingereicht',
+                  desc: 'Digitale Bearbeitung über unsere GKS-Anbindung nach §34 FZV.',
                 },
                 {
                   icon: Headphones,
@@ -628,8 +628,8 @@ export default async function HomePage() {
               {[
                 {
                   icon: BadgeCheck,
-                  title: 'Amtlich anerkannt & bundesweit gültig',
-                  desc: 'Unser Service nutzt die direkte GKS-Anbindung zum Kraftfahrt-Bundesamt. Ihre Online-Abmeldung wird offiziell digital eingereicht.',
+                  title: 'Bundesweit gültige Abmeldung',
+                  desc: 'Unser Service nutzt eine GKS-Anbindung für die digitale Fahrzeugabmeldung. Ihre Online-Abmeldung wird offiziell digital eingereicht.',
                   color: 'primary' as const,
                 },
                 {
@@ -968,8 +968,7 @@ export default async function HomePage() {
             </h2>
 
             <p className="mb-8 text-lg text-white/70">
-              In nur 2 Minuten erledigt. In vielen Fällen kein Ausweis-Upload nötig. Offizielle
-              Bestätigung direkt erhalten.
+              In wenigen Minuten vorbereitet. In vielen Fällen kein Ausweis-Upload nötig. Bestätigung nach erfolgreicher Bearbeitung erhalten.
             </p>
 
             <Link
