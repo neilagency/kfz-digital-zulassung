@@ -198,8 +198,8 @@ export default async function DynamicProductPage({
 
             <div className="flex flex-wrap justify-center gap-4 mt-8">
               {[
-                { icon: CheckCircle, text: 'Sofortige Bestätigung per E-Mail' },
-                { icon: Shield, text: '100% offizieller Service' },
+                { icon: CheckCircle, text: 'Amtliche Bestätigung' },
+                { icon: Shield, text: 'Über GKS-Anbindung' },
                 { icon: Star, text: 'Persönlicher Live-Support' },
               ].map(({ icon: Icon, text }) => (
                 <div
