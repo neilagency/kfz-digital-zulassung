@@ -22,7 +22,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     metadataBase: new URL(siteUrl),
     title: {
-      default: `${s.siteName} – KFZ online abmelden in 2 Minuten`,
+      default: `${s.siteName} – KFZ online abmelden – schnell & offiziell`,
       template: `%s – ${s.siteName}`,
     },
     description: s.siteDescription,
@@ -44,7 +44,7 @@ export async function generateMetadata(): Promise<Metadata> {
       type: 'website',
       locale: 'de_DE',
       siteName: s.siteName,
-      title: `${s.siteName} – KFZ online abmelden in 2 Minuten`,
+      title: `${s.siteName} – KFZ online abmelden – schnell & offiziell`,
       description: s.siteDescription,
       url: siteUrl,
       images: [
@@ -58,7 +58,7 @@ export async function generateMetadata(): Promise<Metadata> {
     },
     twitter: {
       card: 'summary_large_image',
-      title: `${s.siteName} – KFZ online abmelden in 2 Minuten`,
+      title: `${s.siteName} – KFZ online abmelden – schnell & offiziell`,
       description: s.siteDescription,
       images: [`${siteUrl}/logo.webp`],
     },
