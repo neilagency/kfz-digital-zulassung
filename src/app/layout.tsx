@@ -242,12 +242,6 @@ export default async function RootLayout({
     publisher: {
       '@id': `${siteUrl}#organization`,
     },
-
-    potentialAction: {
-      '@type': 'SearchAction',
-      target: `${siteUrl}/?s={search_term_string}`,
-      'query-input': 'required name=search_term_string',
-    },
   };
 
   return (
