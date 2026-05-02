@@ -19,14 +19,12 @@ export async function generateMetadata(): Promise<Metadata> {
   const s = await getSiteSettings();
   const siteUrl = stripTrailingSlash(s.siteUrl);
 
-  const defaultTitle = `${s.siteName} – KFZ online abmelden`;
-
   return {
     metadataBase: new URL(siteUrl),
 
     title: {
-      default: defaultTitle,
-      template: '%s',
+      default: `${s.siteName} – KFZ online abmelden`,
+      template: `%s`,
     },
 
     description: s.siteDescription,
@@ -50,14 +48,14 @@ export async function generateMetadata(): Promise<Metadata> {
       type: 'website',
       locale: 'de_DE',
       siteName: s.siteName,
-      title: defaultTitle,
+      title: `${s.siteName} – KFZ online abmelden`,
       description: s.siteDescription,
       url: siteUrl,
       images: [
         {
           url: `${siteUrl}/logo.webp`,
-          width: 1200,
-          height: 630,
+          width: 1920,
+          height: 1080,
           alt: `${s.siteName} – KFZ online abmelden`,
         },
       ],
@@ -65,7 +63,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
     twitter: {
       card: 'summary_large_image',
-      title: defaultTitle,
+      title: `${s.siteName} – KFZ online abmelden`,
       description: s.siteDescription,
       images: [`${siteUrl}/logo.webp`],
     },
@@ -119,8 +117,13 @@ export default async function RootLayout({
     '@context': 'https://schema.org',
     '@type': 'Organization',
     '@id': `${siteUrl}#organization`,
+
     name: siteName,
     legalName: companyName,
+
+    description:
+      'Privater Online-Service für digitale Fahrzeugabmeldung und Fahrzeuganmeldung in Deutschland. Die Abmeldung wird über eine GKS-Anbindung gemäß § 34 FZV verarbeitet. Nutzer erhalten die amtliche Bestätigung nach erfolgreicher Bearbeitung per E-Mail.',
+
     alternateName: [
       'Online Auto Abmelden',
       'iKFZ Digital Zulassung',
@@ -129,19 +132,58 @@ export default async function RootLayout({
       'Digitaler Zulassungsdienst',
       'Online Zulassungsdienst',
       'KFZ Zulassungsservice',
+      'Auto online abmelden',
+      'KFZ online abmelden',
+      'Fahrzeug online abmelden',
+      'Kfz-Abmeldung online',
     ],
+
     url: siteUrl,
+
     logo: {
       '@type': 'ImageObject',
       url: `${siteUrl}/logo.svg`,
     },
+
     image: `${siteUrl}/logo.svg`,
+
     email: settings.email,
     telephone: '+4915224999190',
+
     areaServed: {
       '@type': 'Country',
       name: 'Deutschland',
     },
+
+    makesOffer: [
+      {
+        '@type': 'Offer',
+        itemOffered: {
+          '@type': 'Service',
+          name: 'Fahrzeugabmeldung online',
+          serviceType: 'Digitale Fahrzeugabmeldung',
+          areaServed: {
+            '@type': 'Country',
+            name: 'Deutschland',
+          },
+          url: `${siteUrl}/product/fahrzeugabmeldung`,
+        },
+      },
+      {
+        '@type': 'Offer',
+        itemOffered: {
+          '@type': 'Service',
+          name: 'Fahrzeuganmeldung online',
+          serviceType: 'Digitale Fahrzeuganmeldung',
+          areaServed: {
+            '@type': 'Country',
+            name: 'Deutschland',
+          },
+          url: `${siteUrl}/product/auto-online-anmelden`,
+        },
+      },
+    ],
+
     contactPoint: [
       {
         '@type': 'ContactPoint',
@@ -159,8 +201,13 @@ export default async function RootLayout({
         availableLanguage: ['de', 'ar', 'tr', 'en'],
       },
     ],
+
     knowsAbout: [
+      'Auto online abmelden',
+      'KFZ online abmelden',
+      'Fahrzeug online abmelden',
       'Digitale Fahrzeugabmeldung',
+      'Digitale Fahrzeuganmeldung',
       'i-Kfz',
       'Sicherheitscode Fahrzeugschein',
       'Sicherheitscode Kennzeichen',
@@ -168,7 +215,9 @@ export default async function RootLayout({
       'Zulassungsdienst',
       'KBA',
       'GKS-Anbindung',
+      '§ 34 FZV',
     ],
+
     sameAs,
   };
 
@@ -176,18 +225,28 @@ export default async function RootLayout({
     '@context': 'https://schema.org',
     '@type': 'WebSite',
     '@id': `${siteUrl}#website`,
+
     url: siteUrl,
     name: siteName,
+
     alternateName: [
       'Online Auto Abmelden',
       'iKFZ Digital Zulassung',
       'KFZ online abmelden',
       'Auto online abmelden',
     ],
+
     description: settings.siteDescription,
     inLanguage: 'de-DE',
+
     publisher: {
       '@id': `${siteUrl}#organization`,
+    },
+
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: `${siteUrl}/?s={search_term_string}`,
+      'query-input': 'required name=search_term_string',
     },
   };
 
@@ -233,7 +292,6 @@ export default async function RootLayout({
                     )
                   ) {
                     var reloaded = sessionStorage.getItem('chunk_reload');
-
                     if (!reloaded) {
                       sessionStorage.setItem('chunk_reload', '1');
                       window.location.reload();
