@@ -34,11 +34,11 @@ export async function generateMetadata(): Promise<Metadata> {
   const title = rawTitle.length > 46 ? rawTitle.slice(0, 45).replace(/\s+\S*$/, '') + '…' : rawTitle;
   return {
     title,
-    description: product?.metaDescription || 'KFZ online abmelden in nur 2 Minuten. Ohne Termin, ohne Registrierung. Offizielle Bestätigung sofort per E-Mail. Bundesweit gültig.',
+    description: product?.metaDescription || 'KFZ online abmelden schnell & einfach. Ohne Termin, ohne Registrierung. Offizielle Bestätigung per E-Mail. Bundesweit gültig.',
     alternates: { canonical: `${settings.siteUrl}/product/fahrzeugabmeldung` },
     openGraph: {
       title: product?.ogTitle || `Fahrzeugabmeldung online – nur ${price} €`,
-      description: product?.ogDescription || 'Auto online abmelden in nur 2 Minuten. Bundesweit gültig.',
+      description: product?.ogDescription || 'Auto online abmelden schnell & einfach. Bundesweit gültig.',
       url: `${settings.siteUrl}/product/fahrzeugabmeldung`,
       images: [{ url: product?.ogImage || `${settings.siteUrl}/logo.webp`, width: 1920, height: 1080, alt: 'Fahrzeugabmeldung online' }],
     },
@@ -142,8 +142,8 @@ export default async function FahrzeugabmeldungPage() {
 
             <div className="flex flex-wrap justify-center gap-4 mt-8">
               {[
-                { icon: CheckCircle, text: 'Sofortige Abmelde-Bestätigung per E-Mail' },
-                { icon: Shield, text: '100% KBA-registrierter Service' },
+                { icon: CheckCircle, text: 'Abmelde-Bestätigung per E-Mail' },
+                { icon: Shield, text: 'GKS-Anbindung gemäß § 34 FZV' },
                 { icon: Headphones, text: 'Persönlicher Live-Support bei Fragen' },
               ].map(({ icon: Icon, text }) => (
                 <div
