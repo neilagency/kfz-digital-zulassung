@@ -182,7 +182,7 @@ export default async function AutoAbmeldenPage() {
               <div className="inline-flex items-center gap-2 bg-primary-50 rounded-full px-4 py-2 mb-6">
                 <Shield className="w-4 h-4 text-primary" />
                 <span className="text-primary text-sm font-medium">
-                  Offizieller Leitfaden für Deutschland
+                  Leitfaden für Deutschland
                 </span>
               </div>
               
@@ -266,8 +266,7 @@ export default async function AutoAbmeldenPage() {
                       Kraftfahrt-Bundesamt (KBA)
                     </h3>
                     <p className="text-green-800">
-                      Das KBA führt das zentrale Fahrzeugregister und autorisiert alle Stellen, die 
-                      Fahrzeugabmeldungen durchführen dürfen. Jede Abmeldung wird hier registriert und 
+                      Das Kraftfahrt-Bundesamt führt das zentrale Fahrzeugregister. Die Abmeldung wird nach erfolgreicher Bearbeitung im offiziellen System wirksam registriert. Jede Abmeldung wird hier registriert und 
                       ist damit bundesweit wirksam.
                     </p>
                   </div>
@@ -478,8 +477,8 @@ export default async function AutoAbmeldenPage() {
                     <div className="text-xs text-primary-700">Verfügbar</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-primary-800">KBA</div>
-                    <div className="text-xs text-primary-700">Registriert</div>
+                    <div className="text-2xl font-bold text-primary-800">GKS</div>
+                    <div className="text-xs text-primary-700">Anbindung</div>
                   </div>
                 </div>
               </div>
