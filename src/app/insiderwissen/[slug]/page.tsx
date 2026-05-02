@@ -447,7 +447,7 @@ function BlogPostView({
                   </div>
                   <div>
                     <p className="text-sm font-bold">Direkt starten</p>
-                    <p className="text-xs text-white/60">In 5 Minuten erledigt</p>
+                    <p className="text-xs text-white/60">In wenigen Minuten erledigt</p>
                   </div>
                 </div>
 
