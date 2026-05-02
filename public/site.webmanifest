@@ -1,7 +1,7 @@
 {
   "name": "iKFZ Digital Zulassung",
   "short_name": "iKFZ",
-  "description": "KFZ online abmelden – Schnell, sicher & offiziell über KBA",
+  "description": "KFZ online abmelden – schnell, sicher und über unsere GKS-Anbindung",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
