@@ -52,7 +52,7 @@ export default function Hero({
               id="hero-title"
               className="mb-6 text-4xl font-extrabold leading-tight text-white md:text-5xl lg:text-6xl"
             >
-              Auto online abmelden in 2 Minuten
+              Auto online abmelden – schnell & offiziell
             </h1>
 
             <p className="mb-8 max-w-lg text-lg font-medium text-white/80 md:text-xl">
