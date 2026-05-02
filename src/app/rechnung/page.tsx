@@ -34,8 +34,8 @@ const CHECKOUT_FEATURES = [
   },
   {
     icon: Clock,
-    title: 'Sofort-Prüfung',
-    desc: 'Direkte Bearbeitung Ihres Auftrags',
+    title: 'Schnell geprüft',
+    desc: 'Ihr Auftrag wird direkt geprüft',
   },
 ];
 
