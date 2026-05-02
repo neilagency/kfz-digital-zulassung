@@ -615,7 +615,19 @@ export default function CityPageView({
   const productUrl = `${baseUrl}/product/fahrzeugabmeldung`;
   const videosUrl = `${baseUrl}/vedio`;
   const areaSchemaType = getAreaSchemaType(cityName, slug);
-  const extraCityContent = TOP_CITY_CONTENT[slug];
+  
+  const normalizedCitySlug = slug
+  .replace(/^kfz-online-abmelden-/, '')
+  .replace(/^auto-online-abmelden-/, '')
+  .replace(/^online-auto-abmelden-/, '')
+  .replace(/^zulassungsservice-/, '')
+  .replace(/^kfz-zulassungsstelle-/, '')
+  .replace(/^kfz-zulassung-/, '');
+
+  const extraCityContent =
+  TOP_CITY_CONTENT[slug] ||
+  TOP_CITY_CONTENT[normalizedCitySlug];
+  
   const heroCtaText = withPrice('Jetzt loslegen', pricing.abmeldungPriceFormatted);
   const compareCtaText = withPrice('Jetzt online abmelden', pricing.abmeldungPriceFormatted);
   const targetCtaText = withPrice('Jetzt online starten', pricing.abmeldungPriceFormatted);
