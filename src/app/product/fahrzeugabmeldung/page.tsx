@@ -488,7 +488,7 @@ export default async function FahrzeugabmeldungPage() {
               {[
                 {
                   q: 'Wie lange dauert Fahrzeug jetzt online abmelden?',
-                  a: 'In der Regel nur wenige Minuten – egal ob Sie ein Auto online abmelden, ein KFZ online abmelden oder ein Motorrad online abmelden. Sie erhalten die amtliche Bestätigung sofort per E-Mail oder WhatsApp.',
+                  a: 'In der Regel nur wenige Minuten – egal ob Sie ein Auto online abmelden, ein KFZ online abmelden oder ein Motorrad online abmelden. Nach erfolgreicher Bearbeitung erhalten Sie die amtliche Bestätigung bequem per E-Mail oder WhatsApp.',
                 },
                 {
                   q: 'Welche Fahrzeuge kann ich online abmelden?',
