@@ -408,7 +408,7 @@ export default async function AutoAbmeldenOnlinePage() {
                         { href: '/auto-sofort-abmelden', label: 'Auto sofort abmelden' },
                         { href: '/auto-schnell-abmelden', label: 'Auto schnell abmelden' },
                         { href: '/auto-fix-abmelden', label: 'Auto fix abmelden' },
-                        { href: '/auto-abmelden-in-2-minuten', label: 'Auto schnell online abmelden },
+                        { href: '/auto-abmelden-in-2-minuten', label: 'Auto schnell online abmelden' },
                         { href: '/auto-abmelden-ohne-ausweis', label: 'Auto abmelden ohne Ausweis' },
                         { href: '/kosten-autoabmeldung-online', label: 'Kosten Autoabmeldung online' },
                       ].map((item) => (
