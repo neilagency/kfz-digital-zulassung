@@ -33,7 +33,7 @@ import {
 
 const FAQ = dynamic(() => import('@/components/FAQ'), { ssr: true });
 
-const PAGE_TITLE = 'Auto online abmelden ab 19,70 € | Offiziell & in 2 Min.';
+const PAGE_TITLE = 'Auto online abmelden ab 19,70 € | Schnell & sicher';
 const PAGE_DESCRIPTION =
   'Auto online abmelden ab 19,70 €. Ohne Ausweis & PIN. Offizielle Bestätigung per E-Mail. Steuer & Versicherung automatisch informiert. 24/7 möglich.';
 
