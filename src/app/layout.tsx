@@ -243,13 +243,6 @@ export default async function RootLayout({
       '@id': `${siteUrl}#organization`,
     },
 
-    potentialAction: {
-      '@type': 'SearchAction',
-      target: `${siteUrl}/?s={search_term_string}`,
-      'query-input': 'required name=search_term_string',
-    },
-  };
-
   return (
     <html lang="de" className={inter.variable} suppressHydrationWarning translate="no">
       <body className={inter.className} suppressHydrationWarning>
