@@ -224,7 +224,7 @@ export default function ServiceForm({
         {/* ============ FORM HEADER ============ */}
         <div className="bg-gradient-to-r from-primary to-primary-700 px-6 md:px-10 py-6 text-white">
           <h2 className="text-xl md:text-2xl font-extrabold">
-            Jetzt Formular ausfüllen – in 2 Minuten offiziell abgemeldet
+            Jetzt Formular ausfüllen – Der digitale Ablauf ist schnell erledigt.
           </h2>
         </div>
 
