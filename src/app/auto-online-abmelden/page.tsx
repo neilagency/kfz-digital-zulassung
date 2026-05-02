@@ -508,7 +508,7 @@ export default async function AutoOnlineAbmeldenPage() {
                     },
                     {
                       icon: CheckCircle,
-                      label: 'Sofortbestätigung',
+                      label: 'Amtliche Bestätigung',
                       sub: 'Per E-Mail als PDF',
                     },
                   ].map(({ icon: Icon, label, sub }) => (
