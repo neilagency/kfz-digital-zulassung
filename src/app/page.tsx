@@ -330,17 +330,19 @@ export default async function HomePage() {
         })),
       },
       ...VIDEO_ITEMS.map((video, index) => ({
-  '@type': 'VideoObject',
-  '@id': `${baseUrl}#video-${index + 1}`,
-  name: video.title,
-  description: video.description,
-  thumbnailUrl: video.thumbnailUrl,
-  uploadDate: video.uploadDate,
-  embedUrl: video.embedUrl,
-  publisher: {
-    '@id': `${baseUrl}#organization`,
-  },
-})),
+        '@type': 'VideoObject',
+        '@id': `${baseUrl}#video-${index + 1}`,
+        name: video.title,
+        description: video.description,
+        thumbnailUrl: video.thumbnailUrl,
+        uploadDate: video.uploadDate,
+        embedUrl: video.embedUrl,
+        publisher: {
+          '@id': `${baseUrl}#organization`,
+        },
+      })),
+    ],
+  };
 
   return (
     <>

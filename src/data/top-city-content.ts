@@ -3167,7 +3167,7 @@ heidenheim: {
   conversionText: 'Die Online-Abmeldung ist besonders hilfreich bei Verkauf, Stilllegung oder Fahrzeugwechsel.',
 },
 
-heilbad-heiligenstadt: {
+'heilbad-heiligenstadt': {
   intro: 'In Heilbad Heiligenstadt möchten viele Fahrzeughalter ihr Auto schnell abmelden, ohne unnötige Wege oder Wartezeiten.',
   districts: ['Innenstadt', 'Rengelrode', 'Flinsberg', 'Kalteneber', 'Günterode', 'Petriviertel', 'Bahnhofsbereich'],
   licensePlates: ['EIC', 'HIG', 'WBS'],
@@ -3455,7 +3455,7 @@ husum: {
   conversionText: 'Die Online-Abmeldung ist besonders praktisch bei Fahrzeugverkauf, Stilllegung oder Fahrzeugwechsel.',
 },
 
-idar-oberstein: {
+'idar-oberstein': {
   intro: 'In Idar-Oberstein möchten viele Fahrzeughalter die Auto-Abmeldung schnell erledigen, ohne extra zur Zulassungsstelle fahren zu müssen.',
   districts: ['Innenstadt', 'Oberstein', 'Idar', 'Algenrodt', 'Göttschied', 'Weierbach', 'Nahbollenbach'],
   licensePlates: ['BIR'],
@@ -3482,7 +3482,7 @@ illertissen: {
   conversionText: 'Die Online-Abmeldung ist besonders bequem bei Fahrzeugverkauf, Stilllegung oder Fahrzeugwechsel.',
 },
 
-ilm-kreis: {
+'ilm-kreis': {
   intro: 'Im Ilm-Kreis möchten viele Fahrzeughalter die Auto-Abmeldung schnell erledigen, ohne lange Wege zur Zulassungsstelle einplanen zu müssen.',
   districts: ['Arnstadt', 'Ilmenau', 'Stadtilm', 'Großbreitenbach', 'Plaue', 'Gehren', 'Langewiesen'],
   licensePlates: ['IK', 'ARN', 'IL'],
@@ -3851,7 +3851,7 @@ koengen: {
   conversionText: 'Die Online-Abmeldung ist besonders praktisch bei Fahrzeugverkauf, Stilllegung oder Fahrzeugwechsel.',
 },
 
-koenigs-wusterhausen: {
+'koenigs-wusterhausen': {
   intro: 'In Königs Wusterhausen möchten viele Fahrzeughalter ihr Auto schnell abmelden, ohne lange Wege oder Wartezeiten.',
   districts: ['Königs Wusterhausen', 'Deutsch Wusterhausen', 'Zernsdorf', 'Kablow', 'Niederlehme', 'Senzig', 'Wernsdorf'],
   licensePlates: ['LDS', 'KW', 'LC', 'LN'],
@@ -3860,7 +3860,7 @@ koenigs-wusterhausen: {
   conversionText: 'Der digitale Ablauf spart Zeit und ist besonders bequem bei Verkauf, Stilllegung oder Fahrzeugwechsel.',
 },
 
-koenigsbach-stein: {
+'koenigsbach-stein': {
   intro: 'In Königsbach-Stein möchten viele Fahrzeughalter die Auto-Abmeldung schnell erledigen, ohne unnötige Behördengänge.',
   districts: ['Königsbach', 'Stein', 'Eisingen', 'Kämpfelbach', 'Ispringen', 'Keltern', 'Remchingen'],
   licensePlates: ['PF', 'ENZ'],
@@ -3986,7 +3986,7 @@ kyritz: {
   conversionText: 'Der digitale Ablauf ist besonders bequem bei Fahrzeugverkauf, Stilllegung oder Fahrzeugwechsel.',
 },
 
-lahn-dill: {
+'lahn-dill': {
   intro: 'Im Lahn-Dill-Kreis möchten viele Fahrzeughalter die Auto-Abmeldung schnell erledigen, ohne lange Wege oder Wartezeiten einzuplanen.',
   districts: ['Wetzlar', 'Dillenburg', 'Herborn', 'Haiger', 'Solms', 'Braunfels', 'Aßlar'],
   licensePlates: ['LDK', 'DIL', 'WZ'],
@@ -4724,7 +4724,7 @@ luenen: {
   conversionText: 'Die Online-Abmeldung ist besonders hilfreich bei Fahrzeugverkauf, Stilllegung oder Fahrzeugwechsel.',
 },
 
-main-spessart: {
+'main-spessart': {
   intro: 'Im Landkreis Main-Spessart möchten viele Fahrzeughalter die Auto-Abmeldung schnell erledigen, ohne lange Wege oder Wartezeiten einzuplanen.',
   districts: ['Karlstadt', 'Lohr am Main', 'Marktheidenfeld', 'Gemünden am Main', 'Arnstein', 'Rieneck', 'Zellingen'],
   licensePlates: ['MSP', 'GEM', 'LOH', 'MAR'],
@@ -4733,7 +4733,7 @@ main-spessart: {
   conversionText: 'Der digitale Ablauf ist besonders praktisch bei Fahrzeugverkauf, Stilllegung oder Fahrzeugwechsel.',
 },
 
-main-tauber: {
+'main-tauber': {
   intro: 'Im Main-Tauber-Kreis möchten viele Fahrzeughalter ihr Auto schnell abmelden, ohne lange Wartezeiten oder unnötige Behördengänge.',
   districts: ['Tauberbischofsheim', 'Bad Mergentheim', 'Wertheim', 'Lauda-Königshofen', 'Weikersheim', 'Boxberg', 'Creglingen'],
   licensePlates: ['TBB', 'MGH'],
@@ -4742,7 +4742,7 @@ main-tauber: {
   conversionText: 'Die Online-Abmeldung spart Zeit und ist besonders bequem bei Verkauf, Stilllegung oder Fahrzeugwechsel.',
 },
 
-main-tauber-kreis: {
+'main-tauber-kreis': {
   intro: 'Im Main-Tauber-Kreis möchten viele Fahrzeughalter die Auto-Abmeldung schnell erledigen, ohne extra zur Zulassungsstelle fahren zu müssen.',
   districts: ['Tauberbischofsheim', 'Bad Mergentheim', 'Wertheim', 'Lauda-Königshofen', 'Weikersheim', 'Külsheim', 'Niederstetten'],
   licensePlates: ['TBB', 'MGH'],
@@ -4769,7 +4769,7 @@ mainz: {
   conversionText: 'Der digitale Ablauf ist besonders bequem bei Fahrzeugverkauf, Stilllegung oder Fahrzeugwechsel.',
 },
 
-mainz-bingen: {
+'mainz-bingen': {
   intro: 'Im Landkreis Mainz-Bingen möchten viele Fahrzeughalter ihr Auto schnell abmelden, ohne lange Wege oder Wartezeiten.',
   districts: ['Ingelheim am Rhein', 'Bingen am Rhein', 'Nieder-Olm', 'Budenheim', 'Oppenheim', 'Nierstein', 'Bodenheim'],
   licensePlates: ['MZ', 'BIN'],
@@ -4832,7 +4832,7 @@ markdorf: {
   conversionText: 'Die Online-Abmeldung spart Zeit und ist besonders hilfreich bei Fahrzeugverkauf, Stilllegung oder Fahrzeugwechsel.',
 },
 
-maerkischer-kreis: {
+'maerkischer-kreis': {
   intro: 'Im Märkischen Kreis möchten viele Fahrzeughalter die Auto-Abmeldung schnell erledigen, ohne lange Wege oder Wartezeiten.',
   districts: ['Lüdenscheid', 'Iserlohn', 'Menden', 'Hemer', 'Plettenberg', 'Altena', 'Werdohl'],
   licensePlates: ['MK', 'IS', 'LS'],
@@ -4877,7 +4877,7 @@ mayen: {
   conversionText: 'Der digitale Ablauf ist besonders bequem bei Verkauf, Stilllegung oder Fahrzeugwechsel.',
 },
 
-mayen-koblenz: {
+'mayen-koblenz': {
   intro: 'Im Landkreis Mayen-Koblenz möchten viele Fahrzeughalter ihr Auto schnell abmelden, ohne extra zur Zulassungsstelle fahren zu müssen.',
   districts: ['Mayen', 'Andernach', 'Bendorf', 'Mendig', 'Polch', 'Mülheim-Kärlich', 'Vallendar'],
   licensePlates: ['MYK', 'MY'],
@@ -4904,7 +4904,7 @@ meckenheim: {
   conversionText: 'Die Online-Abmeldung ist besonders bequem bei Fahrzeugverkauf, Stilllegung oder Fahrzeugwechsel.',
 },
 
-mecklenburgische-seenplatte: {
+'mecklenburgische-seenplatte': {
   intro: 'Im Landkreis Mecklenburgische Seenplatte möchten viele Fahrzeughalter die Auto-Abmeldung schnell erledigen, ohne lange Wege durch die Region.',
   districts: ['Neubrandenburg', 'Waren', 'Neustrelitz', 'Demmin', 'Malchin', 'Röbel', 'Altentreptow'],
   licensePlates: ['MSE', 'AT', 'DM', 'MC', 'MÜR', 'NZ', 'RM', 'WRN'],
@@ -4976,7 +4976,7 @@ memmingen: {
   conversionText: 'Die Online-Abmeldung ist besonders praktisch bei Fahrzeugverkauf, Stilllegung oder Fahrzeugwechsel.',
 },
 
-memmingen-amendingen: {
+'memmingen-amendingen': {
   intro: 'In Memmingen-Amendingen möchten viele Fahrzeughalter die Auto-Abmeldung schnell erledigen, ohne unnötige Wege oder Wartezeiten.',
   districts: ['Amendingen', 'Memmingen-Innenstadt', 'Steinheim', 'Eisenburg', 'Buxach', 'Volkratshofen', 'Dickenreishausen'],
   licensePlates: ['MM'],
@@ -5012,7 +5012,7 @@ merzig: {
   conversionText: 'Die Online-Abmeldung ist besonders bequem bei Fahrzeugverkauf, Stilllegung oder Fahrzeugwechsel.',
 },
 
-merzig-wadern: {
+'merzig-wadern': {
   intro: 'Im Landkreis Merzig-Wadern möchten viele Fahrzeughalter die Auto-Abmeldung schnell erledigen, ohne lange Wege oder Wartezeiten.',
   districts: ['Merzig', 'Wadern', 'Losheim am See', 'Mettlach', 'Perl', 'Beckingen', 'Weiskirchen'],
   licensePlates: ['MZG'],
@@ -5084,7 +5084,7 @@ minden: {
   conversionText: 'Die Online-Abmeldung ist besonders praktisch bei Verkauf, Stilllegung oder Fahrzeugwechsel.',
 },
 
-minden-luebbecke: {
+'minden-luebbecke': {
   intro: 'Im Kreis Minden-Lübbecke möchten viele Fahrzeughalter die Auto-Abmeldung schnell erledigen, ohne lange Wege oder Wartezeiten.',
   districts: ['Minden', 'Lübbecke', 'Bad Oeynhausen', 'Porta Westfalica', 'Espelkamp', 'Petershagen', 'Stemwede'],
   licensePlates: ['MI'],
@@ -5291,7 +5291,7 @@ naumburg: {
   conversionText: 'Der digitale Ablauf ist besonders praktisch bei Fahrzeugverkauf, Stilllegung oder Fahrzeugwechsel.',
 },
 
-neckar-odenwald-kreis: {
+'neckar-odenwald-kreis': {
   intro: 'Im Neckar-Odenwald-Kreis möchten viele Fahrzeughalter die Auto-Abmeldung schnell erledigen, ohne lange Wege durch den Landkreis.',
   districts: ['Mosbach', 'Buchen', 'Adelsheim', 'Walldürn', 'Hardheim', 'Osterburken', 'Elztal'],
   licensePlates: ['MOS', 'BCH'],
@@ -5318,7 +5318,7 @@ neresheim: {
   conversionText: 'Die Online-Abmeldung ist besonders praktisch bei Fahrzeugverkauf, Stilllegung oder Fahrzeugwechsel.',
 },
 
-neu-ulm: {
+'neu-ulm': {
   intro: 'In Neu-Ulm möchten viele Fahrzeughalter ihr Auto schnell abmelden, ohne lange Wartezeiten oder unnötige Behördengänge.',
   districts: ['Neu-Ulm', 'Ludwigsfeld', 'Offenhausen', 'Pfuhl', 'Reutti', 'Burlafingen', 'Gerlenhofen'],
   licensePlates: ['NU', 'ILL'],
@@ -5345,7 +5345,7 @@ neuburg: {
   conversionText: 'Der digitale Ablauf ist besonders praktisch bei Verkauf, Stilllegung oder Fahrzeugwechsel.',
 },
 
-neuburg-schrobenhausen: {
+'neuburg-schrobenhausen': {
   intro: 'Im Landkreis Neuburg-Schrobenhausen möchten viele Fahrzeughalter die Auto-Abmeldung schnell erledigen, ohne unnötige Wege oder Wartezeiten.',
   districts: ['Neuburg an der Donau', 'Schrobenhausen', 'Burgheim', 'Rennertshofen', 'Karlshuld', 'Karlskron', 'Ehekirchen'],
   licensePlates: ['ND', 'SOB'],
@@ -5363,7 +5363,7 @@ neuenbuerg: {
   conversionText: 'Der digitale Ablauf ist besonders bequem bei Verkauf, Stilllegung oder Fahrzeugwechsel.',
 },
 
-neuenburg-am-rhein: {
+'neuenburg-am-rhein': {
   intro: 'In Neuenburg am Rhein möchten viele Fahrzeughalter die Auto-Abmeldung schnell erledigen, ohne lange Wege oder Wartezeiten.',
   districts: ['Neuenburg am Rhein', 'Grißheim', 'Steinenstadt', 'Zienken', 'Müllheim', 'Buggingen', 'Auggen'],
   licensePlates: ['FR', 'MÜL', 'NEU'],
@@ -5372,7 +5372,7 @@ neuenburg-am-rhein: {
   conversionText: 'Die Online-Abmeldung ist besonders praktisch bei Fahrzeugverkauf, Stilllegung oder Fahrzeugwechsel.',
 },
 
-neuenstadt-am-kocher: {
+'neuenstadt-am-kocher': {
   intro: 'In Neuenstadt am Kocher möchten viele Fahrzeughalter ihr Auto schnell abmelden, ohne erst einen Termin oder lange Wartezeiten einzuplanen.',
   districts: ['Neuenstadt am Kocher', 'Bürg', 'Cleversulzbach', 'Kochertürn', 'Stein am Kocher', 'Gochsen', 'Hardthausen'],
   licensePlates: ['HN'],
@@ -5381,7 +5381,7 @@ neuenstadt-am-kocher: {
   conversionText: 'Der digitale Ablauf spart Zeit und ist besonders hilfreich bei Verkauf, Stilllegung oder Fahrzeugwechsel.',
 },
 
-neuhausen-auf-den-fildern-nuertingen: {
+'neuhausen-auf-den-fildern-nuertingen': {
   intro: 'In Neuhausen auf den Fildern und Nürtingen möchten viele Fahrzeughalter die Auto-Abmeldung schnell erledigen, ohne unnötige Wege oder Wartezeiten.',
   districts: ['Neuhausen auf den Fildern', 'Nürtingen', 'Oberensingen', 'Hardt', 'Zizishausen', 'Neckarhausen', 'Raidwangen'],
   licensePlates: ['ES', 'NT'],
@@ -5390,7 +5390,7 @@ neuhausen-auf-den-fildern-nuertingen: {
   conversionText: 'Die Online-Abmeldung ist besonders bequem bei Fahrzeugverkauf, Stilllegung oder Fahrzeugwechsel.',
 },
 
-neumarkt-in-der-oberpfalz: {
+'neumarkt-in-der-oberpfalz': {
   intro: 'In Neumarkt in der Oberpfalz möchten viele Fahrzeughalter ihr Auto schnell abmelden, ohne lange Wege oder Wartezeiten.',
   districts: ['Neumarkt', 'Pölling', 'Stauf', 'Woffenbach', 'Holzheim', 'Hasenheide', 'Pelchenhofen'],
   licensePlates: ['NM', 'PAR'],
@@ -5426,7 +5426,7 @@ neuruppin: {
   conversionText: 'Die Online-Abmeldung ist besonders praktisch bei Fahrzeugverkauf, Stilllegung oder Fahrzeugwechsel.',
 },
 
-neustadt-an-der-aisch: {
+'neustadt-an-der-aisch': {
   intro: 'In Neustadt an der Aisch möchten viele Fahrzeughalter ihr Auto schnell abmelden, ohne lange Wege oder Wartezeiten.',
   districts: ['Neustadt an der Aisch', 'Birkenfeld', 'Diebach', 'Herrnneuses', 'Kleinerlbach', 'Unternesselbach', 'Schauerheim'],
   licensePlates: ['NEA', 'SEF', 'UFF'],
@@ -5435,7 +5435,7 @@ neustadt-an-der-aisch: {
   conversionText: 'Der digitale Ablauf spart Zeit und ist besonders hilfreich bei Verkauf, Stilllegung oder Fahrzeugwechsel.',
 },
 
-neustadt-an-der-waldnaab: {
+'neustadt-an-der-waldnaab': {
   intro: 'In Neustadt an der Waldnaab möchten viele Fahrzeughalter die Auto-Abmeldung schnell erledigen, ohne unnötige Behördengänge oder Wartezeiten.',
   districts: ['Neustadt an der Waldnaab', 'Mühlberg', 'Störnstein', 'Altenstadt', 'Theisseil', 'Windischeschenbach', 'Parkstein'],
   licensePlates: ['NEW', 'ESB', 'VOH'],
@@ -5444,7 +5444,7 @@ neustadt-an-der-waldnaab: {
   conversionText: 'Die Online-Abmeldung ist besonders bequem bei Fahrzeugverkauf, Stilllegung oder Fahrzeugwechsel.',
 },
 
-neustadt-an-der-weinstrasse: {
+'neustadt-an-der-weinstrasse': {
   intro: 'In Neustadt an der Weinstraße möchten viele Fahrzeughalter ihr Auto schnell abmelden, ohne erst einen Termin oder lange Wartezeiten einzuplanen.',
   districts: ['Innenstadt', 'Hambach', 'Gimmeldingen', 'Lachen-Speyerdorf', 'Diedesfeld', 'Mußbach', 'Königsbach'],
   licensePlates: ['NW'],
@@ -5480,7 +5480,7 @@ niebuell: {
   conversionText: 'Die Online-Abmeldung ist besonders praktisch bei Fahrzeugverkauf, Stilllegung oder Fahrzeugwechsel.',
 },
 
-niefern-oeschelbronn: {
+'niefern-oeschelbronn': {
   intro: 'In Niefern-Öschelbronn möchten viele Fahrzeughalter ihr Auto schnell abmelden, ohne unnötige Wege oder Wartezeiten.',
   districts: ['Niefern', 'Öschelbronn', 'Enzberg', 'Mühlacker', 'Kieselbronn', 'Eutingen', 'Wurmberg'],
   licensePlates: ['PF'],
@@ -5534,7 +5534,7 @@ noerdlingen: {
   conversionText: 'Die Online-Abmeldung ist besonders praktisch bei Fahrzeugverkauf, Stilllegung oder Fahrzeugwechsel.',
 },
 
-nordrhein-westfalen: {
+'nordrhein-westfalen': {
   intro: 'In Nordrhein-Westfalen möchten viele Fahrzeughalter ihre Auto-Abmeldung schnell erledigen, ohne lange Wege, Termine oder Wartezeiten.',
   districts: ['Köln', 'Düsseldorf', 'Dortmund', 'Essen', 'Duisburg', 'Bochum', 'Münster'],
   licensePlates: ['K', 'D', 'DO', 'E', 'DU', 'BO', 'MS'],
@@ -7802,24 +7802,6 @@ nuernberg: {
   conversionText: 'Der digitale Ablauf ist besonders bequem bei Fahrzeugverkauf, Stilllegung oder Fahrzeugwechsel.',
 },
 
-'oehringen': {
-  intro: 'In Öhringen möchten viele Fahrzeughalter ihre Auto-Abmeldung schnell erledigen, ohne extra einen Termin oder lange Wege einzuplanen.',
-  districts: ['Öhringen', 'Cappel', 'Verrenberg', 'Michelbach', 'Ohrnberg', 'Möglingen', 'Schwöllbronn'],
-  licensePlates: ['KÜN', 'ÖHR'],
-  painPoint: 'Gerade in Öhringen kosten Termine, Anfahrt und Wartezeit oft unnötig viel Zeit.',
-  authorityHint: 'Wer sein Fahrzeug mit Kennzeichen KÜN oder ÖHR abmelden möchte, kann den Vorgang online vorbereiten.',
-  conversionText: 'Die Online-Abmeldung ist besonders praktisch bei Fahrzeugverkauf, Stilllegung oder Fahrzeugwechsel.',
-},
-
-'oestringen': {
-  intro: 'In Östringen möchten viele Fahrzeughalter ihre Auto-Abmeldung schnell und ohne unnötige Wege erledigen.',
-  districts: ['Östringen', 'Odenheim', 'Tiefenbach', 'Eichelberg', 'Waldangelloch', 'Zeutern', 'Ubstadt-Weiher'],
-  licensePlates: ['KA'],
-  painPoint: 'Gerade in Östringen kosten Termine, Anfahrt und Wartezeit oft unnötig viel Zeit.',
-  authorityHint: 'Wer sein Fahrzeug mit Kennzeichen KA abmelden möchte, kann den Vorgang online vorbereiten.',
-  conversionText: 'Der digitale Ablauf ist besonders bequem bei Fahrzeugverkauf, Stilllegung oder Fahrzeugwechsel.',
-},
-
 'ueberlingen': {
   intro: 'In Überlingen möchten viele Fahrzeughalter ihre Auto-Abmeldung schnell erledigen, ohne extra zur Zulassungsstelle zu fahren.',
   districts: ['Überlingen', 'Nußdorf', 'Deisendorf', 'Bonndorf', 'Lippertsreute', 'Nesselwangen', 'Bambergen'],
@@ -7828,3 +7810,4 @@ nuernberg: {
   authorityHint: 'Wer sein Fahrzeug mit Kennzeichen FN, TT oder ÜB abmelden möchte, kann den Vorgang online vorbereiten.',
   conversionText: 'Die Online-Abmeldung ist besonders hilfreich bei Fahrzeugverkauf, Stilllegung oder Fahrzeugwechsel.',
 },
+};
