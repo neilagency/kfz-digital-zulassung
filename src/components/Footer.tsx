@@ -281,7 +281,7 @@ export default async function Footer() {
 
               <div className="flex items-center gap-2">
                 <CheckCircle className="h-4 w-4 flex-shrink-0 text-accent" />
-                <span className="text-sm text-gray-400">KBA §34 FZV registriert</span>
+                <span className="text-sm text-gray-400">GKS-Anbindung gemäß § 34 FZV</span>
               </div>
 
               <div className="flex items-center gap-2">
