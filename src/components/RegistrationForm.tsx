@@ -1261,7 +1261,7 @@ export default function RegistrationForm({
               <Lock className="w-3 h-3" /> SSL-verschlüsselt
             </span>
             <span className="flex items-center gap-1">
-              <Shield className="w-3 h-3" /> KBA-registriert
+              <Shield className="w-3 h-3" /> GKS-angebunden
             </span>
             <span className="flex items-center gap-1">
               <Phone className="w-3 h-3" /> Live-Support: {contactPhone}
