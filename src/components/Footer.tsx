@@ -145,8 +145,7 @@ export default async function Footer() {
             </p>
 
             <p className="mb-4 max-w-md text-sm leading-relaxed text-gray-400">
-              Auto online abmelden, KFZ online abmelden und Fahrzeugabmeldung digital starten –
-              bundesweit, ohne Termin und mit offizieller Bestätigung per E-Mail.
+              Fahrzeugabmeldung digital starten – bundesweit, ohne Termin und mit offizieller Bestätigung per E-Mail.
             </p>
 
             <div className="space-y-2 text-sm text-gray-400">
