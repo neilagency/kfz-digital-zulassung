@@ -31,12 +31,102 @@ interface BlogSlugPageProps {
   params: Promise<{ slug: string }>;
 }
 
-export const revalidate = 60;
+export const revalidate = 3600;
 export const dynamicParams = true;
 
 export async function generateStaticParams() {
   const slugs = await getAllPostSlugs();
   return slugs.map((slug) => ({ slug }));
+}
+
+function cleanText(value: string) {
+  return stripHtml(value || '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function buildMetaDescription(post: LocalPost) {
+  const excerpt = cleanText(post.excerpt || '');
+
+  if (excerpt) {
+    return excerpt.slice(0, 155);
+  }
+
+  const content = cleanText(post.content || '');
+  const firstSentences = content
+    .split('.')
+    .map((sentence) => sentence.trim())
+    .filter(Boolean)
+    .slice(0, 2)
+    .join('. ');
+
+  return (firstSentences ? `${firstSentences}.` : content).slice(0, 155);
+}
+
+function extractAiAnswerBox(html: string) {
+  const aiAnswerRegex =
+    /<div\b[^>]*(?:class="[^"]*\bai-answer-box\b[^"]*"|style="[^"]*(?:background:\s*#f0f9ff|border-left:\s*5px\s+solid\s+#0284c7)[^"]*")[^>]*>[\s\S]*?<\/div>/i;
+
+  const match = html.match(aiAnswerRegex);
+  const aiAnswerHtml = match?.[0] || '';
+  const contentWithoutAiAnswer = aiAnswerHtml
+    ? html.replace(aiAnswerHtml, '')
+    : html;
+
+  return {
+    aiAnswerHtml,
+    contentWithoutAiAnswer,
+  };
+}
+
+function extractFaqSchema(html: string) {
+  const faqSectionMatch =
+    html.match(/<section\b[^>]*class="[^"]*\bfaq-section\b[^"]*"[^>]*>[\s\S]*?<\/section>/i) ||
+    html.match(/<section\b[^>]*id="faq"[^>]*>[\s\S]*?<\/section>/i);
+
+  const faqSource = faqSectionMatch?.[0] || '';
+
+  if (!faqSource) return null;
+
+  const faqMatches = [
+    ...faqSource.matchAll(/<h3[^>]*>(.*?)<\/h3>\s*<p[^>]*>(.*?)<\/p>/gis),
+  ];
+
+  const mainEntity = faqMatches
+    .map(([, question, answer]) => ({
+      '@type': 'Question',
+      name: cleanText(question),
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: cleanText(answer).slice(0, 300),
+      },
+    }))
+    .filter(
+      (item) =>
+        item.name.length > 5 &&
+        item.acceptedAnswer.text.length > 10 &&
+        item.name.includes('?'),
+    )
+    .slice(0, 8);
+
+  if (mainEntity.length === 0) return null;
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity,
+  };
+}
+
+function getModifiedDate(post: LocalPost, publishDate: string | Date) {
+  if (!post.updatedAt) return publishDate;
+
+  const publishedTime = new Date(publishDate).getTime();
+  const updatedTime = new Date(post.updatedAt).getTime();
+
+  if (!Number.isFinite(updatedTime)) return publishDate;
+
+  return updatedTime > publishedTime ? post.updatedAt : publishDate;
 }
 
 export async function generateMetadata({
@@ -50,15 +140,18 @@ export async function generateMetadata({
 
   const baseMeta = buildSEOMetadata(post, settings.siteUrl);
   const canonicalUrl = `${settings.siteUrl.replace(/\/$/, '')}/insiderwissen/${slug}`;
+  const description = buildMetaDescription(post);
 
   return {
     ...baseMeta,
+    description,
     alternates: {
       canonical: canonicalUrl,
     },
     openGraph: {
       ...baseMeta.openGraph,
       url: canonicalUrl,
+      description,
     },
   };
 }
@@ -122,10 +215,7 @@ function BlogPostView({
       : normalizedFeaturedImage
     : `${baseUrl}/logo.svg`;
 
-  const metaDescription = stripHtml(post.excerpt || post.content)
-    .replace(/\s+/g, ' ')
-    .trim()
-    .slice(0, 220);
+  const metaDescription = buildMetaDescription(post);
 
   const sanitizedContent = sanitizeHtml(post.content);
 
@@ -155,7 +245,14 @@ function BlogPostView({
     },
   );
 
+  const { aiAnswerHtml, contentWithoutAiAnswer } =
+    extractAiAnswerBox(contentWithIds);
+
+  const articleContentHtml = contentWithoutAiAnswer;
+  const faqSchema = extractFaqSchema(articleContentHtml);
+
   const publishDate = post.publishedAt || post.createdAt;
+  const modifiedDate = getModifiedDate(post, publishDate);
 
   const articleSchema = {
     '@context': 'https://schema.org',
@@ -165,17 +262,16 @@ function BlogPostView({
     description: metaDescription,
     image: absoluteImageUrl,
     datePublished: new Date(publishDate).toISOString(),
-    dateModified: new Date(post.updatedAt).toISOString(),
+    dateModified: new Date(modifiedDate).toISOString(),
     inLanguage: 'de-DE',
     mainEntityOfPage: {
       '@type': 'WebPage',
       '@id': `${canonicalUrl}#webpage`,
     },
     author: {
-      '@type': 'Organization',
-      '@id': `${baseUrl}#organization`,
-      name: settings.siteName,
-      url: baseUrl,
+      '@type': 'Person',
+      name: 'Redaktion OnlineAutoAbmelden',
+      url: `${baseUrl}/ueber-uns`,
     },
     publisher: {
       '@type': 'Organization',
@@ -268,6 +364,12 @@ function BlogPostView({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
+      {faqSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+        />
+      )}
 
       <main className="pb-20">
         <section className="relative overflow-hidden bg-gradient-to-br from-dark via-primary-900 to-dark pb-12 pt-28 md:pt-32">
@@ -310,13 +412,20 @@ function BlogPostView({
               {title}
             </h1>
 
+            {aiAnswerHtml && (
+              <div
+                className="mb-6 max-w-4xl [&_*]:!text-slate-900"
+                dangerouslySetInnerHTML={{ __html: aiAnswerHtml }}
+              />
+            )}
+
             <div className="flex flex-wrap items-center gap-4">
               <Link
                 href="/product/fahrzeugabmeldung"
                 className="inline-flex items-center gap-2 rounded-full bg-accent px-6 py-3 text-sm font-bold text-primary transition-all hover:bg-accent-600 hover:shadow-lg hover:shadow-accent/20"
               >
                 <CheckCircle className="h-4 w-4" />
-                Jetzt Auto abmelden – {pricing.abmeldungPriceFormatted}
+                Fahrzeug online abmelden
               </Link>
 
               <a
@@ -332,7 +441,7 @@ function BlogPostView({
           </div>
         </section>
 
-        <div className="mx-auto mt-10 max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto mt-8 max-w-7xl px-2 sm:px-6 lg:px-8">
           <div className="flex flex-col gap-8 lg:flex-row lg:gap-10">
             <article className="min-w-0 flex-1">
               {featuredImageReady && (
@@ -349,14 +458,14 @@ function BlogPostView({
                 </div>
               )}
 
-              <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm md:p-10">
+              <div className="rounded-2xl border border-gray-100 bg-white px-4 py-6 shadow-sm sm:px-6 md:p-10">
                 <div
                   className="blog-content prose prose-lg max-w-none"
-                  dangerouslySetInnerHTML={{ __html: contentWithIds }}
+                  dangerouslySetInnerHTML={{ __html: articleContentHtml }}
                 />
               </div>
 
-              <div className="mt-8 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm md:p-8">
+              <div className="mt-8 rounded-2xl border border-gray-100 bg-white px-4 py-6 shadow-sm sm:px-6 md:p-8">
                 <div className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-center">
                   <div className="flex items-center gap-3">
                     <Share2 className="h-5 w-5 text-gray-400" />
@@ -397,7 +506,7 @@ function BlogPostView({
                 </div>
               </div>
 
-              <div className="relative mt-8 overflow-hidden rounded-2xl bg-gradient-to-br from-primary via-primary-800 to-dark p-8 text-center md:p-10">
+              <div className="relative mt-8 overflow-hidden rounded-2xl bg-gradient-to-br from-primary via-primary-800 to-dark px-4 py-8 text-center sm:px-6 md:p-10">
                 <div className="pointer-events-none absolute inset-0">
                   <div className="absolute -right-20 -top-20 h-60 w-60 rounded-full bg-accent/10 blur-3xl" />
                 </div>
@@ -565,7 +674,7 @@ function BlogPostView({
           </div>
         </div>
 
-        <div className="mx-auto mt-12 max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto mt-12 max-w-7xl px-2 sm:px-6 lg:px-8">
           <Link
             href="/insiderwissen"
             className="inline-flex items-center gap-2 font-semibold text-primary transition-colors hover:text-accent"
