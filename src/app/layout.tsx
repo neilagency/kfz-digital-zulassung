@@ -21,11 +21,14 @@ export async function generateMetadata(): Promise<Metadata> {
 
   return {
     metadataBase: new URL(siteUrl),
+
     title: {
-      default: `${s.siteName} – KFZ online abmelden – schnell & offiziell`,
-      template: `%s – ${s.siteName}`,
+      default: `${s.siteName} – KFZ online abmelden`,
+      template: `%s`,
     },
+
     description: s.siteDescription,
+
     keywords: [
       'Auto abmelden',
       'KFZ abmelden',
@@ -40,11 +43,12 @@ export async function generateMetadata(): Promise<Metadata> {
       'Online Zulassungsdienst',
       'Digitale Fahrzeugabmeldung',
     ],
+
     openGraph: {
       type: 'website',
       locale: 'de_DE',
       siteName: s.siteName,
-      title: `${s.siteName} – KFZ online abmelden – schnell & offiziell`,
+      title: `${s.siteName} – KFZ online abmelden`,
       description: s.siteDescription,
       url: siteUrl,
       images: [
@@ -56,12 +60,14 @@ export async function generateMetadata(): Promise<Metadata> {
         },
       ],
     },
+
     twitter: {
       card: 'summary_large_image',
-      title: `${s.siteName} – KFZ online abmelden – schnell & offiziell`,
+      title: `${s.siteName} – KFZ online abmelden`,
       description: s.siteDescription,
       images: [`${siteUrl}/logo.webp`],
     },
+
     icons: {
       icon: [
         { url: '/favicon.ico', sizes: '16x16 32x32 48x48' },
@@ -69,13 +75,22 @@ export async function generateMetadata(): Promise<Metadata> {
         { url: '/icon-192x192.png', sizes: '192x192', type: 'image/png' },
         { url: '/icon-512x512.png', sizes: '512x512', type: 'image/png' },
       ],
-      apple: [{ url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }],
+      apple: [
+        {
+          url: '/apple-touch-icon.png',
+          sizes: '180x180',
+          type: 'image/png',
+        },
+      ],
     },
+
     manifest: '/site.webmanifest',
+
     robots:
       process.env.NODE_ENV !== 'production' || process.env.PREVIEW_MODE
         ? { index: false, follow: false }
         : { index: true, follow: true },
+
     other: {
       google: 'notranslate',
     },
@@ -227,9 +242,11 @@ export default async function RootLayout({
                     }
                   }
                 }
+
                 window.addEventListener('error', function(e) {
                   handleChunkError(e.message || (e.target && e.target.src) || '');
                 }, true);
+
                 window.addEventListener('unhandledrejection', function(e) {
                   handleChunkError(e.reason && (e.reason.message || String(e.reason)) || '');
                 });
