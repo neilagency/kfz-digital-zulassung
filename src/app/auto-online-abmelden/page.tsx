@@ -198,7 +198,7 @@ export default async function AutoOnlineAbmeldenPage() {
 
               <div className="flex flex-wrap gap-3">
                 {[
-                  'Sofortige Abmelde-Bestätigung',
+                  'Amtliche Bestätigung',
                   'GKS-Anbindung gemäß § 34 FZV',
                   '24/7 – auch am Wochenende',
                 ].map((item) => (
