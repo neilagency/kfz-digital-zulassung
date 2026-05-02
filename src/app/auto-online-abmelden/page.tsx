@@ -19,14 +19,14 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: 'Auto online abmelden – sofort & offiziell ab 19,70 €',
     description:
-      'Auto online abmelden in wenigen Minuten – ohne Termin, ohne Wartezeit. Offiziell über das KBA. Jetzt starten ab 19,70 € inkl. Bestätigung per E-Mail.',
+      'Auto online abmelden in wenigen Minuten – ohne Termin, ohne Wartezeit. Über unsere GKS-Anbindung. Jetzt starten ab 19,70 € inkl. Bestätigung per E-Mail.',
     alternates: {
       canonical: `${settings.siteUrl}/auto-online-abmelden`,
     },
     openGraph: {
       title: 'Auto online abmelden – sofort & offiziell ab 19,70 €',
       description:
-        'Auto online abmelden in wenigen Minuten – ohne Termin, ohne Wartezeit. Offiziell über das KBA. Jetzt starten ab 19,70 € inkl. Bestätigung per E-Mail.',
+        'Auto online abmelden in wenigen Minuten – ohne Termin, ohne Wartezeit. Über unsere GKS-Anbindung. Jetzt starten ab 19,70 € inkl. Bestätigung per E-Mail.',
       url: `${settings.siteUrl}/auto-online-abmelden`,
       siteName: settings.siteName,
       type: 'website',
@@ -35,7 +35,7 @@ export async function generateMetadata(): Promise<Metadata> {
       card: 'summary_large_image',
       title: 'Auto online abmelden – sofort & offiziell ab 19,70 €',
       description:
-        'Auto online abmelden in wenigen Minuten – ohne Termin, ohne Wartezeit. Offiziell über das KBA. Jetzt starten ab 19,70 € inkl. Bestätigung per E-Mail.',
+        'Auto online abmelden in wenigen Minuten – ohne Termin, ohne Wartezeit. Über unsere GKS-Anbindung. Jetzt starten ab 19,70 € inkl. Bestätigung per E-Mail.',
     },
   };
 }
@@ -199,7 +199,7 @@ export default async function AutoOnlineAbmeldenPage() {
               <div className="flex flex-wrap gap-3">
                 {[
                   'Sofortige Abmelde-Bestätigung',
-                  '100% KBA-registrierter Service',
+                  'GKS-Anbindung gemäß § 34 FZV',
                   '24/7 – auch am Wochenende',
                 ].map((item) => (
                   <span
@@ -387,7 +387,7 @@ export default async function AutoOnlineAbmeldenPage() {
                   <div className="inline-flex items-center gap-2 bg-white/10 rounded-full px-4 py-1.5 mb-5">
                     <Shield className="w-4 h-4 text-accent" />
                     <span className="text-white/90 text-sm font-medium">
-                      Offiziell über das KBA
+                      Über unsere GKS-Anbindung
                     </span>
                   </div>
 
@@ -498,7 +498,7 @@ export default async function AutoOnlineAbmeldenPage() {
                   {[
                     {
                       icon: Shield,
-                      label: 'KBA-registrierter Service',
+                      label: 'GKS-angebundenes Verfahren',
                       sub: 'Offiziell & rechtssicher',
                     },
                     {
