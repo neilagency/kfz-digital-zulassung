@@ -1,5 +1,5 @@
 # Online Auto Abmelden
-> KFZ online abmelden in 2 Minuten – offiziell über das KBA
+> KFZ online abmelden in wenigen Minuten – über unsere GKS-Anbindung an das Kraftfahrt-Bundesamt (KBA)
 
 ## Über uns
 Online Auto Abmelden ist ein digitaler Service für die offizielle Online-Fahrzeugabmeldung in Deutschland.
