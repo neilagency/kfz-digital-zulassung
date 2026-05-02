@@ -1773,8 +1773,6 @@ export default function CityPageView({
         )}
 
         {orderedSections
-
-        {orderedSections
           .filter(
             (sectionKey) =>
               CITY_AUTHORITY_HUBS_ENABLED || sectionKey !== 'authorityHubs',
