@@ -19,12 +19,14 @@ export async function generateMetadata(): Promise<Metadata> {
   const s = await getSiteSettings();
   const siteUrl = stripTrailingSlash(s.siteUrl);
 
+  const defaultTitle = `${s.siteName} – KFZ online abmelden`;
+
   return {
     metadataBase: new URL(siteUrl),
 
     title: {
-      default: `${s.siteName} – KFZ online abmelden`,
-      template: `%s`,
+      default: defaultTitle,
+      template: '%s',
     },
 
     description: s.siteDescription,
@@ -48,14 +50,14 @@ export async function generateMetadata(): Promise<Metadata> {
       type: 'website',
       locale: 'de_DE',
       siteName: s.siteName,
-      title: `${s.siteName} – KFZ online abmelden`,
+      title: defaultTitle,
       description: s.siteDescription,
       url: siteUrl,
       images: [
         {
           url: `${siteUrl}/logo.webp`,
-          width: 1920,
-          height: 1080,
+          width: 1200,
+          height: 630,
           alt: `${s.siteName} – KFZ online abmelden`,
         },
       ],
@@ -63,7 +65,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
     twitter: {
       card: 'summary_large_image',
-      title: `${s.siteName} – KFZ online abmelden`,
+      title: defaultTitle,
       description: s.siteDescription,
       images: [`${siteUrl}/logo.webp`],
     },
@@ -127,10 +129,6 @@ export default async function RootLayout({
       'Digitaler Zulassungsdienst',
       'Online Zulassungsdienst',
       'KFZ Zulassungsservice',
-      'Auto online abmelden',
-      'KFZ online abmelden',
-      'Fahrzeug online abmelden',
-      'Kfz-Abmeldung online',
     ],
     url: siteUrl,
     logo: {
@@ -162,9 +160,6 @@ export default async function RootLayout({
       },
     ],
     knowsAbout: [
-      'Auto online abmelden',
-      'KFZ online abmelden',
-      'Fahrzeug online abmelden',
       'Digitale Fahrzeugabmeldung',
       'i-Kfz',
       'Sicherheitscode Fahrzeugschein',
@@ -193,11 +188,6 @@ export default async function RootLayout({
     inLanguage: 'de-DE',
     publisher: {
       '@id': `${siteUrl}#organization`,
-    },
-    potentialAction: {
-      '@type': 'SearchAction',
-      target: `${siteUrl}/?s={search_term_string}`,
-      'query-input': 'required name=search_term_string',
     },
   };
 
@@ -234,8 +224,16 @@ export default async function RootLayout({
             __html: `
               if (typeof window !== 'undefined') {
                 function handleChunkError(msg) {
-                  if (msg && (msg.indexOf('ChunkLoadError') !== -1 || msg.indexOf('Loading chunk') !== -1 || msg.indexOf('Loading CSS chunk') !== -1)) {
+                  if (
+                    msg &&
+                    (
+                      msg.indexOf('ChunkLoadError') !== -1 ||
+                      msg.indexOf('Loading chunk') !== -1 ||
+                      msg.indexOf('Loading CSS chunk') !== -1
+                    )
+                  ) {
                     var reloaded = sessionStorage.getItem('chunk_reload');
+
                     if (!reloaded) {
                       sessionStorage.setItem('chunk_reload', '1');
                       window.location.reload();
@@ -248,7 +246,9 @@ export default async function RootLayout({
                 }, true);
 
                 window.addEventListener('unhandledrejection', function(e) {
-                  handleChunkError(e.reason && (e.reason.message || String(e.reason)) || '');
+                  handleChunkError(
+                    e.reason && (e.reason.message || String(e.reason)) || ''
+                  );
                 });
               }
             `,
