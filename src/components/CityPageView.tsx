@@ -255,7 +255,12 @@ function formatOfferPrice(price: string): string {
   const cleaned = price.replace(/[^\d,]/g, '').replace(',', '.');
   return cleaned || '0';
 }
-  function getAreaSchemaType(cityName: string, slug: string): 'City' | 'AdministrativeArea' {
+  function formatOfferPrice(price: string): string {
+  const cleaned = price.replace(/[^\d,]/g, '').replace(',', '.');
+  return cleaned || '0';
+}
+
+function getAreaSchemaType(cityName: string, slug: string): 'City' | 'AdministrativeArea' {
   const normalizedName = normalizeCompareText(cityName);
   const normalizedSlug = slug.toLowerCase();
 
@@ -763,7 +768,7 @@ export default function CityPageView({
         telephone: authority.telefon || undefined,
         email: authority.email || undefined,
         areaServed: {
-          '@type': 'City',
+          '@type': areaSchemaType,
           name: cityName,
         },
       }
