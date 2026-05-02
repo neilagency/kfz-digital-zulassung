@@ -55,6 +55,46 @@ const nextConfig = {
         destination: '/kfz-zulassung-abmeldung-in-deiner-stadt',
         permanent: true,
       },
+       {
+        source: '/anhaenger-abmelden-online',
+        destination: '/product/fahrzeugabmeldung',
+        permanent: true,
+      },
+      {
+        source: '/anhaenger-abmelden-online/:path*',
+        destination: '/product/fahrzeugabmeldung',
+        permanent: true,
+      },
+      {
+        source: '/lkw-abmelden-online',
+        destination: '/product/fahrzeugabmeldung',
+        permanent: true,
+      },
+      {
+        source: '/lkw-abmelden-online/:path*',
+        destination: '/product/fahrzeugabmeldung',
+        permanent: true,
+      },
+      {
+        source: '/muhelos-abmelden',
+        destination: '/product/fahrzeugabmeldung',
+        permanent: true,
+      },
+      {
+        source: '/muhelos-abmelden/:path*',
+        destination: '/product/fahrzeugabmeldung',
+        permanent: true,
+      },
+      {
+        source: '/nuertingen',
+        destination: '/kfz-zulassung-abmeldung-in-deiner-stadt',
+        permanent: true,
+      },
+      {
+        source: '/nuertingen/:path*',
+        destination: '/kfz-zulassung-abmeldung-in-deiner-stadt',
+        permanent: true,
+      },
       {
         source: '/kfz-abmeldung',
         destination: '/product/fahrzeugabmeldung',
@@ -414,9 +454,9 @@ const nextConfig = {
         destination: '/wohnmobil-abmelden',
         permanent: true,
       },
-      {
+            {
         source: '/lkw-abmelden-online/:id(\\d+)',
-        destination: '/lkw-abmelden-online',
+        destination: '/product/fahrzeugabmeldung',
         permanent: true,
       },
 
