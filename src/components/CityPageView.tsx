@@ -255,7 +255,8 @@ function formatOfferPrice(price: string): string {
   const cleaned = price.replace(/[^\d,]/g, '').replace(',', '.');
   return cleaned || '0';
 }
-  function formatOfferPrice(price: string): string {
+
+function getAreaSchemaType(cityName: string, slug: string): 'City' | 'AdministrativeArea' {
   const cleaned = price.replace(/[^\d,]/g, '').replace(',', '.');
   return cleaned || '0';
 }
