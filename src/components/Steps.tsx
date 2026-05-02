@@ -11,7 +11,7 @@ export default function Steps() {
             Online-Auto abmelden – in 6 Schritten
           </h2>
           <p className="text-gray-600 max-w-2xl mx-auto">
-            Der gesamte Prozess dauert nur 2 Minuten. Kein Termin, keine Registrierung nötig.
+            Der digitale Ablauf ist schnell erledigt. Kein Termin, keine Registrierung nötig.
           </p>
         </div>
 
