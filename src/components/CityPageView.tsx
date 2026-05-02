@@ -692,7 +692,6 @@ export default function CityPageView({
     ],
     availableChannel: {
       '@type': 'ServiceChannel',
-      serviceType: 'Online',
       serviceUrl: productUrl,
       availableLanguage: ['de', 'ar', 'tr', 'en'],
     },
