@@ -255,7 +255,23 @@ function formatOfferPrice(price: string): string {
   const cleaned = price.replace(/[^\d,]/g, '').replace(',', '.');
   return cleaned || '0';
 }
+  function getAreaSchemaType(cityName: string, slug: string): 'City' | 'AdministrativeArea' {
+  const normalizedName = normalizeCompareText(cityName);
+  const normalizedSlug = slug.toLowerCase();
 
+  const isArea =
+    normalizedName.includes('kreis') ||
+    normalizedName.includes('landkreis') ||
+    normalizedName.includes('rheinland pfalz') ||
+    normalizedName.includes('nordrhein westfalen') ||
+    normalizedName.includes('baden wurttemberg') ||
+    normalizedSlug.includes('kreis') ||
+    normalizedSlug.startsWith('landkreis-') ||
+    normalizedSlug.startsWith('in-') ||
+    normalizedSlug.startsWith('landkreise-');
+
+  return isArea ? 'AdministrativeArea' : 'City';
+}
 function withPrice(label: string, price: string): string {
   return label.includes('€') ? label : `${label} – ${price}`;
 }
@@ -596,7 +612,7 @@ export default function CityPageView({
   const cityPageUrl = `${baseUrl}/${slug}`;
   const productUrl = `${baseUrl}/product/fahrzeugabmeldung`;
   const videosUrl = `${baseUrl}/vedio`;
-
+  const areaSchemaType = getAreaSchemaType(cityName, slug);
   const heroCtaText = withPrice('Jetzt loslegen', pricing.abmeldungPriceFormatted);
   const compareCtaText = withPrice('Jetzt online abmelden', pricing.abmeldungPriceFormatted);
   const targetCtaText = withPrice('Jetzt online starten', pricing.abmeldungPriceFormatted);
@@ -604,73 +620,7 @@ export default function CityPageView({
 
   const faqSchema = buildFaqSchema(faqItems);
 
-  const organizationSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'Organization',
-    '@id': `${baseUrl}#organization`,
-    name: settings.siteName || 'Online Auto Abmelden',
-    legalName: 'iKFZ Digital Zulassung UG (haftungsbeschränkt)',
-    alternateName: [
-      'Online Auto Abmelden',
-      'iKFZ Digital Zulassung',
-      'iKfz Digitalzulassung',
-      'KFZ Digital Zulassung',
-      'Digitaler Zulassungsdienst',
-      'Online Zulassungsdienst',
-      'KFZ Zulassungsservice',
-      'Auto online abmelden',
-      'KFZ online abmelden',
-      'Fahrzeug online abmelden',
-      'Kfz-Abmeldung online',
-    ],
-    url: baseUrl,
-    logo: {
-      '@type': 'ImageObject',
-      url: `${baseUrl}/logo.svg`,
-    },
-    image: `${baseUrl}/logo.svg`,
-    email: settings.email,
-    telephone: settings.phone?.replace(/\s+/g, '') || '+4915224999190',
-    areaServed: {
-      '@type': 'Country',
-      name: 'Deutschland',
-    },
-    contactPoint: [
-      {
-        '@type': 'ContactPoint',
-        telephone: '+4915224999190',
-        email: settings.email,
-        contactType: 'customer support',
-        areaServed: 'DE',
-        availableLanguage: ['de', 'ar', 'tr', 'en'],
-      },
-      {
-        '@type': 'ContactPoint',
-        telephone: '+4915224999190',
-        contactType: 'WhatsApp support',
-        areaServed: 'DE',
-        availableLanguage: ['de', 'ar', 'tr', 'en'],
-      },
-    ],
-    knowsAbout: [
-      'Auto online abmelden',
-      'KFZ online abmelden',
-      'Fahrzeug online abmelden',
-      'Digitale Fahrzeugabmeldung',
-      'i-Kfz',
-      'Sicherheitscode Fahrzeugschein',
-      'Sicherheitscode Kennzeichen',
-      'Zulassungsservice',
-      'Zulassungsdienst',
-    ],
-    sameAs: [
-      'https://www.facebook.com/ikfzdigitalzulassung',
-      'https://www.instagram.com/ikfz_digital_zulassung/',
-      'https://www.youtube.com/@ikfzdigitalzulassung',
-      'https://www.tiktok.com/@meldino_kfz',
-    ],
-  };
-
+  
   const serviceSchema = {
     '@context': 'https://schema.org',
     '@type': 'Service',
@@ -705,7 +655,7 @@ export default function CityPageView({
     },
     areaServed: [
       {
-        '@type': 'City',
+        '@type': areaSchemaType,
         name: cityName,
       },
       ...(input.state
@@ -1425,10 +1375,7 @@ export default function CityPageView({
 
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
-      />
+      
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(webPageSchema) }}
