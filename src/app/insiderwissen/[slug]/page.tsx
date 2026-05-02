@@ -535,7 +535,7 @@ function BlogPostView({
                   {[
                     {
                       icon: Shield,
-                      label: 'KBA-registrierter Service',
+                      label: 'GKS-angebundenes Verfahren',
                       sub: 'Offiziell & rechtssicher',
                     },
                     {
@@ -545,7 +545,7 @@ function BlogPostView({
                     },
                     {
                       icon: CheckCircle,
-                      label: 'Sofortbestätigung',
+                      label: 'Offizielle Bestätigung',
                       sub: 'Per E-Mail als PDF',
                     },
                   ].map(({ icon: Icon, label, sub }) => (
