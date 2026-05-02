@@ -9,13 +9,61 @@
 import DOMPurify from 'isomorphic-dompurify';
 
 /**
+ * Fix broken WordPress thumbnail URLs.
+ * Converts old WordPress thumbnail URLs (e.g., image-1024x576.jpeg) to original URLs.
+ *
+ * Pattern: {filename}-{number}x{number}.{ext} -> {filename}.{ext}
+ * Example: /uploads/wp/2024/01/WhatsApp-Image-2024-01-06-at-3.21.48-PM-1024x576.jpeg
+ *          -> /uploads/wp/2024/01/WhatsApp-Image-2024-01-06-at-3.21.48-PM.jpeg
+ *
+ * Also handles: {filename}-{digit}-{number}x{number}.{ext} -> {filename}-{digit}.{ext}
+ * Example: /uploads/wp/2024/01/WhatsApp-Image-2024-01-06-at-3.21.48-PM-1-1260x708.jpeg
+ *          -> /uploads/wp/2024/01/WhatsApp-Image-2024-01-06-at-3.21.48-PM-1.jpeg
+ */
+function fixWordPressImageUrls(html: string): string {
+  if (!html) return html;
+
+  // First handle WebP variants: image-1024x576.jpeg.webp -> image.jpeg
+  let result = html.replace(
+    /(\/uploads\/wp\/\d{4}\/\d{2}\/[^"'\s<>]+)-(\d+ x \d+|\d+x\d+)\.(jpeg|jpg|png|gif)\.webp/gi,
+    (match, basePath, dimensions, ext) => {
+      const numberedMatch = basePath.match(/-([12])$/);
+      if (numberedMatch) {
+        return `${basePath}.${ext}`;
+      }
+      return `${basePath}.${ext}`;
+    }
+  );
+
+  // Then handle regular images: image-1024x576.jpeg -> image.jpeg
+  result = result.replace(
+    /(\/uploads\/wp\/\d{4}\/\d{2}\/[^"'\s<>]+)-(\d+ x \d+|\d+x\d+)\.(jpeg|jpg|png|webp|gif)/gi,
+    (match, basePath, dimensions, ext) => {
+      const numberedMatch = basePath.match(/-([12])$/);
+      if (numberedMatch) {
+        // It's a numbered variant like image-1-1260x708.jpeg -> keep the -1
+        return `${basePath}.${ext}`;
+      }
+      // Regular case: image-1024x576.jpeg -> image.jpeg
+      return `${basePath}.${ext}`;
+    }
+  );
+
+  return result;
+}
+
+/**
  * Sanitize HTML content, allowing safe tags used in blog/CMS content.
  * Strips scripts, event handlers, and dangerous attributes.
+ * Also fixes broken WordPress thumbnail URLs.
  */
 export function sanitizeHtml(dirty: string): string {
   if (!dirty) return '';
 
-  return DOMPurify.sanitize(dirty, {
+  // First fix broken WordPress image URLs
+  const fixedHtml = fixWordPressImageUrls(dirty);
+
+  return DOMPurify.sanitize(fixedHtml, {
     // Allow standard HTML tags used in blog/page content
     ALLOWED_TAGS: [
       // Structure
