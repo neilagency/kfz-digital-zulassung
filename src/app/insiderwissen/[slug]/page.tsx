@@ -406,7 +406,7 @@ function BlogPostView({
                   <div className="mb-5 inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5">
                     <Shield className="h-4 w-4 text-accent" />
                     <span className="text-sm font-medium text-white/90">
-                      Offiziell über das KBA
+                      GKS-angebundenes Verfahren
                     </span>
                   </div>
 
