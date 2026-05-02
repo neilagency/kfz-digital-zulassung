@@ -7,7 +7,7 @@ export const SITE_URL =
     ? 'https://onlineautoabmelden.com'
     : _rawSiteUrl.replace(/\/$/, '');
 export const SITE_DESCRIPTION =
-  'Auto online abmelden in 2 Minuten – KFZ online abmelden · Ohne Termin · Ohne Registrierung · Offizielle Bestätigung';
+  'Auto online abmelden schnell & einfach – KFZ online abmelden · Ohne Termin · Ohne Registrierung · Offizielle Bestätigung';
 export const PHONE_NUMBER = '01522 4999190';
 export const PHONE_LINK = 'tel:015224999190';
 export const WHATSAPP_LINK = 'https://wa.me/4915224999190';
@@ -45,7 +45,7 @@ export const FAQ_ITEMS = [
   {
     question: 'Wie lange dauert die Abmeldung?',
     answer:
-      'Die Abmeldung dauert in der Regel nur 2 Minuten. Sie erhalten Ihre offizielle Bestätigung sofort als PDF per E-Mail.',
+      'Die Abmeldung dauert in der Regel nur 2 Minuten. Sie erhalten Ihre offizielle Bestätigung nach erfolgreicher Bearbeitung per E-Mail.',
   },
   {
     question: 'Was passiert mit meiner Kfz-Steuer?',
@@ -105,7 +105,7 @@ export const STEPS = [
   {
     number: 5,
     title: 'Wir prüfen & reichen ein',
-    description: 'Wir erledigen die offizielle Abmeldung für Sie – direkt beim KBA.',
+    description: 'Wir erledigen die offizielle Abmeldung für Sie – über unsere GKS-Anbindung.',
     note: 'Bei Fehlern oder Rückfragen melden wir uns sofort per WhatsApp oder Telefon.',
   },
   {
