@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import {
@@ -13,41 +14,47 @@ import {
   MapPin,
   BookOpen,
 } from 'lucide-react';
-import { getFooterPages, getSiteSettings, getPaymentMethodLabels } from '@/lib/db';
+import { getSiteSettings, getPaymentMethodLabels } from '@/lib/db';
 
 export default async function Footer() {
-  const [footerPages, settings, paymentMethods] = await Promise.all([
-    getFooterPages(),
+  const [settings, paymentMethods] = await Promise.all([
     getSiteSettings(),
     getPaymentMethodLabels(),
   ]);
 
   const quickLinks = [
-  { label: 'KFZ sofort abmelden', href: '/product/fahrzeugabmeldung' },
-  { label: 'Auto online anmelden', href: '/product/auto-online-anmelden' },
-  { label: 'Alle Städte', href: '/kfz-zulassung-abmeldung-in-deiner-stadt' },
-  { label: 'Blog / Insiderwissen', href: '/insiderwissen' },
-  { label: 'FAQ / Hilfe', href: '/#faq' },
-  { label: 'Unsere Videos', href: '/vedio' },
+    { label: 'KFZ sofort abmelden', href: '/product/fahrzeugabmeldung' },
+    { label: 'Auto online anmelden', href: '/product/auto-online-anmelden' },
+    { label: 'Alle Städte', href: '/kfz-zulassung-abmeldung-in-deiner-stadt' },
+    { label: 'Blog / Insiderwissen', href: '/insiderwissen' },
+    { label: 'FAQ / Hilfe', href: '/#faq' },
+    { label: 'Unsere Videos', href: '/vedio' },
+    { label: 'eVB-Nummer', href: '/evb' },
 
-  // Rechtliches – wichtig gegen Orphan Pages
-  { label: 'Impressum', href: '/impressum' },
-  { label: 'Datenschutzhinweise', href: '/datenschutzhinweise' },
-  { label: 'Widerrufsbelehrung', href: '/widerrufsbelehrung' },
-  { label: 'Geschäftsbedingungen', href: '/geschaftsbedingungen' },
-  { label: 'AGB', href: '/allgemeine-geschaeftsbedingungen' },
-];
+    // Rechtliches – gegen Orphan Pages
+    { label: 'Impressum', href: '/impressum' },
+    { label: 'Datenschutzhinweise', href: '/datenschutzhinweise' },
+    { label: 'Widerrufsbelehrung', href: '/widerrufsbelehrung' },
+    { label: 'Geschäftsbedingungen', href: '/geschaftsbedingungen' },
+    { label: 'AGB', href: '/allgemeine-geschaeftsbedingungen' },
+  ];
 
   const seoLinks = [
     { label: 'Auto online abmelden', href: '/product/fahrzeugabmeldung' },
     { label: 'KFZ online abmelden', href: '/product/fahrzeugabmeldung' },
     { label: 'Fahrzeug online abmelden', href: '/product/fahrzeugabmeldung' },
     { label: 'Zulassungsservice online', href: '/product/auto-online-anmelden' },
-    { label: 'Sicherheitscode Hilfe', href: '/insiderwissen/wo-ist-der-7-stellige-sicherheitscode-im-fahrzeugschein' },
-    { label: 'Kosten der Online-Abmeldung', href: '/insiderwissen/auto-online-abmelden-kosten-2026' },
+    {
+      label: 'Sicherheitscode Hilfe',
+      href: '/insiderwissen/wo-ist-der-7-stellige-sicherheitscode-im-fahrzeugschein',
+    },
+    {
+      label: 'Kosten der Online-Abmeldung',
+      href: '/insiderwissen/auto-online-abmelden-kosten-2026',
+    },
   ];
 
-  const socialIcons: Record<string, React.ReactNode> = {
+  const socialIcons: Record<string, ReactNode> = {
     facebook: (
       <svg viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4">
         <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
@@ -79,6 +86,7 @@ export default async function Footer() {
     const key = method.toLowerCase();
 
     if (key.includes('paypal')) return <Wallet className="h-4 w-4" />;
+
     if (
       key.includes('kredit') ||
       key.includes('credit') ||
@@ -88,8 +96,10 @@ export default async function Footer() {
     ) {
       return <CreditCard className="h-4 w-4" />;
     }
+
     if (key.includes('klarna')) return <CreditCard className="h-4 w-4" />;
     if (key.includes('apple')) return <Apple className="h-4 w-4" />;
+
     if (key.includes('bank') || key.includes('überw') || key.includes('sepa')) {
       return <Landmark className="h-4 w-4" />;
     }
@@ -151,7 +161,8 @@ export default async function Footer() {
             </p>
 
             <p className="mb-4 max-w-md text-sm leading-relaxed text-gray-400">
-              Fahrzeugabmeldung digital starten – bundesweit, ohne Termin und mit offizieller Bestätigung per E-Mail.
+              Fahrzeugabmeldung digital starten – bundesweit, ohne Termin und mit offizieller
+              Bestätigung per E-Mail.
             </p>
 
             <div className="space-y-2 text-sm text-gray-400">
