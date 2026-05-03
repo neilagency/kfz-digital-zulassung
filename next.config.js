@@ -110,11 +110,6 @@ const nextConfig = {
         destination: '/product/fahrzeugabmeldung',
         permanent: true,
       },
-       {
-        source: '/auto-fix-abmelden',
-        destination: '/product/fahrzeugabmeldung',
-        permanent: true,
-      },
       {
         source: '/auto-fix-abmelden/',
         destination: '/product/fahrzeugabmeldung',
