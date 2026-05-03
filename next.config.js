@@ -162,7 +162,7 @@ const nextConfig = {
       },
       {
         source: '/kann-ich-mein-fahrzeug-angemeldet-ubergeben',
-        destination: '/auto-verkaufen',
+        destination: '/insiderwissen',
         permanent: true,
       },
       {
