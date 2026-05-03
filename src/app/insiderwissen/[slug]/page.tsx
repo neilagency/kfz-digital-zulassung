@@ -89,7 +89,7 @@ function extractFaqSchema(html: string) {
   if (!faqSource) return null;
 
   const faqMatches = [
-    ...faqSource.matchAll(/<h3[^>]*>(.*?)<\/h3>\s*<p[^>]*>(.*?)<\/p>/gis),
+    ...faqSource.matchAll(/<h3[^>]*>([\s\S]*?)<\/h3>\s*<p[^>]*>([\s\S]*?)<\/p>/gi),
   ];
 
   const mainEntity = faqMatches
