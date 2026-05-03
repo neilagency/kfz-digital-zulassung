@@ -132,12 +132,12 @@ const nextConfig = {
       },
       {
         source: '/online-zulassung-kfz/46',
-        destination: '/online-zulassung-kfz',
+        destination: '/product/auto-online-anmelden',
         permanent: true,
       },
       {
         source: '/auto-abmelden-ohne-termin/3',
-        destination: '/auto-abmelden-ohne-termin',
+        destination: '/product/fahrzeugabmeldung',
         permanent: true,
       },
       {
@@ -157,7 +157,7 @@ const nextConfig = {
       },
       {
         source: '/online-kfz-abmelden/23',
-        destination: '/online-kfz-abmelden',
+        destination: '/product/fahrzeugabmeldung',
         permanent: true,
       },
       {
@@ -496,12 +496,12 @@ const nextConfig = {
       },
       {
         source: '/online-zulassung-kfz/:id(\\d+)',
-        destination: '/online-zulassung-kfz',
+        destination: '/product/auto-online-anmelden',
         permanent: true,
       },
       {
         source: '/online-kfz-abmelden/:id(\\d+)',
-        destination: '/online-kfz-abmelden',
+        destination: '/product/fahrzeugabmeldung',
         permanent: true,
       },
       {
@@ -818,7 +818,7 @@ const nextConfig = {
       },
       {
         source: '/auto-verkaufen-tuev-pflicht',
-        destination: '/auto-verkaufen',
+        destination: '/insiderwissen',
         permanent: true,
       },
       {
@@ -848,7 +848,7 @@ const nextConfig = {
       },
       {
         source: '/ikfz-kosten-preise',
-        destination: '/online-zulassung-kfz',
+        destination: '/product/auto-online-anmelden',
         permanent: true,
       },
       {
@@ -903,7 +903,12 @@ const nextConfig = {
       },
       {
         source: '/kann-ich-mein-fahrzeug-angemeldet-ubergeben',
-        destination: '/auto-verkaufen',
+        destination: '/insiderwissen',
+        permanent: true,
+      },
+      {
+        source: '/erklaervideo',
+        destination: '/vedio',
         permanent: true,
       },
       {
