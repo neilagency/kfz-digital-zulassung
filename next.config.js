@@ -669,12 +669,12 @@ const nextConfig = {
       },
       {
         source: '/kuenzelsau-2',
-        destination: '/kuenzelsau',
+        destination: '/auto-online-abmelden-in-kuenzelsau',
         permanent: true,
       },
       {
         source: '/kuenzelsau-3',
-        destination: '/kuenzelsau',
+        destination: '/auto-online-abmelden-in-kuenzelsau',
         permanent: true,
       },
       {
@@ -817,6 +817,51 @@ const nextConfig = {
         permanent: true,
       },
       {
+  source: '/auto-verkaufen',
+  destination: '/insiderwissen',
+  permanent: true,
+},
+{
+  source: '/online-kfz-abmelden',
+  destination: '/product/fahrzeugabmeldung',
+  permanent: true,
+},
+{
+  source: '/online-zulassung-kfz',
+  destination: '/product/auto-online-anmelden',
+  permanent: true,
+},
+{
+  source: '/auto-abmelden-ohne-termin',
+  destination: '/product/fahrzeugabmeldung',
+  permanent: true,
+},
+{
+  source: '/wohnmobil-abmelden',
+  destination: '/product/fahrzeugabmeldung',
+  permanent: true,
+},
+{
+  source: '/motorrad-abmelden-online',
+  destination: '/product/fahrzeugabmeldung',
+  permanent: true,
+},
+{
+  source: '/kurzzeitkennzeichen',
+  destination: '/product/auto-online-anmelden',
+  permanent: true,
+},
+{
+  source: '/kurzzeitkennzeichen-lkw',
+  destination: '/product/auto-online-anmelden',
+  permanent: true,
+},
+{
+  source: '/anhaenger-abmelden',
+  destination: '/product/fahrzeugabmeldung',
+  permanent: true,
+},
+      {
         source: '/auto-verkaufen-tuev-pflicht',
         destination: '/insiderwissen',
         permanent: true,
@@ -899,11 +944,6 @@ const nextConfig = {
       {
         source: '/was-benotige-ich-fur-eine-autoanmeldung',
         destination: '/insiderwissen/was-benoetige-ich-fuer-ein-autoanmeldung',
-        permanent: true,
-      },
-      {
-        source: '/kann-ich-mein-fahrzeug-angemeldet-ubergeben',
-        destination: '/insiderwissen',
         permanent: true,
       },
       {
@@ -1081,7 +1121,7 @@ const nextConfig = {
       },
       {
         source: '/:slug/:id(\\d+)',
-        destination: '/:slug',
+        destination: '/product/fahrzeugabmeldung',
         permanent: true,
       },
     ];
