@@ -23,14 +23,20 @@ export default async function Footer() {
   ]);
 
   const quickLinks = [
-    { label: 'KFZ sofort abmelden', href: '/product/fahrzeugabmeldung' },
-    { label: 'Auto online anmelden', href: '/product/auto-online-anmelden' },
-    { label: 'Alle Städte', href: '/kfz-zulassung-abmeldung-in-deiner-stadt' },
-    { label: 'Blog / Insiderwissen', href: '/insiderwissen' },
-    { label: 'FAQ / Hilfe', href: '/#faq' },
-    { label: 'Unsere Videos', href: '/vedio' },
-    ...footerPages.map((fp) => ({ label: fp.title, href: '/' + fp.slug })),
-  ];
+  { label: 'KFZ sofort abmelden', href: '/product/fahrzeugabmeldung' },
+  { label: 'Auto online anmelden', href: '/product/auto-online-anmelden' },
+  { label: 'Alle Städte', href: '/kfz-zulassung-abmeldung-in-deiner-stadt' },
+  { label: 'Blog / Insiderwissen', href: '/insiderwissen' },
+  { label: 'FAQ / Hilfe', href: '/#faq' },
+  { label: 'Unsere Videos', href: '/vedio' },
+
+  // Rechtliches – wichtig gegen Orphan Pages
+  { label: 'Impressum', href: '/impressum' },
+  { label: 'Datenschutzhinweise', href: '/datenschutzhinweise' },
+  { label: 'Widerrufsbelehrung', href: '/widerrufsbelehrung' },
+  { label: 'Geschäftsbedingungen', href: '/geschaftsbedingungen' },
+  { label: 'AGB', href: '/allgemeine-geschaeftsbedingungen' },
+];
 
   const seoLinks = [
     { label: 'Auto online abmelden', href: '/product/fahrzeugabmeldung' },
