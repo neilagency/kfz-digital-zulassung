@@ -127,7 +127,7 @@ const nextConfig = {
       },
       {
         source: '/kurzzeitkennzeichen/49',
-        destination: '/kurzzeitkennzeichen',
+        destination: '/product/auto-online-anmelden',
         permanent: true,
       },
       {
@@ -142,12 +142,12 @@ const nextConfig = {
       },
       {
         source: '/anhaenger-abmelden-2/4',
-        destination: '/anhaenger-abmelden',
+        destination: '/product/fahrzeugabmeldung',
         permanent: true,
       },
       {
         source: '/anhaenger-abmelden-2/31',
-        destination: '/anhaenger-abmelden',
+        destination: '/product/fahrzeugabmeldung',
         permanent: true,
       },
       {
@@ -192,27 +192,27 @@ const nextConfig = {
       },
       {
         source: '/rotes-kennzeichen-beantragen',
-        destination: '/kurzzeitkennzeichen',
+        destination: '/product/auto-online-anmelden',
         permanent: true,
       },
       {
         source: '/anhaenger-abmelden-2',
-        destination: '/anhaenger-abmelden',
+        destination: '/product/fahrzeugabmeldung',
         permanent: true,
       },
       {
         source: '/anhaenger-abmelden-2/:path*',
-        destination: '/anhaenger-abmelden',
+        destination: '/product/fahrzeugabmeldung',
         permanent: true,
       },
       {
         source: '/kurzzeitkennzeichen/:path*',
-        destination: '/kurzzeitkennzeichen',
+        destination: '/product/auto-online-anmelden',
         permanent: true,
       },
       {
         source: '/kurzzeitkennzeichen-lkw/:path*',
-        destination: '/kurzzeitkennzeichen-lkw',
+        destination: '/product/auto-online-anmelden',
         permanent: true,
       },
 
@@ -511,12 +511,12 @@ const nextConfig = {
       },
       {
         source: '/motorrad-abmelden-online/:id(\\d+)',
-        destination: '/motorrad-abmelden-online',
+        destination: '/product/fahrzeugabmeldung',
         permanent: true,
       },
       {
         source: '/wohnmobil-abmelden/:id(\\d+)',
-        destination: '/wohnmobil-abmelden',
+        destination: '/product/fahrzeugabmeldung',
         permanent: true,
       },
             {
@@ -858,7 +858,7 @@ const nextConfig = {
       },
       {
         source: '/kfz-online-abmelden-2-0',
-        destination: '/kfz-abmelden-online',
+        destination: '/product/fahrzeugabmeldung',
         permanent: true,
       },
       {
@@ -883,7 +883,7 @@ const nextConfig = {
       },
       {
         source: '/kfz-zulassung',
-        destination: '/kfz-zulassung-online',
+        destination: '/product/auto-online-anmelden',
         permanent: true,
       },
       {
@@ -1071,12 +1071,12 @@ const nextConfig = {
       // -----------------------------
       {
         source: '/auto-abmelden/:id(\\d+)',
-        destination: '/auto-abmelden',
+        destination: '/product/fahrzeugabmeldung',
         permanent: true,
       },
       {
         source: '/anhaenger-abmelden/:id(\\d+)',
-        destination: '/anhaenger-abmelden',
+        destination: '/product/fahrzeugabmeldung',
         permanent: true,
       },
       {
