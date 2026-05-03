@@ -110,6 +110,71 @@ const nextConfig = {
         destination: '/product/fahrzeugabmeldung',
         permanent: true,
       },
+       {
+        source: '/auto-fix-abmelden',
+        destination: '/product/fahrzeugabmeldung',
+        permanent: true,
+      },
+      {
+        source: '/auto-fix-abmelden/',
+        destination: '/product/fahrzeugabmeldung',
+        permanent: true,
+      },
+      {
+        source: '/baden-wuerttemberg',
+        destination: '/kfz-zulassung-abmeldung-in-deiner-stadt',
+        permanent: true,
+      },
+      {
+        source: '/kurzzeitkennzeichen/49',
+        destination: '/kurzzeitkennzeichen',
+        permanent: true,
+      },
+      {
+        source: '/online-zulassung-kfz/46',
+        destination: '/online-zulassung-kfz',
+        permanent: true,
+      },
+      {
+        source: '/auto-abmelden-ohne-termin/3',
+        destination: '/auto-abmelden-ohne-termin',
+        permanent: true,
+      },
+      {
+        source: '/anhaenger-abmelden-2/4',
+        destination: '/anhaenger-abmelden',
+        permanent: true,
+      },
+      {
+        source: '/anhaenger-abmelden-2/31',
+        destination: '/anhaenger-abmelden',
+        permanent: true,
+      },
+      {
+        source: '/kfz-anmelden/3',
+        destination: '/product/auto-online-anmelden',
+        permanent: true,
+      },
+      {
+        source: '/online-kfz-abmelden/23',
+        destination: '/online-kfz-abmelden',
+        permanent: true,
+      },
+      {
+        source: '/kann-ich-mein-fahrzeug-angemeldet-ubergeben',
+        destination: '/auto-verkaufen',
+        permanent: true,
+      },
+      {
+        source: '/kfz-online-anmelden',
+        destination: '/product/auto-online-anmelden',
+        permanent: true,
+      },
+      {
+        source: '/$',
+        destination: '/',
+        permanent: true,
+      },
       {
         source: '/kosten-autoabmeldung-online',
         destination: '/insiderwissen/was-kostet-auto-abmelden-online-vs-zulassungsstelle',
