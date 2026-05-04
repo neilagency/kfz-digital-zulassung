@@ -9,20 +9,22 @@ import {
   CheckCircle,
   ArrowRight,
   FileCheck,
+  Languages,
+  Users,
 } from 'lucide-react';
 import { getSiteSettings, getHomepagePricing } from '@/lib/db';
 
 export const metadata: Metadata = {
   title: 'Über uns | OnlineAutoAbmelden.com',
   description:
-    'OnlineAutoAbmelden.com ist ein deutscher Online-Service für digitale Fahrzeugabmeldung und Fahrzeugzulassung. Erfahren Sie, wer hinter dem Service steht.',
+    'OnlineAutoAbmelden.com ist ein deutscher Online-Service für digitale Fahrzeugabmeldung. Betrieben von der iKFZ Digital Zulassung UG.',
   alternates: {
     canonical: 'https://onlineautoabmelden.com/ueber-uns',
   },
   openGraph: {
     title: 'Über uns | OnlineAutoAbmelden.com',
     description:
-      'OnlineAutoAbmelden.com unterstützt Kunden in Deutschland bei der digitalen Fahrzeugabmeldung und Fahrzeugzulassung.',
+      'OnlineAutoAbmelden.com unterstützt Fahrzeughalter in Deutschland bei der digitalen Fahrzeugabmeldung – einfach, verständlich und offiziell.',
     url: 'https://onlineautoabmelden.com/ueber-uns',
     type: 'website',
   },
@@ -43,7 +45,7 @@ export default async function UeberUnsPage() {
     url: `${baseUrl}/ueber-uns`,
     name: 'Über uns',
     description:
-      'OnlineAutoAbmelden.com ist ein deutscher Online-Service für digitale Fahrzeugabmeldung und Fahrzeugzulassung.',
+      'OnlineAutoAbmelden.com ist ein deutscher Online-Service für digitale Fahrzeugabmeldung.',
     inLanguage: 'de-DE',
     isPartOf: {
       '@type': 'WebSite',
@@ -56,34 +58,11 @@ export default async function UeberUnsPage() {
     },
   };
 
-  const organizationSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'Organization',
-    '@id': `${baseUrl}#organization`,
-    name: 'OnlineAutoAbmelden.com',
-    url: baseUrl,
-    logo: `${baseUrl}/logo.svg`,
-    description:
-      'OnlineAutoAbmelden.com ist ein deutscher Online-Service für digitale Fahrzeugabmeldung und Fahrzeugzulassung. Der Service unterstützt Kunden bei der Online-Abmeldung von Fahrzeugen, Sicherheitscodes und digitalen Zulassungsprozessen.',
-    areaServed: 'DE',
-    serviceType: 'Fahrzeugabmeldung online',
-    contactPoint: {
-      '@type': 'ContactPoint',
-      contactType: 'customer service',
-      telephone: settings.phone,
-      availableLanguage: 'German',
-    },
-  };
-
   return (
     <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(aboutPageSchema) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
       />
 
       <main className="bg-gray-50 pb-20">
@@ -105,9 +84,9 @@ export default async function UeberUnsPage() {
 
             <p className="mt-6 max-w-3xl text-lg leading-8 text-white/70">
               OnlineAutoAbmelden.com ist ein deutscher Online-Service für die digitale
-              Fahrzeugabmeldung und Fahrzeugzulassung. Unser Ziel ist es, Kunden in
-              Deutschland eine einfache, verständliche und schnelle Lösung rund um
-              Online-Abmeldung, Sicherheitscodes und digitale Zulassungsprozesse zu bieten.
+              Fahrzeugabmeldung. Unser Ziel ist es, Fahrzeughaltern in Deutschland
+              eine einfache, verständliche und schnelle Lösung für die Online-Abmeldung
+              zu bieten – ohne Termin, ohne Wartezeit und ohne Behördengang.
             </p>
 
             <div className="mt-8 flex flex-wrap gap-4">
@@ -179,23 +158,34 @@ export default async function UeberUnsPage() {
 
             <div className="space-y-5 text-lg leading-8 text-gray-700">
               <p>
-                OnlineAutoAbmelden.com unterstützt Kunden dabei, ihr Fahrzeug digital
-                abzumelden. Der Service richtet sich an Menschen, die eine einfache
-                Alternative zum komplizierten Behördenweg suchen und den Vorgang online
-                beauftragen möchten.
+                OnlineAutoAbmelden.com wird betrieben von der iKFZ Digital Zulassung UG
+                (haftungsbeschränkt), die seit 2024 Fahrzeughaltern in Deutschland bei
+                der digitalen Fahrzeugabmeldung hilft. Unsere Hauptplattform{' '}
+                <a
+                  href="https://ikfzdigitalzulassung.de"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-semibold text-primary hover:text-accent"
+                >
+                  ikfzdigitalzulassung.de
+                </a>{' '}
+                bietet zusätzlich die vollständige Online-Zulassung an.
+                OnlineAutoAbmelden.com ist speziell auf die schnelle und unkomplizierte
+                Online-Abmeldung ausgerichtet.
               </p>
 
               <p>
-                Viele Kunden haben Fragen zu Sicherheitscodes im Fahrzeugschein,
-                Kennzeichen-Codes, Online-Abmeldung, Bestätigung per E-Mail oder zum
-                Ablauf nach der Abmeldung. Genau dafür stellen wir verständliche
-                Ratgeber, persönliche Hilfe und einen klaren digitalen Prozess bereit.
+                Die Fahrzeugabmeldung erfolgt über eine GKS-Anbindung gemäß §34 FZV –
+                rechtssicher, offiziell und direkt mit dem Kraftfahrt-Bundesamt verbunden.
+                Kunden erhalten nach erfolgreicher Bearbeitung die offizielle Bestätigung
+                per E-Mail als PDF.
               </p>
 
               <p>
-                Unser Anspruch ist: Die Fahrzeugabmeldung soll verständlich, transparent
-                und für jeden gut nutzbar sein – auch ohne komplizierte technische
-                Begriffe.
+                Seit unserer Gründung haben wir tausenden Fahrzeughaltern in Deutschland
+                geholfen, ihr Fahrzeug schnell und unkompliziert online abzumelden –
+                ohne Behördengang, ohne lange Wartezeiten und ohne komplizierte
+                technische Begriffe.
               </p>
             </div>
 
@@ -204,24 +194,101 @@ export default async function UeberUnsPage() {
                 Unser Service kurz erklärt
               </h3>
               <ul className="space-y-3 text-gray-700">
-                <li className="flex gap-3">
-                  <CheckCircle className="mt-1 h-5 w-5 flex-shrink-0 text-primary" />
-                  Digitale Fahrzeugabmeldung deutschlandweit
-                </li>
-                <li className="flex gap-3">
-                  <CheckCircle className="mt-1 h-5 w-5 flex-shrink-0 text-primary" />
-                  Abmeldung ab {pricing.abmeldungPriceFormatted}
-                </li>
-                <li className="flex gap-3">
-                  <CheckCircle className="mt-1 h-5 w-5 flex-shrink-0 text-primary" />
-                  Hilfe bei Sicherheitscodes und typischen Eingabefehlern
-                </li>
-                <li className="flex gap-3">
-                  <CheckCircle className="mt-1 h-5 w-5 flex-shrink-0 text-primary" />
-                  Persönliche Unterstützung per Telefon und WhatsApp
-                </li>
+                {[
+                  'Digitale Fahrzeugabmeldung deutschlandweit',
+                  `Abmeldung ab ${pricing.abmeldungPriceFormatted}`,
+                  'GKS-angebunden gemäß §34 FZV – offiziell und rechtssicher',
+                  'Offizielle Bestätigung per E-Mail als PDF',
+                  '24/7 verfügbar – kein Termin nötig',
+                  'Hilfe bei Sicherheitscodes und typischen Eingabefehlern',
+                  'Persönliche Unterstützung per Telefon und WhatsApp',
+                  'Mehrsprachiger Support – Deutsch, Arabisch, Türkisch, Englisch',
+                  'Seit 2024 aktiv – tausende erfolgreiche Abmeldungen',
+                ].map((item) => (
+                  <li key={item} className="flex gap-3">
+                    <CheckCircle className="mt-1 h-5 w-5 flex-shrink-0 text-primary" />
+                    <span>{item}</span>
+                  </li>
+                ))}
               </ul>
             </div>
+          </div>
+        </section>
+
+        <section className="mx-auto mt-10 max-w-5xl px-4 sm:px-6 lg:px-8">
+          <div className="rounded-3xl border border-gray-100 bg-white px-5 py-8 shadow-sm sm:px-8 md:p-12">
+            <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-accent/10">
+              <Users className="h-6 w-6 text-accent" />
+            </div>
+
+            <p className="mb-3 text-sm font-bold uppercase tracking-wider text-primary">
+              Unsere Redaktion
+            </p>
+
+            <h2 className="mb-5 text-3xl font-extrabold text-gray-900 md:text-4xl">
+              Geprüfte Ratgeber rund um die Online-Abmeldung
+            </h2>
+
+            <div className="space-y-5 text-lg leading-8 text-gray-700">
+              <p>
+                Unsere Ratgeber werden von unserem Team geprüft und regelmäßig
+                aktualisiert. Alle Inhalte basieren auf den aktuellen gesetzlichen
+                Vorgaben zur digitalen Fahrzeugabmeldung gemäß §34 FZV.
+              </p>
+
+              <p>
+                Wenn sich Gesetze oder Abläufe ändern, passen wir unsere Artikel
+                zeitnah an – damit Nutzer immer aktuelle und verlässliche Informationen
+                erhalten.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <section className="mx-auto mt-10 max-w-5xl px-4 sm:px-6 lg:px-8">
+          <div className="rounded-3xl border border-gray-100 bg-white px-5 py-8 shadow-sm sm:px-8 md:p-12">
+            <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
+              <Languages className="h-6 w-6 text-primary" />
+            </div>
+
+            <p className="mb-3 text-sm font-bold uppercase tracking-wider text-primary">
+              Zwei Plattformen – ein Team
+            </p>
+
+            <h2 className="mb-5 text-3xl font-extrabold text-gray-900 md:text-4xl">
+              Digitale Fahrzeugservices aus einer Hand
+            </h2>
+
+            <p className="mb-6 text-lg leading-8 text-gray-700">
+              Die iKFZ Digital Zulassung UG betreibt zwei spezialisierte
+              Online-Plattformen für digitale Fahrzeugservices in Deutschland:
+            </p>
+
+            <div className="grid gap-5 md:grid-cols-2">
+              <div className="rounded-2xl border border-gray-100 bg-gray-50 p-6">
+                <h3 className="mb-2 text-xl font-extrabold text-gray-900">
+                  OnlineAutoAbmelden.com
+                </h3>
+                <p className="text-gray-700">
+                  Spezialisiert auf die schnelle digitale Fahrzeugabmeldung ab{' '}
+                  {pricing.abmeldungPriceFormatted}.
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-gray-100 bg-gray-50 p-6">
+                <h3 className="mb-2 text-xl font-extrabold text-gray-900">
+                  ikfzdigitalzulassung.de
+                </h3>
+                <p className="text-gray-700">
+                  Hauptplattform für digitale Fahrzeugabmeldung und Fahrzeuganmeldung.
+                </p>
+              </div>
+            </div>
+
+            <p className="mt-6 text-lg leading-8 text-gray-700">
+              Beide Plattformen nutzen dieselbe GKS-Anbindung und bieten denselben
+              persönlichen Support per Telefon und WhatsApp.
+            </p>
           </div>
         </section>
 
@@ -234,7 +301,10 @@ export default async function UeberUnsPage() {
               <p className="leading-7 text-gray-700">
                 Viele Probleme bei der Online-Abmeldung entstehen durch falsch gelesene
                 Sicherheitscodes, unklare Unterlagen oder komplizierte Behördenportale.
-                Unsere Ratgeber erklären diese Themen einfach und Schritt für Schritt.
+                Unsere Ratgeber erklären diese Themen einfach und Schritt für Schritt –
+                auf Deutsch, Arabisch, Türkisch und Englisch. Unser Support-Team steht
+                zusätzlich persönlich per WhatsApp und Telefon zur Verfügung – kostenlos
+                und ohne Warteschleife.
               </p>
               <Link
                 href="/insiderwissen"
@@ -284,6 +354,22 @@ export default async function UeberUnsPage() {
                 </a>
               </div>
             </div>
+          </div>
+        </section>
+
+        <section className="mx-auto mt-10 max-w-5xl px-4 sm:px-6 lg:px-8">
+          <div className="rounded-3xl border border-gray-100 bg-white px-5 py-8 text-center shadow-sm sm:px-8">
+            <p className="text-lg leading-8 text-gray-700">
+              Für An- und Abmeldungen besuchen Sie auch unsere Hauptplattform:{' '}
+              <a
+                href="https://ikfzdigitalzulassung.de"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-extrabold text-primary hover:text-accent"
+              >
+                ikfzdigitalzulassung.de
+              </a>
+            </p>
           </div>
         </section>
 
