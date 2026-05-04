@@ -29,18 +29,69 @@ export const revalidate = 60;
 export async function generateMetadata(): Promise<Metadata> {
   const product = await getProductBySlug('fahrzeugabmeldung');
   const settings = await getSiteSettings();
+
+  const baseUrl = settings.siteUrl.replace(/\/$/, '');
+  const canonicalUrl = `${baseUrl}/product/fahrzeugabmeldung`;
+
   const price = product?.price?.toFixed(2).replace('.', ',') ?? '19,70';
-  const rawTitle = product?.metaTitle || `Fahrzeugabmeldung – ab ${price} € abmelden`;
-  const title = rawTitle.length > 46 ? rawTitle.slice(0, 45).replace(/\s+\S*$/, '') + '…' : rawTitle;
+
+  const rawTitle =
+    product?.metaTitle || `Fahrzeug online abmelden – offiziell ab ${price} €`;
+
+  const title =
+    rawTitle.length > 60
+      ? rawTitle.slice(0, 59).replace(/\s+\S*$/, '') + '…'
+      : rawTitle;
+
+  const description =
+    product?.metaDescription ||
+    'Fahrzeug online abmelden ab 19,70 €. Ohne Termin, ohne Wartezeit. Offizielle Bestätigung per E-Mail. Bundesweit digital möglich.';
+
+  const ogTitle =
+    product?.ogTitle || `Fahrzeug online abmelden – ab ${price} €`;
+
+  const ogDescription =
+    product?.ogDescription ||
+    'Auto online abmelden schnell, einfach und bundesweit. Offizielle Bestätigung nach erfolgreicher Bearbeitung per E-Mail.';
+
+  const ogImage = product?.ogImage
+    ? product.ogImage.startsWith('http')
+      ? product.ogImage
+      : `${baseUrl}${product.ogImage.startsWith('/') ? product.ogImage : `/${product.ogImage}`}`
+    : `${baseUrl}/logo.webp`;
+
   return {
+    metadataBase: new URL(baseUrl),
     title,
-    description: product?.metaDescription || 'KFZ online abmelden schnell & einfach. Ohne Termin, ohne Registrierung. Offizielle Bestätigung per E-Mail. Bundesweit gültig.',
-    alternates: { canonical: `${settings.siteUrl}/product/fahrzeugabmeldung` },
+    description,
+    alternates: {
+      canonical: canonicalUrl,
+    },
+    robots: {
+      index: true,
+      follow: true,
+    },
     openGraph: {
-      title: product?.ogTitle || `Fahrzeugabmeldung online – nur ${price} €`,
-      description: product?.ogDescription || 'Auto online abmelden schnell & einfach. Bundesweit gültig.',
-      url: `${settings.siteUrl}/product/fahrzeugabmeldung`,
-      images: [{ url: product?.ogImage || `${settings.siteUrl}/logo.webp`, width: 1920, height: 1080, alt: 'Fahrzeugabmeldung online' }],
+      title: ogTitle,
+      description: ogDescription,
+      url: canonicalUrl,
+      siteName: settings.siteName,
+      type: 'website',
+      locale: 'de_DE',
+      images: [
+        {
+          url: ogImage,
+          width: 1920,
+          height: 1080,
+          alt: 'Fahrzeug online abmelden – Online Auto Abmelden',
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: ogTitle,
+      description: ogDescription,
+      images: [ogImage],
     },
   };
 }
