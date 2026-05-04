@@ -121,31 +121,6 @@ const nextConfig = {
         permanent: true,
       },
       {
-        source: '/kurzzeitkennzeichen/49',
-        destination: '/product/auto-online-anmelden',
-        permanent: true,
-      },
-      {
-        source: '/online-zulassung-kfz/46',
-        destination: '/product/auto-online-anmelden',
-        permanent: true,
-      },
-      {
-        source: '/auto-abmelden-ohne-termin/3',
-        destination: '/product/fahrzeugabmeldung',
-        permanent: true,
-      },
-      {
-        source: '/anhaenger-abmelden-2/4',
-        destination: '/product/fahrzeugabmeldung',
-        permanent: true,
-      },
-      {
-        source: '/anhaenger-abmelden-2/31',
-        destination: '/product/fahrzeugabmeldung',
-        permanent: true,
-      },
-      {
         source: '/kfz-anmelden/3',
         destination: '/product/auto-online-anmelden',
         permanent: true,
@@ -202,11 +177,6 @@ const nextConfig = {
 },
 {
   source: '/auto-digital-abmelden/:path*',
-  destination: '/product/fahrzeugabmeldung',
-  permanent: true,
-},
-{
-  source: '/abmeldung-digital/:path*',
   destination: '/product/fahrzeugabmeldung',
   permanent: true,
 },
@@ -987,7 +957,7 @@ const nextConfig = {
       // -----------------------------
       {
         source: '/sicherheitscode-kennzeichen-freilegen',
-        destination: '/insiderwissen/sicherheitscode',
+        destination: '/insiderwissen/sicherheitscode-kennzeichen-freilegen-richtig',
         permanent: true,
       },
       {
@@ -1017,7 +987,7 @@ const nextConfig = {
       },
       {
         source: '/zulassungsstelle',
-        destination: '/insiderwissen/zulassungsstelle',
+        destination: '/insiderwissen/zulassungsstelle-online-abmelden',
         permanent: true,
       },
       {
