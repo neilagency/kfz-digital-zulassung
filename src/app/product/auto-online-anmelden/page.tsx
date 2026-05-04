@@ -263,7 +263,7 @@ export default async function AutoOnlineAnmeldenPage() {
         },
         availableChannel: {
           '@type': 'ServiceChannel',
-          serviceType: 'Online',
+          name: 'Online-Service',
           serviceUrl: pageUrl,
           availableLanguage: ['de', 'ar', 'tr', 'en'],
         },
