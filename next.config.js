@@ -181,6 +181,36 @@ const nextConfig = {
         permanent: true,
       },
       {
+  source: '/motorrad-online-abmelden/:path*',
+  destination: '/product/fahrzeugabmeldung',
+  permanent: true,
+},
+{
+  source: '/fahrzeug-abmelden-online/:path*',
+  destination: '/product/fahrzeugabmeldung',
+  permanent: true,
+},
+{
+  source: '/kfz-abmeldung-online/:path*',
+  destination: '/product/fahrzeugabmeldung',
+  permanent: true,
+},
+{
+  source: '/pkw-online-abmelden/:path*',
+  destination: '/product/fahrzeugabmeldung',
+  permanent: true,
+},
+{
+  source: '/auto-digital-abmelden/:path*',
+  destination: '/product/fahrzeugabmeldung',
+  permanent: true,
+},
+{
+  source: '/abmeldung-digital/:path*',
+  destination: '/product/fahrzeugabmeldung',
+  permanent: true,
+},
+      {
         source: '/online-auto-anmelden',
         destination: '/product/auto-online-anmelden',
         permanent: true,
