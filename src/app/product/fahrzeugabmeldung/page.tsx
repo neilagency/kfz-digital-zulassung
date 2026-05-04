@@ -99,7 +99,7 @@ export default async function FahrzeugabmeldungPage() {
   },
   availableChannel: {
     '@type': 'ServiceChannel',
-    serviceType: 'Online',
+    name: 'Online-Service',
     serviceUrl: `${settings.siteUrl}/product/fahrzeugabmeldung`,
     availableLanguage: ['de', 'ar', 'tr', 'en'],
   },
