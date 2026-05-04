@@ -219,9 +219,14 @@ function BlogPostView({
 
   const sanitizedContent = sanitizeHtml(post.content);
 
-  const contentWithLazyImages = sanitizedContent.replace(
-    /<img\b(?![^>]*\bloading\s*=)([^>]*?)(\s*\/?>)/gi,
-    '<img loading="lazy" decoding="async"$1$2',
+  const contentWithoutH1 = sanitizedContent.replace(
+    /<h1([^>]*)>([\s\S]*?)<\/h1>/gi,
+    '<h2$1>$2</h2>',
+  );
+
+  const contentWithLazyImages = contentWithoutH1.replace(
+  /<img\b(?![^>]*\bloading\s*=)([^>]*?)(\s*\/?>)/gi,
+  '<img loading="lazy" decoding="async"$1$2',
   );
 
   const contentWithIds = contentWithLazyImages.replace(
