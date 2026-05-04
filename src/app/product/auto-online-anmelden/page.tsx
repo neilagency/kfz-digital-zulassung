@@ -34,6 +34,9 @@ export async function generateMetadata(): Promise<Metadata> {
   const product = await getProductBySlug('auto-online-anmelden');
   const settings = await getSiteSettings();
 
+  const baseUrl = settings.siteUrl.replace(/\/$/, '');
+  const canonicalUrl = `${baseUrl}/product/auto-online-anmelden`;
+
   const options = (() => {
     try {
       return JSON.parse(product?.options || '[]');
@@ -43,52 +46,67 @@ export async function generateMetadata(): Promise<Metadata> {
   })();
 
   const lowestPrice =
-    options.length > 0 ? Math.min(...options.map((o: any) => o.price)) : 124.7;
+    options.length > 0 ? Math.min(...options.map((o: any) => o.price)) : 99.7;
 
   const priceStr = lowestPrice.toFixed(2).replace('.', ',');
-  const rawTitle = product?.metaTitle || `Auto Online Anmelden – ab ${priceStr} €`;
+
+  const rawTitle =
+    product?.metaTitle || `Auto online anmelden – ab ${priceStr} €`;
 
   const title =
-    rawTitle.length > 46
-      ? rawTitle.slice(0, 45).replace(/\s+\S*$/, '') + '…'
+    rawTitle.length > 60
+      ? rawTitle.slice(0, 59).replace(/\s+\S*$/, '') + '…'
       : rawTitle;
 
+  const description =
+    product?.metaDescription ||
+    'Fahrzeug online anmelden, ummelden oder wieder zulassen. Digital vorbereitet, persönliche Hilfe per WhatsApp und bundesweit nutzbar.';
+
+  const ogTitle =
+    product?.ogTitle || `Auto online anmelden – ab ${priceStr} €`;
+
+  const ogDescription =
+    product?.ogDescription ||
+    'Fahrzeug online anmelden, ummelden oder wieder zulassen. Digital vorbereitet, bundesweit nutzbar und mit persönlicher Hilfe.';
+
+  const ogImage = product?.ogImage
+    ? product.ogImage.startsWith('http')
+      ? product.ogImage
+      : `${baseUrl}${product.ogImage.startsWith('/') ? product.ogImage : `/${product.ogImage}`}`
+    : `${baseUrl}/logo.webp`;
+
   return {
+    metadataBase: new URL(baseUrl),
     title,
-    description:
-      product?.metaDescription ||
-      'Fahrzeug jetzt online anmelden in 5 Minuten. 10-Tage-Zulassungsbestätigung sofort per PDF. Ohne Termin, ohne Behördengang. Bundesweit gültig.',
+    description,
     alternates: {
-      canonical: `${settings.siteUrl}/product/auto-online-anmelden`,
+      canonical: canonicalUrl,
     },
     robots: {
       index: true,
       follow: true,
     },
     openGraph: {
-      title: product?.ogTitle || `Auto Online Anmelden – KFZ Zulassung ab ${priceStr} €`,
-      description:
-        product?.ogDescription ||
-        'Fahrzeug jetzt online anmelden – Sofort-PDF, losfahren, Siegel per Post.',
-      url: `${settings.siteUrl}/product/auto-online-anmelden`,
+      title: ogTitle,
+      description: ogDescription,
+      url: canonicalUrl,
+      siteName: settings.siteName,
       type: 'website',
       locale: 'de_DE',
       images: [
         {
-          url: product?.ogImage || `${settings.siteUrl}/logo.webp`,
+          url: ogImage,
           width: 1920,
           height: 1080,
-          alt: 'Auto online anmelden',
+          alt: 'Auto online anmelden – Online Auto Abmelden',
         },
       ],
     },
     twitter: {
       card: 'summary_large_image',
-      title: product?.ogTitle || `Auto Online Anmelden – KFZ Zulassung ab ${priceStr} €`,
-      description:
-        product?.ogDescription ||
-        'Fahrzeug jetzt online anmelden – Sofort-PDF, losfahren, Siegel per Post.',
-      images: [product?.ogImage || `${settings.siteUrl}/logo.webp`],
+      title: ogTitle,
+      description: ogDescription,
+      images: [ogImage],
     },
     other: {
       'next-size-adjust': '',
@@ -149,165 +167,104 @@ export default async function AutoOnlineAnmeldenPage() {
 
   const fmt = (n: number) => n.toFixed(2).replace('.', ',');
 
-  const pageUrl = `${settings.siteUrl}/product/auto-online-anmelden`;
+  const baseUrl = settings.siteUrl.replace(/\/$/, '');
+  const pageUrl = `${baseUrl}/product/auto-online-anmelden`;
 
   const structuredData = {
-    '@context': 'https://schema.org',
-    '@graph': [
-      {
-        '@type': 'Organization',
-        '@id': `${settings.siteUrl}#organization`,
-        name: settings.siteName || 'Online Auto Abmelden',
-        legalName: 'iKFZ Digital Zulassung UG (haftungsbeschränkt)',
-        alternateName: [
-          'Online Auto Abmelden',
-          'iKFZ Digital Zulassung',
-          'iKfz Digitalzulassung',
-          'KFZ Digital Zulassung',
-          'Digitaler Zulassungsdienst',
-          'Online Zulassungsdienst',
-          'KFZ Zulassungsservice',
-          'Auto online anmelden',
-          'KFZ online anmelden',
-          'Fahrzeug online anmelden',
-          'Kfz-Zulassung online',
-        ],
-        url: settings.siteUrl,
-        logo: `${settings.siteUrl}/logo.svg`,
-        image: `${settings.siteUrl}/logo.svg`,
-        email: settings.email,
-        telephone: '+4915224999190',
-        areaServed: {
-          '@type': 'Country',
-          name: 'Deutschland',
-        },
-        contactPoint: [
-          {
-            '@type': 'ContactPoint',
-            telephone: '+4915224999190',
-            email: settings.email,
-            contactType: 'customer support',
-            areaServed: 'DE',
-            availableLanguage: ['de', 'ar', 'tr', 'en'],
-          },
-        ],
-        sameAs: [
-          'https://www.facebook.com/ikfzdigitalzulassung',
-          'https://www.instagram.com/ikfz_digital_zulassung/',
-          'https://www.youtube.com/@ikfzdigitalzulassung',
-          'https://www.tiktok.com/@meldino_kfz',
-        ],
-      },
-      {
-        '@type': 'WebPage',
-        '@id': `${pageUrl}#webpage`,
-        url: pageUrl,
-        name: 'Auto online anmelden',
-        description:
-          'Fahrzeug online anmelden, ummelden oder wieder zulassen. Online-Zulassung mit persönlicher Hilfe, bundesweit nutzbar und digital vorbereitet.',
-        inLanguage: 'de-DE',
-        isPartOf: {
-          '@type': 'WebSite',
-          '@id': `${settings.siteUrl}#website`,
-          url: settings.siteUrl,
-          name: settings.siteName,
-          publisher: {
-            '@id': `${settings.siteUrl}#organization`,
-          },
-        },
-        about: {
-          '@id': `${pageUrl}#service`,
-        },
-        breadcrumb: {
-          '@id': `${pageUrl}#breadcrumb`,
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'WebPage',
+      '@id': `${pageUrl}#webpage`,
+      url: pageUrl,
+      name: 'Auto online anmelden',
+      description:
+        'Fahrzeug online anmelden, ummelden oder wieder zulassen. Online-Zulassung mit persönlicher Hilfe, bundesweit nutzbar und digital vorbereitet.',
+      inLanguage: 'de-DE',
+      isPartOf: {
+        '@type': 'WebSite',
+        '@id': `${baseUrl}#website`,
+        url: baseUrl,
+        name: settings.siteName,
+        publisher: {
+          '@id': `${baseUrl}#organization`,
         },
       },
-      {
-        '@type': 'Service',
+      about: {
         '@id': `${pageUrl}#service`,
-        name: 'Auto online anmelden',
-        alternateName: [
-          'KFZ online anmelden',
-          'Fahrzeug online anmelden',
-          'Auto online zulassen',
-          'KFZ online zulassen',
-          'Fahrzeug online zulassen',
-          'Online Zulassungsdienst',
-          'KFZ Zulassungsservice',
-          'Digitale Fahrzeugzulassung',
-          'Online Ummeldung',
-          'Wiederzulassung online',
-        ],
-        description:
-          'Online-Zulassung Ihres Fahrzeugs. Anmeldung, Ummeldung oder Wiederzulassung digital vorbereiten. Persönlicher Support per Telefon und WhatsApp.',
-        serviceType: [
-          'Digitale Fahrzeugzulassung',
-          'KFZ-Zulassung online',
-          'Online-Zulassungsdienst',
-          'KFZ-Zulassungsservice',
-          'Fahrzeug anmelden',
-          'Fahrzeug ummelden',
-          'Fahrzeug wieder zulassen',
-        ],
-        category: 'KFZ-Zulassung',
-        url: pageUrl,
-        provider: {
-          '@type': 'Organization',
-          '@id': `${settings.siteUrl}#organization`,
-          name: settings.siteName,
-          url: settings.siteUrl,
-        },
-        areaServed: {
-          '@type': 'Country',
-          name: 'Deutschland',
-        },
-        availableChannel: {
-          '@type': 'ServiceChannel',
-          name: 'Online-Service',
-          serviceUrl: pageUrl,
-          availableLanguage: ['de', 'ar', 'tr', 'en'],
-        },
-        audience: {
-          '@type': 'Audience',
-          audienceType: 'Fahrzeughalter in Deutschland',
-        },
-        offers: {
-          '@type': 'Offer',
-          '@id': `${pageUrl}#offer`,
-          url: pageUrl,
-          price: neuzulassungPrice.toFixed(2),
-          priceCurrency: 'EUR',
-          availability: 'https://schema.org/InStock',
-          eligibleRegion: {
-            '@type': 'Country',
-            name: 'Deutschland',
-          },
-          seller: {
-            '@type': 'Organization',
-            '@id': `${settings.siteUrl}#organization`,
-          },
-        },
       },
-      {
-        '@type': 'BreadcrumbList',
+      breadcrumb: {
         '@id': `${pageUrl}#breadcrumb`,
-        itemListElement: [
-          {
-            '@type': 'ListItem',
-            position: 1,
-            name: 'Startseite',
-            item: settings.siteUrl,
-          },
-          {
-            '@type': 'ListItem',
-            position: 2,
-            name: 'Auto online anmelden',
-            item: pageUrl,
-          },
-        ],
       },
-    ],
-  };
+    },
+    {
+      '@type': 'Service',
+      '@id': `${pageUrl}#service`,
+      name: 'Auto online anmelden',
+      alternateName: [
+        'KFZ online anmelden',
+        'Fahrzeug online anmelden',
+        'Auto online zulassen',
+        'KFZ online zulassen',
+        'Fahrzeug online zulassen',
+        'Online Zulassungsdienst',
+        'KFZ Zulassungsservice',
+        'Digitale Fahrzeugzulassung',
+        'Online Ummeldung',
+        'Wiederzulassung online',
+      ],
+      description:
+        'Online-Zulassung Ihres Fahrzeugs. Anmeldung, Ummeldung oder Wiederzulassung digital vorbereiten. Persönlicher Support per Telefon und WhatsApp.',
+      serviceType: 'Digitale Fahrzeugzulassung',
+      category: 'KFZ-Zulassung',
+      url: pageUrl,
+      provider: {
+        '@type': 'Organization',
+        '@id': `${baseUrl}#organization`,
+        name: settings.siteName,
+        url: baseUrl,
+      },
+      areaServed: {
+        '@type': 'Country',
+        name: 'Deutschland',
+      },
+      audience: {
+        '@type': 'Audience',
+        audienceType: 'Fahrzeughalter in Deutschland',
+      },
+      offers: {
+        '@type': 'Offer',
+        '@id': `${pageUrl}#offer`,
+        url: pageUrl,
+        price: neuzulassungPrice.toFixed(2),
+        priceCurrency: 'EUR',
+        availability: 'https://schema.org/InStock',
+        seller: {
+          '@type': 'Organization',
+          '@id': `${baseUrl}#organization`,
+        },
+      },
+    },
+    {
+      '@type': 'BreadcrumbList',
+      '@id': `${pageUrl}#breadcrumb`,
+      itemListElement: [
+        {
+          '@type': 'ListItem',
+          position: 1,
+          name: 'Startseite',
+          item: baseUrl,
+        },
+        {
+          '@type': 'ListItem',
+          position: 2,
+          name: 'Auto online anmelden',
+          item: pageUrl,
+        },
+      ],
+    },
+  ],
+};
 
   return (
     <>
