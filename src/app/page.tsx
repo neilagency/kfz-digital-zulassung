@@ -290,7 +290,6 @@ export default async function HomePage() {
         },
         availableChannel: {
           '@type': 'ServiceChannel',
-          serviceType: 'Online',
           serviceUrl: `${baseUrl}/product/fahrzeugabmeldung`,
           availableLanguage: {
             '@type': 'Language',
