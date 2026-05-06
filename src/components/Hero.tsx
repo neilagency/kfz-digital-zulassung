@@ -101,7 +101,7 @@ export default function Hero({
               <div>
                 <span className="text-sm font-bold text-white">5.0</span>
                 <span className="ml-1 text-xs text-white/60">
-                  Google · Bestbewerteter Service 2026
+                  Google · 184 Bewertungen · Bestbewerteter Service 2026
                 </span>
               </div>
             </div>
