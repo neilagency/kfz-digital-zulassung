@@ -224,38 +224,9 @@ export default async function HomePage() {
     },
   ];
 
-  const structuredData = {
+    const structuredData = {
     '@context': 'https://schema.org',
     '@graph': [
-      {
-        '@type': 'Organization',
-        '@id': `${baseUrl}#organization`,
-        name: settings.siteName,
-        url: baseUrl,
-        logo: `${baseUrl}/logo.webp`,
-        email: settings.email,
-        contactPoint: [
-          {
-            '@type': 'ContactPoint',
-            telephone: '+4915224999190',
-            email: settings.email,
-            contactType: 'customer support',
-            areaServed: 'DE',
-            availableLanguage: ['de', 'ar'],
-          },
-        ],
-      },
-      {
-        '@type': 'WebSite',
-        '@id': `${baseUrl}#website`,
-        url: baseUrl,
-        name: settings.siteName,
-        description: settings.siteDescription,
-        inLanguage: 'de-DE',
-        publisher: {
-          '@id': `${baseUrl}#organization`,
-        },
-      },
       {
         '@type': 'WebPage',
         '@id': `${baseUrl}#webpage`,
@@ -269,14 +240,28 @@ export default async function HomePage() {
         about: {
           '@id': `${baseUrl}#service`,
         },
+        breadcrumb: {
+          '@id': `${baseUrl}#breadcrumb`,
+        },
       },
       {
         '@type': 'Service',
         '@id': `${baseUrl}#service`,
         name: 'Auto online abmelden',
+        alternateName: [
+          'KFZ online abmelden',
+          'Fahrzeug online abmelden',
+          'Auto abmelden online',
+          'Digitale Fahrzeugabmeldung',
+          'PKW online abmelden',
+          'Motorrad online abmelden',
+          'Anhänger online abmelden',
+        ],
         serviceType: 'Digitale Fahrzeugabmeldung',
-        url: baseUrl,
-        description: PAGE_DESCRIPTION,
+        category: 'KFZ-Abmeldung',
+        url: `${baseUrl}/product/fahrzeugabmeldung`,
+        description:
+          'Online-Abmeldung eines Fahrzeugs in Deutschland. Der Service unterstützt Fahrzeughalter bei der digitalen Fahrzeugabmeldung und stellt nach erfolgreicher Bearbeitung eine amtliche Bestätigung per E-Mail bereit.',
         provider: {
           '@id': `${baseUrl}#organization`,
         },
@@ -288,21 +273,16 @@ export default async function HomePage() {
           '@type': 'Audience',
           audienceType: 'Fahrzeughalter in Deutschland',
         },
-        availableChannel: {
-          '@type': 'ServiceChannel',
-          name: 'Online-Service',
-          serviceUrl: `${baseUrl}/product/fahrzeugabmeldung`,
-          availableLanguage: {
-            '@type': 'Language',
-            name: 'German',
-          },
-        },
         offers: {
           '@type': 'Offer',
+          '@id': `${baseUrl}/product/fahrzeugabmeldung#offer`,
           url: `${baseUrl}/product/fahrzeugabmeldung`,
           price: offerPrice,
           priceCurrency: 'EUR',
           availability: 'https://schema.org/InStock',
+          seller: {
+            '@id': `${baseUrl}#organization`,
+          },
         },
       },
       {
