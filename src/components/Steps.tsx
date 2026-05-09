@@ -47,7 +47,7 @@ export default function Steps() {
 
                 {/* Tip or note text for steps 4-6 */}
                 {'tip' in step && step.tip && (
-                  <p className="mt-3 text-xs text-accent font-semibold flex items-start gap-1.5">
+                  <p className="mt-3 text-xs text-accent-900 font-semibold flex items-start gap-1.5">
                     <Lightbulb className="w-4 h-4 flex-shrink-0 mt-0.5" />
                     {step.tip}
                   </p>

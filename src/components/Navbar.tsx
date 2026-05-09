@@ -126,6 +126,7 @@ export default function Navbar({ navProps }: { navProps?: NavProps }) {
             <div className="hidden xl:flex items-center gap-3 flex-shrink-0">
               <a
                 href={navProps?.phoneLink || 'tel:015224999190'}
+                aria-label={`Telefon: ${navProps?.phone || '01522 4999190'}`}
                 className={`flex items-center gap-1.5 text-sm font-medium whitespace-nowrap py-2 px-2 ${
                   scrolled ? 'text-primary' : 'text-white'
                 }`}
@@ -140,7 +141,7 @@ export default function Navbar({ navProps }: { navProps?: NavProps }) {
                 href={navProps?.whatsapp || 'https://wa.me/4915224999190'}
                 target="_blank"
                 rel="nofollow noopener noreferrer"
-                className="flex items-center gap-1.5 bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-full text-sm font-medium transition-colors"
+                className="flex items-center gap-1.5 bg-green-700 hover:bg-green-800 text-white px-3 py-2 rounded-full text-sm font-medium transition-colors"
               >
                 <MessageCircle className="w-4 h-4" />
                 <span className="hidden xl:inline">WhatsApp</span>

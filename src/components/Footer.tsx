@@ -316,12 +316,12 @@ export default async function Footer() {
 
       <div className="border-t border-white/10 py-4">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-2 px-4 sm:px-6 md:flex-row lg:px-8">
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-gray-400">
             Hinweis: Die Online-Abmeldung ist nicht in allen Fällen möglich. Bitte prüfen Sie vor
             dem Start, ob Fahrzeugschein und Kennzeichen onlinefähige Sicherheitscodes besitzen.
           </p>
 
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-gray-400">
             © {new Date().getFullYear()} {settings.siteName} – Bundesweite Fahrzeugabmeldung
           </p>
         </div>

@@ -693,7 +693,7 @@ export default async function HomePage() {
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label="Jetzt kostenlos per WhatsApp prüfen lassen"
-                    className="inline-flex items-center gap-2 rounded-full bg-accent px-6 py-3 text-sm font-semibold text-white transition-all hover:-translate-y-0.5 hover:bg-accent-600 hover:shadow-lg hover:shadow-accent/30"
+                    className="inline-flex items-center gap-2 rounded-full bg-accent px-6 py-3 text-sm font-semibold text-gray-900 transition-all hover:-translate-y-0.5 hover:bg-accent-600 hover:shadow-lg hover:shadow-accent/30"
                   >
                     <MessageCircle className="h-4 w-4" />
                     Kostenlos prüfen
@@ -735,7 +735,7 @@ export default async function HomePage() {
                 </nav>
 
                 <div className="mt-8 border-t border-gray-100 pt-6">
-                  <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-gray-400">
+                  <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-gray-600">
                     Häufig gesuchte Ratgeber
                   </p>
 
@@ -806,7 +806,7 @@ export default async function HomePage() {
                 </nav>
 
                 <div className="mt-6 border-t border-gray-100 pt-5">
-                  <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-gray-400">
+                  <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-gray-600">
                     Bundesland-Übersichten
                   </p>
 
@@ -877,7 +877,7 @@ export default async function HomePage() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="WhatsApp Live-Chat öffnen"
-                className="inline-flex items-center gap-2 rounded-full bg-green-600 px-6 py-3 font-bold text-white transition-colors hover:bg-green-700"
+                className="inline-flex items-center gap-2 rounded-full bg-green-700 px-6 py-3 font-bold text-white transition-colors hover:bg-green-800"
               >
                 <MessageCircle className="h-5 w-5" />
                 WhatsApp Live-Chat
