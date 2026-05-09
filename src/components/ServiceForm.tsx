@@ -56,7 +56,7 @@ type FormData = z.infer<typeof formSchema>;
 /*  Image URLs from WordPress media library                           */
 /* ------------------------------------------------------------------ */
 const FAHRZEUGSCHEIN_IMAGE =
-  '/uploads/wp/2024/01/WhatsApp-Image-2024-01-06-at-3.21.48-PM.jpeg';
+  '/uploads/wp/2024/10/fahrzeugschein-fin.jpg';
 const PLAKETTE_IMAGE =
   '/uploads/wp/2024/10/WhatsApp-Image-2024-10-28-at-23.51.02.jpeg';
 const CODE_HINT_IMAGE =
@@ -350,8 +350,9 @@ export default function ServiceForm({
                       <Image
                         src={FAHRZEUGSCHEIN_IMAGE}
                         alt="Kennzeichen und FIN im Fahrzeugschein - Feld E markiert"
-                        width={600}
-                        height={400}
+                        width={1200}
+                        height={620}
+                        quality={90}
                         className="w-full h-auto rounded-lg"
                         priority
                       />
