@@ -355,6 +355,7 @@ export default function ServiceForm({
                         quality={90}
                         className="w-full h-auto rounded-lg"
                         priority
+                        unoptimized
                       />
                     </div>
                   </div>
