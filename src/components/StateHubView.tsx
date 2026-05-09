@@ -158,7 +158,7 @@ export default function StateHubView({
 
             <Link
               href="/product/fahrzeugabmeldung"
-              className="inline-flex items-center gap-2 bg-accent hover:bg-accent-600 text-primary font-extrabold px-8 py-4 rounded-full text-lg transition-all hover:shadow-xl hover:shadow-accent/30 hover:-translate-y-0.5"
+              className="inline-flex items-center gap-2 bg-accent hover:bg-accent-600 text-gray-900 font-extrabold px-8 py-4 rounded-full text-lg transition-all hover:shadow-xl hover:shadow-accent/30 hover:-translate-y-0.5"
             >
               Jetzt online abmelden – {pricing.abmeldungPriceFormatted}
               <ArrowRight className="w-5 h-5" />
@@ -256,7 +256,7 @@ export default function StateHubView({
             </p>
             <Link
               href="/product/fahrzeugabmeldung"
-              className="inline-flex items-center gap-2 bg-accent hover:bg-accent-600 text-primary font-extrabold px-10 py-5 rounded-full text-xl transition-all hover:shadow-xl hover:shadow-accent/30 hover:-translate-y-0.5"
+              className="inline-flex items-center gap-2 bg-accent hover:bg-accent-600 text-gray-900 font-extrabold px-10 py-5 rounded-full text-xl transition-all hover:shadow-xl hover:shadow-accent/30 hover:-translate-y-0.5"
             >
               Jetzt für {pricing.abmeldungPriceFormatted} abmelden
             </Link>

@@ -126,7 +126,7 @@ export default function Navbar({ navProps }: { navProps?: NavProps }) {
             <div className="hidden xl:flex items-center gap-3 flex-shrink-0">
               <a
                 href={navProps?.phoneLink || 'tel:015224999190'}
-                className={`flex items-center gap-1.5 text-sm font-medium whitespace-nowrap ${
+                className={`flex items-center gap-1.5 text-sm font-medium whitespace-nowrap py-2 px-2 ${
                   scrolled ? 'text-primary' : 'text-white'
                 }`}
               >
@@ -140,7 +140,7 @@ export default function Navbar({ navProps }: { navProps?: NavProps }) {
                 href={navProps?.whatsapp || 'https://wa.me/4915224999190'}
                 target="_blank"
                 rel="nofollow noopener noreferrer"
-                className="flex items-center gap-1.5 bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded-full text-sm font-medium transition-colors"
+                className="flex items-center gap-1.5 bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-full text-sm font-medium transition-colors"
               >
                 <MessageCircle className="w-4 h-4" />
                 <span className="hidden xl:inline">WhatsApp</span>
@@ -148,7 +148,7 @@ export default function Navbar({ navProps }: { navProps?: NavProps }) {
 
               <Link
                 href="/product/fahrzeugabmeldung"
-                className="bg-accent hover:bg-accent-600 text-primary font-bold px-4 py-2 rounded-full text-sm transition-all hover:shadow-lg hover:shadow-accent/25"
+                className="bg-accent hover:bg-accent-600 text-gray-900 font-bold px-4 py-2 rounded-full text-sm transition-all hover:shadow-lg hover:shadow-accent/25"
               >
                 Jetzt abmelden
               </Link>
@@ -294,7 +294,7 @@ export default function Navbar({ navProps }: { navProps?: NavProps }) {
 
               <Link
                 href="/product/fahrzeugabmeldung"
-                className="bg-accent text-primary font-bold px-6 py-3 rounded-full text-center"
+                className="bg-accent text-gray-900 font-bold px-6 py-3 rounded-full text-center"
                 onClick={closeMenu}
               >
                 Jetzt abmelden

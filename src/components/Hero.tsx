@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import {
   CheckCircle,
   Shield,
@@ -8,7 +9,16 @@ import {
   MailCheck,
   BadgeEuro,
 } from 'lucide-react';
-import DynamicContact from './DynamicContact';
+
+const DynamicContact = dynamic(() => import('./DynamicContact'), {
+  ssr: false,
+  loading: () => (
+    <>
+      <span className="text-accent font-bold text-sm">01522 4999190</span>
+      <span className="text-green-400 font-bold text-sm">WhatsApp Live-Chat</span>
+    </>
+  ),
+});
 
 interface HeroProps {
   abmeldungPrice?: string;
@@ -34,9 +44,9 @@ export default function Hero({
       <div className="relative mx-auto max-w-7xl px-4 pb-16 pt-24 sm:px-6 md:pb-20 md:pt-28 lg:px-8 lg:pb-18 lg:pt-24">
         <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
           {/* Left content */}
-          <div className="animate-fade-in-up">
+          <div>
             {/* Badge */}
-            <div className="mb-6 flex flex-wrap gap-3">
+            <div className="mb-6 flex flex-wrap gap-3 animate-fade-in-up">
               <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/40 bg-primary/30 px-3 py-1.5 text-xs font-medium text-white backdrop-blur">
                 <Shield className="h-3.5 w-3.5" />
                 Offiziell · Bundesweit · Sicher
@@ -55,7 +65,7 @@ export default function Hero({
               Auto online abmelden – schnell & offiziell
             </h1>
 
-            <p className="mb-8 max-w-lg text-lg font-medium text-white/80 md:text-xl">
+            <p className="mb-8 max-w-lg text-lg font-medium text-white/80 md:text-xl animate-fade-in-up">
               Jetzt offiziell ab {abmeldungPrice}. Kein Ausweis nötig. Bestätigung direkt per
               E-Mail.
             </p>
@@ -75,10 +85,10 @@ export default function Hero({
             </ul>
 
             {/* CTAs */}
-            <div className="flex flex-wrap gap-4">
+            <div className="flex flex-wrap gap-4 animate-fade-in-up">
               <Link
                 href="/product/fahrzeugabmeldung"
-                className="inline-flex items-center justify-center gap-2 rounded-full bg-accent px-8 py-4 text-lg font-extrabold text-primary transition-all hover:-translate-y-0.5 hover:bg-accent-600 hover:shadow-xl hover:shadow-accent/30"
+                className="inline-flex items-center justify-center gap-2 rounded-full bg-accent px-8 py-4 text-lg font-extrabold text-gray-900 transition-all hover:-translate-y-0.5 hover:bg-accent-600 hover:shadow-xl hover:shadow-accent/30"
               >
                 Jetzt abmelden — {abmeldungPrice}
               </Link>
@@ -93,14 +103,14 @@ export default function Hero({
 
             {/* Trust badge */}
             <div className="mt-8 inline-flex items-center gap-3 rounded-2xl bg-white/10 px-4 py-3 backdrop-blur animate-fade-in">
-              <div className="flex items-center gap-1" aria-label="5 von 5 Sterne">
+              <div className="flex items-center gap-1" role="img" aria-label="5 von 5 Sterne">
                 {[...Array(5)].map((_, i) => (
                   <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
                 ))}
               </div>
               <div>
                 <span className="text-sm font-bold text-white">5.0</span>
-                <span className="ml-1 text-xs text-white/60">
+                <span className="ml-1 text-xs text-white/80">
                   Google · 184 Bewertungen · Bestbewerteter Service 2026
                 </span>
               </div>

@@ -42,11 +42,11 @@ export default function PricingBox({ price = '19,70 €', paymentMethods = [] }:
               <div className="text-5xl md:text-6xl font-extrabold text-white mb-2">
                 {price}
               </div>
-              <p className="text-white/60 text-sm mb-8">Einmaliger Festpreis · Keine versteckten Kosten</p>
+              <p className="text-white/80 text-sm mb-8">Einmaliger Festpreis · Keine versteckten Kosten</p>
 
               <Link
                 href="/product/fahrzeugabmeldung"
-                className="w-full max-w-xs bg-accent hover:bg-accent-600 text-primary font-extrabold py-4 px-8 rounded-full text-lg transition-all hover:shadow-xl hover:shadow-accent/30 hover:-translate-y-0.5 text-center block"
+                className="w-full max-w-xs bg-accent hover:bg-accent-600 text-gray-900 font-extrabold py-4 px-8 rounded-full text-lg transition-all hover:shadow-xl hover:shadow-accent/30 hover:-translate-y-0.5 text-center block"
               >
                 Jetzt abmelden
               </Link>

@@ -5,6 +5,7 @@ import Hero from '@/components/Hero';
 import Steps from '@/components/Steps';
 import PricingBox from '@/components/PricingBox';
 import BlogCard from '@/components/BlogCard';
+import YouTubeFacade from '@/components/YouTubeFacade';
 import {
   getAllPosts,
   getSiteSettings,
@@ -31,7 +32,7 @@ import {
   ArrowRight,
 } from 'lucide-react';
 
-const FAQ = dynamic(() => import('@/components/FAQ'), { ssr: true });
+const FAQ = dynamic(() => import('@/components/FAQ'), { ssr: false });
 
 const PAGE_TITLE = 'Auto online abmelden ab 19,70 € | Schnell & sicher';
 const PAGE_DESCRIPTION =
@@ -369,7 +370,7 @@ export default async function HomePage() {
                   <div className="mt-8 flex flex-wrap gap-3">
                     <Link
                       href="/product/fahrzeugabmeldung"
-                      className="inline-flex items-center gap-2 rounded-full bg-accent px-7 py-3 font-extrabold text-primary transition hover:bg-accent-600 hover:shadow-lg hover:shadow-accent/20"
+                      className="inline-flex items-center gap-2 rounded-full bg-accent px-7 py-3 font-extrabold text-gray-900 transition hover:bg-accent-600 hover:shadow-lg hover:shadow-accent/20"
                     >
                       Jetzt abmelden – {pricing.abmeldungPriceFormatted}
                       <ArrowRight className="h-4 w-4" />
@@ -552,14 +553,11 @@ export default async function HomePage() {
                     key={video.embedUrl}
                     className="rounded-2xl border border-gray-100 bg-gray-50 p-4 shadow-sm"
                   >
-                    <div className="mb-4 aspect-video overflow-hidden rounded-xl bg-black">
-                      <iframe
-                        className="h-full w-full"
-                        src={video.embedUrl}
+                    <div className="mb-4">
+                      <YouTubeFacade
+                        videoId={video.embedUrl.split('/').pop() || ''}
                         title={video.title}
-                        loading="lazy"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                        allowFullScreen
+                        thumbnailUrl={video.thumbnailUrl}
                       />
                     </div>
 
@@ -879,7 +877,7 @@ export default async function HomePage() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="WhatsApp Live-Chat öffnen"
-                className="inline-flex items-center gap-2 rounded-full bg-green-500 px-6 py-3 font-bold text-white transition-colors hover:bg-green-600"
+                className="inline-flex items-center gap-2 rounded-full bg-green-600 px-6 py-3 font-bold text-white transition-colors hover:bg-green-700"
               >
                 <MessageCircle className="h-5 w-5" />
                 WhatsApp Live-Chat
@@ -954,7 +952,7 @@ export default async function HomePage() {
             <Link
               href="/product/fahrzeugabmeldung"
               aria-label={`Jetzt Auto online abmelden für ${pricing.abmeldungPriceFormatted}`}
-              className="inline-flex items-center gap-2 rounded-full bg-accent px-10 py-5 text-xl font-extrabold text-primary transition-all hover:-translate-y-0.5 hover:bg-accent-600 hover:shadow-xl hover:shadow-accent/30"
+              className="inline-flex items-center gap-2 rounded-full bg-accent px-10 py-5 text-xl font-extrabold text-gray-900 transition-all hover:-translate-y-0.5 hover:bg-accent-600 hover:shadow-xl hover:shadow-accent/30"
             >
               Jetzt für {pricing.abmeldungPriceFormatted} abmelden
               <ArrowRight className="h-5 w-5" />

@@ -1365,7 +1365,7 @@ export default function CityPageView({
 
             <Link
               href="/product/fahrzeugabmeldung"
-              className="inline-flex items-center gap-2 rounded-full bg-accent px-8 py-4 font-bold text-primary transition-all hover:bg-accent-600 hover:shadow-lg hover:shadow-accent/20"
+              className="inline-flex items-center gap-2 rounded-full bg-accent px-8 py-4 font-bold text-gray-900 transition-all hover:bg-accent-600 hover:shadow-lg hover:shadow-accent/20"
             >
               <CheckCircle className="h-5 w-5" />
               {closingCtaText}
@@ -1509,7 +1509,7 @@ export default function CityPageView({
             <div className="flex flex-wrap gap-4">
               <Link
                 href="/product/fahrzeugabmeldung"
-                className="inline-flex items-center gap-2 rounded-full bg-accent px-8 py-4 text-lg font-extrabold text-primary transition-all hover:bg-accent-600 hover:shadow-xl hover:shadow-accent/20"
+                className="inline-flex items-center gap-2 rounded-full bg-accent px-8 py-4 text-lg font-extrabold text-gray-900 transition-all hover:bg-accent-600 hover:shadow-xl hover:shadow-accent/20"
               >
                 {heroCtaText}
               </Link>
@@ -1868,7 +1868,7 @@ export default function CityPageView({
 
                 <Link
                   href="/product/fahrzeugabmeldung"
-                  className="inline-flex items-center gap-2 rounded-full bg-accent px-8 py-4 font-bold text-primary transition-all hover:bg-accent-600 hover:shadow-lg hover:shadow-accent/20"
+                  className="inline-flex items-center gap-2 rounded-full bg-accent px-8 py-4 font-bold text-gray-900 transition-all hover:bg-accent-600 hover:shadow-lg hover:shadow-accent/20"
                 >
                   {closingCtaText}
                   <ArrowRight className="h-5 w-5" />
