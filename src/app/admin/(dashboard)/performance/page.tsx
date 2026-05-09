@@ -368,7 +368,7 @@ export default function PerformancePage() {
                     <span className="text-xs text-gray-400">Aktualisiert: {new Date(seoAudit.summary.generatedAt).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}</span>
                   </div>
                   <div className="space-y-3">
-                    {Object.entries(seoAudit.contentBlockUsage)
+                    {Object.entries(seoAudit.contentBlockUsage ?? {})
                       .sort((left, right) => right[1] - left[1])
                       .map(([block, count]) => {
                         const width = seoAudit.summary.totalCities > 0 ? Math.max(6, Math.round((count / seoAudit.summary.totalCities) * 100)) : 0;
@@ -404,7 +404,7 @@ export default function PerformancePage() {
                 <div className="rounded-2xl border border-gray-100/80 p-4">
                   <h3 className="text-sm font-semibold text-gray-900 mb-3">Archetype Mix</h3>
                   <div className="space-y-3">
-                    {Object.entries(seoAudit.archetypeUsage)
+                    {Object.entries(seoAudit.archetypeUsage ?? {})
                       .sort((left, right) => right[1] - left[1] || left[0].localeCompare(right[0]))
                       .map(([archetype, count]) => {
                         const width = seoAudit.summary.totalCities > 0 ? Math.max(6, Math.round((count / seoAudit.summary.totalCities) * 100)) : 0;
