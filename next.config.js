@@ -36,6 +36,7 @@ const nextConfig = {
   experimental: {
     instrumentationHook: false,
     optimizePackageImports: ['lucide-react', 'recharts', 'date-fns'],
+    optimizeCss: true,
   },
 
   serverExternalPackages: [

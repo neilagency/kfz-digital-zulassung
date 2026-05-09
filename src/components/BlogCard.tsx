@@ -41,7 +41,7 @@ export default function BlogCard({ post }: BlogCardProps) {
       <div className="p-5">
         <time
   dateTime={new Date(publishDate).toISOString()}
-  className="text-xs text-gray-400 font-medium"
+  className="text-xs text-gray-600 font-medium"
 >
   {formatDate(publishDate)}
 </time>
