@@ -1,0 +1,282 @@
+# ═══════════════════════════════════════════════════════════════════
+# Deploy to Hostinger — onlineautoabmelden.com
+# ═══════════════════════════════════════════════════════════════════
+#
+# Manual deployment workflow — triggered from GitHub Actions UI.
+# No automatic deploys on push.
+#
+# Server: Hostinger shared Node.js via LiteSpeed Passenger
+#   App root:  /home/u104276643/domains/onlineautoabmelden.com/nodejs/
+#   Startup:   server.js  (Passenger startup file)
+#   Restart:   touch nodejs/tmp/restart.txt
+#
+# Required GitHub Secrets (Settings → Secrets and variables → Actions):
+#   HOSTINGER_SSH_KEY       — Full private SSH key (including BEGIN/END lines)
+#   HOSTINGER_HOST          — Server IP: 88.223.85.114
+#   HOSTINGER_PORT          — SSH port: 65002
+#   HOSTINGER_USERNAME      — SSH user: u104276643
+#   HOSTINGER_APP_PATH      — /home/u104276643/domains/onlineautoabmelden.com/nodejs
+#   HOSTINGER_ENV_FILE      — /home/u104276643/env/onlineautoabmelden.env
+#   TURSO_DATABASE_URL      — Turso database URL (libsql://...)
+#   TURSO_AUTH_TOKEN        — Turso authentication token
+#   NEXTAUTH_SECRET         — NextAuth secret
+#   NEXTAUTH_URL            — https://onlineautoabmelden.com
+#
+# ═══════════════════════════════════════════════════════════════════
+
+name: Deploy to Hostinger
+
+on:
+  workflow_dispatch:
+    inputs:
+      skip_schema_guard:
+        description: 'Skip schema guard — use ONLY if Turso DB is temporarily unreachable'
+        type: boolean
+        default: false
+
+jobs:
+  deploy:
+    name: Build & Deploy to Hostinger
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      # ── 1/9 · Checkout ──────────────────────────────────────────────
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # ── 2/9 · Node.js Setup ─────────────────────────────────────────
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      # ── 3/9 · Install Dependencies ──────────────────────────────────
+      # npm ci installs exact locked versions and compiles native binaries
+      # for linux-x64 (the same arch as the Hostinger server).
+      # No pre-bundling step needed — unlike a local Mac build.
+      - name: Install dependencies
+        run: npm ci
+
+      # ── 4/9 · Build ─────────────────────────────────────────────────
+      # Runs: npx prisma generate + next build (per package.json "build" script)
+      # Schema guard runs first to block destructive DB drift.
+      - name: Run schema guard (Prisma ↔ Turso validation)
+        if: ${{ !inputs.skip_schema_guard }}
+        run: npx tsx scripts/schema-guard.ts
+        env:
+          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
+
+      - name: Build Next.js (standalone mode)
+        run: npm run build
+        env:
+          NODE_ENV: production
+          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
+          NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
+          NEXTAUTH_URL: ${{ secrets.NEXTAUTH_URL }}
+          NEXT_PUBLIC_SITE_URL: https://onlineautoabmelden.com
+
+      # ── 5/9 · Prepare Deploy Package ────────────────────────────────
+      # Mirrors the local deploy script's "Preparing Deploy Package" step.
+      # Static assets and public/ are copied into .next/standalone/
+      # so rsync uploads a single self-contained directory.
+      - name: Prepare deploy package
+        run: |
+          echo "Copying .next/static into standalone..."
+          cp -r .next/static .next/standalone/.next/static
+
+          echo "Copying public/ into standalone..."
+          cp -r public .next/standalone/public
+
+          echo "Creating tmp/ for Passenger restart trigger..."
+          mkdir -p .next/standalone/tmp
+
+          echo "Removing local dev artifacts..."
+          rm -f .next/standalone/.env .next/standalone/dev.db
+
+          echo "Deploy package size: $(du -sh .next/standalone | cut -f1)"
+          echo "BUILD_ID: $(cat .next/BUILD_ID)"
+
+      # ── 6/9 · SSH Setup ─────────────────────────────────────────────
+      - name: Configure SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "$HOSTINGER_SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -p "$HOSTINGER_PORT" "$HOSTINGER_HOST" >> ~/.ssh/known_hosts 2>/dev/null || true
+          echo "SSH configured"
+        env:
+          HOSTINGER_SSH_KEY: ${{ secrets.HOSTINGER_SSH_KEY }}
+          HOSTINGER_HOST: ${{ secrets.HOSTINGER_HOST }}
+          HOSTINGER_PORT: ${{ secrets.HOSTINGER_PORT }}
+
+      # ── 7/9 · Clear Old Build on Server ─────────────────────────────
+      # Removes .next/ and node_modules/ before rsync so stale files
+      # do not persist. App stays live until restart.txt is touched later.
+      - name: Clear old build on server
+        run: |
+          ssh -i ~/.ssh/deploy_key \
+            -o StrictHostKeyChecking=no \
+            -p "$HOSTINGER_PORT" \
+            "$HOSTINGER_USERNAME@$HOSTINGER_HOST" \
+            "rm -rf '$HOSTINGER_APP_PATH/.next' '$HOSTINGER_APP_PATH/node_modules' && echo 'Old build cleared'"
+        env:
+          HOSTINGER_HOST: ${{ secrets.HOSTINGER_HOST }}
+          HOSTINGER_PORT: ${{ secrets.HOSTINGER_PORT }}
+          HOSTINGER_USERNAME: ${{ secrets.HOSTINGER_USERNAME }}
+          HOSTINGER_APP_PATH: ${{ secrets.HOSTINGER_APP_PATH }}
+
+      # ── 8/9 · Upload via rsync ───────────────────────────────────────
+      # --delete removes remote files not in source (ensures clean state).
+      # Excludes protect server-only persistent files:
+      #   .env            — persistent server config (never overwritten)
+      #   public/uploads/ — user-uploaded media (not in git)
+      #   console.log     — server runtime log
+      - name: Upload to server via rsync
+        run: |
+          rsync -az --delete --checksum \
+            --exclude='console.log' \
+            --exclude='stderr.log' \
+            --exclude='.env' \
+            --exclude='public/uploads/media/' \
+            --exclude='public/uploads/wp/' \
+            --exclude='public/uploads/documents/' \
+            --exclude='public/uploads/order-documents/' \
+            --exclude='public/uploads/media/migrated/' \
+            -e "ssh -i $HOME/.ssh/deploy_key -o StrictHostKeyChecking=no -p $HOSTINGER_PORT" \
+            .next/standalone/ \
+            "$HOSTINGER_USERNAME@$HOSTINGER_HOST:$HOSTINGER_APP_PATH/"
+        env:
+          HOSTINGER_HOST: ${{ secrets.HOSTINGER_HOST }}
+          HOSTINGER_PORT: ${{ secrets.HOSTINGER_PORT }}
+          HOSTINGER_USERNAME: ${{ secrets.HOSTINGER_USERNAME }}
+          HOSTINGER_APP_PATH: ${{ secrets.HOSTINGER_APP_PATH }}
+
+      # ── 9/9 · Remote Setup + Passenger Restart ──────────────────────
+      # Quoted heredoc (<<'REMOTE_SCRIPT') — $VAR inside is NOT expanded
+      # locally; the ssh command line sets REMOTE_APP_DIR and REMOTE_ENV_FILE
+      # as env vars on the server before bash runs the script.
+      - name: Setup environment and restart app
+        run: |
+          ssh -i ~/.ssh/deploy_key \
+            -o StrictHostKeyChecking=no \
+            -p "$HOSTINGER_PORT" \
+            "$HOSTINGER_USERNAME@$HOSTINGER_HOST" \
+            "REMOTE_APP_DIR='$HOSTINGER_APP_PATH' REMOTE_ENV_FILE='$HOSTINGER_ENV_FILE' bash -s" <<'REMOTE_SCRIPT'
+          set -euo pipefail
+          export PATH="/opt/alt/alt-nodejs24/root/usr/bin:/opt/alt/alt-nodejs22/root/usr/bin:/opt/alt/alt-nodejs20/root/usr/bin:$PATH"
+
+          echo "  App path: $REMOTE_APP_DIR"
+
+          # Copy .env from persistent server location (set once, never overwritten by deploy)
+          if [ -f "$REMOTE_ENV_FILE" ]; then
+            cp "$REMOTE_ENV_FILE" "$REMOTE_APP_DIR/.env"
+            echo "  .env copied from $REMOTE_ENV_FILE"
+          else
+            echo "  WARNING: No persistent .env found at $REMOTE_ENV_FILE"
+            echo "  The app may fail to start if environment variables are missing."
+          fi
+
+          # Verify the most critical module survived the deploy
+          if [ ! -d "$REMOTE_APP_DIR/node_modules/next" ]; then
+            echo "FATAL: node_modules/next is missing after rsync — aborting restart"
+            exit 1
+          fi
+          echo "  Verified: node_modules/next exists"
+
+          # Ensure @libsql linux-x64-gnu native binary is present.
+          # GitHub Actions builds on linux-x64, so this should already be bundled.
+          # This is a safety net for the first deploy or if the binary is ever missing.
+          if [ -d "$REMOTE_APP_DIR/node_modules/@libsql/linux-x64-gnu" ]; then
+            echo "  @libsql/linux-x64-gnu already present"
+          else
+            echo "  Installing @libsql/linux-x64-gnu (fallback)..."
+            LIBSQL_VERSION=$(node -e "try{process.stdout.write(require('$REMOTE_APP_DIR/node_modules/libsql/package.json').version)}catch(e){}" 2>/dev/null || echo "")
+            [ -z "$LIBSQL_VERSION" ] && LIBSQL_VERSION="0.5.22"
+            cd "$REMOTE_APP_DIR"
+            npm install "@libsql/linux-x64-gnu@$LIBSQL_VERSION" --ignore-scripts --no-save \
+              --prefix "$REMOTE_APP_DIR" 2>&1 | tail -5 || \
+            npm install "@libsql/linux-x64-gnu" --ignore-scripts --no-save \
+              --prefix "$REMOTE_APP_DIR" 2>&1 | tail -5 || \
+            echo "  WARNING: @libsql install failed — database may not work"
+          fi
+
+          # Ensure tmp/ exists (Passenger watches this directory for restart.txt)
+          mkdir -p "$REMOTE_APP_DIR/tmp"
+
+          # Kill stale next-server processes (keep only the newest one)
+          NEXT_TABLE=$(ps -eo pid=,etimes=,command= 2>/dev/null | awk '/next-server/ && !/awk/ {print $1 " " $2}')
+          NEXT_COUNT=$(printf '%s\n' "$NEXT_TABLE" | awk 'NF' | wc -l | tr -d ' ')
+          if [ "$NEXT_COUNT" -gt 1 ]; then
+            STALE_PIDS=$(printf '%s\n' "$NEXT_TABLE" | sort -k2,2n | awk 'NR>1 {print $1}' | tr '\n' ' ')
+            echo "  Killing $((NEXT_COUNT - 1)) stale next-server process(es)..."
+            kill $STALE_PIDS 2>/dev/null || true
+            sleep 1
+          elif [ "$NEXT_COUNT" -eq 1 ]; then
+            echo "  Single next-server process — no cleanup needed"
+          else
+            echo "  No existing next-server processes"
+          fi
+
+          # Clear old console.log for fresh startup logs
+          rm -f "$REMOTE_APP_DIR/console.log"
+
+          # Touch restart.txt — Passenger detects this and reloads the app
+          touch "$REMOTE_APP_DIR/tmp/restart.txt"
+          echo "  Passenger restart triggered (tmp/restart.txt touched)"
+          echo "  BUILD_ID on server: $(cat "$REMOTE_APP_DIR/.next/BUILD_ID" 2>/dev/null || echo 'unknown')"
+          REMOTE_SCRIPT
+        env:
+          HOSTINGER_HOST: ${{ secrets.HOSTINGER_HOST }}
+          HOSTINGER_PORT: ${{ secrets.HOSTINGER_PORT }}
+          HOSTINGER_USERNAME: ${{ secrets.HOSTINGER_USERNAME }}
+          HOSTINGER_APP_PATH: ${{ secrets.HOSTINGER_APP_PATH }}
+          HOSTINGER_ENV_FILE: ${{ secrets.HOSTINGER_ENV_FILE }}
+
+      # ── Health Check ─────────────────────────────────────────────────
+      - name: Health check — wait for HTTP 200
+        run: |
+          echo "Waiting 15 seconds for Passenger to start the app..."
+          sleep 15
+          SUCCESS=false
+          for attempt in 1 2 3 4 5 6; do
+            HTTP_CODE=$(curl -L -s -o /dev/null -w '%{http_code}' --max-time 20 \
+              https://onlineautoabmelden.com/ 2>/dev/null || echo "000")
+            echo "  Attempt $attempt/6 → HTTP $HTTP_CODE"
+            if [ "$HTTP_CODE" = "200" ]; then
+              echo "Health check PASSED (HTTP 200)"
+              SUCCESS=true
+              break
+            fi
+            [ "$attempt" -lt 6 ] && sleep 10
+          done
+          if [ "$SUCCESS" != "true" ]; then
+            echo ""
+            echo "WARNING: Site did not return HTTP 200 after 6 attempts."
+            echo "The app may still be starting. Check the server logs step below."
+            exit 1
+          fi
+
+      # ── Show Server Logs (always runs, even on failure) ──────────────
+      - name: Show recent server logs
+        if: always()
+        run: |
+          echo "--- Last 25 lines of console.log ---"
+          ssh -i ~/.ssh/deploy_key \
+            -o StrictHostKeyChecking=no \
+            -p "$HOSTINGER_PORT" \
+            "$HOSTINGER_USERNAME@$HOSTINGER_HOST" \
+            "tail -25 '$HOSTINGER_APP_PATH/console.log' 2>/dev/null || echo '(console.log is empty or not yet created)'"
+        env:
+          HOSTINGER_HOST: ${{ secrets.HOSTINGER_HOST }}
+          HOSTINGER_PORT: ${{ secrets.HOSTINGER_PORT }}
+          HOSTINGER_USERNAME: ${{ secrets.HOSTINGER_USERNAME }}
+          HOSTINGER_APP_PATH: ${{ secrets.HOSTINGER_APP_PATH }}
+
+      # ── Cleanup ──────────────────────────────────────────────────────
+      - name: Cleanup SSH key
+        if: always()
+        run: rm -f ~/.ssh/deploy_key
