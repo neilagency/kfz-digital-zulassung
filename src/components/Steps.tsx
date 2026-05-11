@@ -24,14 +24,16 @@ export default function Steps() {
             >
               {/* Image for steps that have one */}
               {'image' in step && step.image && (
-                <div className="relative w-full aspect-video">
+                <div className="overflow-hidden rounded-t-2xl">
                   <Image
                     src={step.image}
                     alt={('imageAlt' in step && step.imageAlt) || step.title}
-                    fill
-                    className="object-cover"
+                    width={1200}
+                    height={675}
+                    className="w-full h-auto object-cover"
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 400px"
                     priority={index < 3}
+                    unoptimized
                   />
                 </div>
               )}

@@ -13,6 +13,22 @@ export function ensureSlash(p: string): string {
   return p.startsWith('/') || p.startsWith('http') ? p : `/${p}`;
 }
 
+/**
+ * Normalize any image URL to a root-relative path for local serving.
+ *
+ * Strips the hostname from absolute URLs pointing to /uploads/ so all image
+ * references become root-relative paths served from /public.
+ *
+ * Canonical media path is: /uploads/media/
+ * Migrated legacy WP images live at: /uploads/media/migrated/
+ *
+ * Returns '' when src is falsy.
+ */
+export function normalizeImageUrl(src?: string): string {
+  if (!src) return '';
+  return src.replace(/^https?:\/\/[^/]+(?=\/uploads\/)/i, '');
+}
+
 /** Get the best thumbnail URL for grid/list display */
 export function getThumbUrl(item: Pick<MediaItem, 'thumbnailUrl' | 'sourceUrl' | 'localPath'>): string {
   if (item.thumbnailUrl) return ensureSlash(item.thumbnailUrl);
@@ -25,8 +41,7 @@ export function getThumbUrl(item: Pick<MediaItem, 'thumbnailUrl' | 'sourceUrl' |
 export function getOriginalUrl(item: Pick<MediaItem, 'localPath' | 'sourceUrl'>): string {
   if (item.localPath) return ensureSlash(item.localPath);
   if (item.sourceUrl) {
-    // Strip CDN domain to get relative path for our own uploads
-    const relative = item.sourceUrl.replace(/^https?:\/\/[^/]+(?=\/uploads\/media\/)/i, '');
+    const relative = normalizeImageUrl(item.sourceUrl);
     return ensureSlash(relative || item.sourceUrl);
   }
   return '';

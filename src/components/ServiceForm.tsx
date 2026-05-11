@@ -56,11 +56,11 @@ type FormData = z.infer<typeof formSchema>;
 /*  Image URLs from WordPress media library                           */
 /* ------------------------------------------------------------------ */
 const FAHRZEUGSCHEIN_IMAGE =
-  '/uploads/wp/2024/01/autoabmeldungonline-fahrzeugschein-hell.jpg';
+  '/images/fahrzeugschein-neu.jpg';
 const PLAKETTE_IMAGE =
-  '/uploads/wp/2024/10/WhatsApp-Image-2024-10-28-at-23.51.02.jpeg';
+  '/images/plakette-neu.jpg';
 const CODE_HINT_IMAGE =
-  '/uploads/wp/2024/01/WhatsApp-Image-2024-01-06-at-3.21.48-PM-1.jpeg';
+  '/images/code-hint-neu.jpg';
 
 const VIDEO_FAHRZEUGSCHEIN = 'https://www.youtube.com/watch?v=u38keaF1QKU';
 const VIDEO_PLAKETTE = 'https://www.youtube.com/watch?v=3nsdJSvKAtE';

@@ -229,6 +229,7 @@ rsync -az --delete --checksum \
     --exclude='public/uploads/wp/' \
     --exclude='public/uploads/documents/' \
     --exclude='public/uploads/order-documents/' \
+    --exclude='public/uploads/media/migrated/' \
     -e "ssh -o StrictHostKeyChecking=no -p $SSH_PORT" \
     "$STANDALONE_DIR/" \
     "$SSH_USER@$SSH_HOST:$REMOTE_APP_DIR/"

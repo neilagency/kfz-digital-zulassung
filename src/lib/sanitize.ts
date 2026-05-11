@@ -9,44 +9,29 @@
 import DOMPurify from 'isomorphic-dompurify';
 
 /**
- * Fix broken WordPress thumbnail URLs.
- * Converts old WordPress thumbnail URLs (e.g., image-1024x576.jpeg) to original URLs.
+ * Fix broken WordPress thumbnail URL dimension suffixes in HTML content.
+ * Strips WP-generated dimension variants (e.g., image-1024x576.jpeg) back to the
+ * original filename, for both the legacy /uploads/wp/ path and the migrated
+ * /uploads/media/migrated/ path.
  *
  * Pattern: {filename}-{number}x{number}.{ext} -> {filename}.{ext}
- * Example: /uploads/wp/2024/01/WhatsApp-Image-2024-01-06-at-3.21.48-PM-1024x576.jpeg
- *          -> /uploads/wp/2024/01/WhatsApp-Image-2024-01-06-at-3.21.48-PM.jpeg
- *
- * Also handles: {filename}-{digit}-{number}x{number}.{ext} -> {filename}-{digit}.{ext}
- * Example: /uploads/wp/2024/01/WhatsApp-Image-2024-01-06-at-3.21.48-PM-1-1260x708.jpeg
- *          -> /uploads/wp/2024/01/WhatsApp-Image-2024-01-06-at-3.21.48-PM-1.jpeg
  */
 function fixWordPressImageUrls(html: string): string {
   if (!html) return html;
 
-  // First handle WebP variants: image-1024x576.jpeg.webp -> image.jpeg
+  // Matches both legacy /uploads/wp/... and migrated /uploads/media/migrated/...
+  const uploadPathPattern = '(\\/uploads\\/(?:wp|media\\/migrated)\\/\\d{4}\\/\\d{2}\\/[^"\'\\s<>]+)';
+
+  // Handle WebP double-extension variants: image-1024x576.jpeg.webp -> image.jpeg
   let result = html.replace(
-    /(\/uploads\/wp\/\d{4}\/\d{2}\/[^"'\s<>]+)-(\d+ x \d+|\d+x\d+)\.(jpeg|jpg|png|gif)\.webp/gi,
-    (match, basePath, dimensions, ext) => {
-      const numberedMatch = basePath.match(/-([12])$/);
-      if (numberedMatch) {
-        return `${basePath}.${ext}`;
-      }
-      return `${basePath}.${ext}`;
-    }
+    new RegExp(`${uploadPathPattern}-(\\d+x\\d+)\\.(jpeg|jpg|png|gif)\\.webp`, 'gi'),
+    (_match, basePath, _dimensions, ext) => `${basePath}.${ext}`,
   );
 
-  // Then handle regular images: image-1024x576.jpeg -> image.jpeg
+  // Handle standard WP thumbnail suffixes: image-1024x576.jpeg -> image.jpeg
   result = result.replace(
-    /(\/uploads\/wp\/\d{4}\/\d{2}\/[^"'\s<>]+)-(\d+ x \d+|\d+x\d+)\.(jpeg|jpg|png|webp|gif)/gi,
-    (match, basePath, dimensions, ext) => {
-      const numberedMatch = basePath.match(/-([12])$/);
-      if (numberedMatch) {
-        // It's a numbered variant like image-1-1260x708.jpeg -> keep the -1
-        return `${basePath}.${ext}`;
-      }
-      // Regular case: image-1024x576.jpeg -> image.jpeg
-      return `${basePath}.${ext}`;
-    }
+    new RegExp(`${uploadPathPattern}-(\\d+x\\d+)\\.(jpeg|jpg|png|webp|gif)`, 'gi'),
+    (_match, basePath, _dimensions, ext) => `${basePath}.${ext}`,
   );
 
   return result;

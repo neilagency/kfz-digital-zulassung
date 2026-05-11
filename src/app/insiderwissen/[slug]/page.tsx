@@ -10,6 +10,7 @@ import {
   LocalPost,
 } from '@/lib/db';
 import { sanitizeHtml } from '@/lib/sanitize';
+import { normalizeImageUrl } from '@/lib/media';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -203,9 +204,7 @@ function BlogPostView({
   const baseUrl = settings.siteUrl.replace(/\/$/, '');
   const canonicalUrl = `${baseUrl}/insiderwissen/${slug}`;
 
-  const normalizedFeaturedImage = post.featuredImage
-    ? post.featuredImage.replace(/^https?:\/\/[^/]+(?=\/uploads\/media\/)/i, '')
-    : '';
+  const normalizedFeaturedImage = normalizeImageUrl(post.featuredImage);
 
   const featuredImageReady = !!normalizedFeaturedImage;
 

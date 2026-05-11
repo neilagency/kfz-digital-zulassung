@@ -106,14 +106,14 @@ export default async function InsiderwissenPage({
   const currentPage = Number(params.page) || 1;
   const catFilter = params.cat || undefined;
 
-  // 150 sichtbare Blogkarten pro Seite.
-  // 1000 interne Textlinks unten gegen Orphan Pages.
-  const perPage = 150;
+  // 9 posts per page for better performance and UX
+  // 50 internal links for SEO (against orphan pages)
+  const perPage = 9;
 
   const [result, categories, allPostsResult] = await Promise.all([
     getAllPosts(currentPage, perPage, catFilter),
     getCategories(),
-    getAllPosts(1, 1000),
+    getAllPosts(1, 50),
   ]);
 
   const { posts, totalPages } = result;
