@@ -253,6 +253,8 @@ export default async function RootLayout({
       <head>
         {/* Google Consent Mode v2 defaults — must run before GTM */}
         <GTMConsentInit />
+        {/* Google Tag Manager — afterInteractive, positioned in <head> */}
+        <GTMScript />
       </head>
       <body className={inter.className} suppressHydrationWarning>
         {/* GTM noscript fallback — as close to opening <body> as possible */}
@@ -267,9 +269,6 @@ export default async function RootLayout({
         >
           {children}
         </ConditionalLayout>
-
-        {/* Google Tag Manager */}
-        <GTMScript />
 
         <script dangerouslySetInnerHTML={{ __html: `window.tidioChatLang="de";window.tidioChatColor="#8BC34A";` }} />
         <Script src="//code.tidio.co/4yyybrqvm02lhxkpgcemrjqiesnpkcv3.js" strategy="afterInteractive" />

@@ -9,7 +9,9 @@ const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID;
  * 1. Initialises window.dataLayer
  * 2. Sets Google Consent Mode v2 defaults (all denied) — this must happen
  *    before the GTM script evaluates so that GTM respects the defaults.
- * 3. For returning visitors: immediately reads localStorage and upgrades
+ * 3. Enables Consent Mode Basic via url_passthrough + ads_data_redaction
+ *    so anonymised measurement continues even without explicit consent.
+ * 4. For returning visitors: immediately reads localStorage and upgrades
  *    consent to their saved preferences so no analytics hits are blocked
  *    on page load.
  *
@@ -28,6 +30,8 @@ export function GTMConsentInit() {
   window.gtag = gtag;
 
   /* --- Consent Mode v2: deny everything by default --- */
+  /* wait_for_update:2000 gives the cookie banner enough time to show */
+  /* and restore saved preferences before GTM fires any tags.        */
   gtag('consent','default',{
     ad_storage:'denied',
     ad_user_data:'denied',
@@ -36,7 +40,13 @@ export function GTMConsentInit() {
     functionality_storage:'granted',
     personalization_storage:'denied',
     security_storage:'granted',
-    wait_for_update:500
+    wait_for_update:2000
+  });
+
+  /* --- Consent Mode Basic: allow anonymised measurement without consent --- */
+  gtag('set',{
+    url_passthrough:true,
+    ads_data_redaction:true
   });
 
   /* --- Returning visitor: restore saved consent instantly --- */
@@ -69,7 +79,9 @@ export function GTMConsentInit() {
 }
 
 /**
- * GTM loader script — placed once globally via next/script afterInteractive.
+ * GTM loader script — loaded via next/script afterInteractive using the
+ * direct src attribute (more reliable than dangerouslySetInnerHTML in
+ * Next.js App Router).
  * Renders nothing if NEXT_PUBLIC_GTM_ID is not set (safe for local dev).
  */
 export function GTMScript() {
@@ -78,21 +90,8 @@ export function GTMScript() {
   return (
     <Script
       id="gtm-script"
+      src={`https://www.googletagmanager.com/gtm.js?id=${GTM_ID}`}
       strategy="afterInteractive"
-      dangerouslySetInnerHTML={{
-        __html: `
-(function(w,d,s,l,i){
-  w[l]=w[l]||[];
-  w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});
-  var f=d.getElementsByTagName(s)[0],
-      j=d.createElement(s),
-      dl=l!='dataLayer'?'&l='+l:'';
-  j.async=true;
-  j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;
-  f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','${GTM_ID}');
-        `.trim(),
-      }}
     />
   );
 }
