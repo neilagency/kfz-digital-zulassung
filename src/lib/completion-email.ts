@@ -5,6 +5,7 @@
  */
 
 import { sendCampaignEmail } from '@/lib/campaign-email';
+import { logger } from '@/lib/logger';
 import prisma from '@/lib/prisma';
 
 const SITE_URL =
@@ -142,7 +143,7 @@ export async function sendCompletionEmail(orderId: string): Promise<{
 
     // Deduplication: already sent
     if (order.completionEmailSent) {
-      console.log(`[completionEmail] Already sent for order #${order.orderNumber} — skipping`);
+      logger.debug('Completion email already sent, skipping', { orderNumber: order.orderNumber });
       return { success: true, skipped: true };
     }
 
@@ -205,7 +206,7 @@ export async function sendCompletionEmail(orderId: string): Promise<{
         },
       });
 
-      console.log(`[completionEmail] SUCCESS for order #${order.orderNumber} → ${email}`);
+      logger.info('Completion email sent successfully', { orderNumber: order.orderNumber, to: email });
       return { success: true };
     } else {
       // Log failure as order note

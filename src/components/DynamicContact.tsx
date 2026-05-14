@@ -35,7 +35,7 @@ export default function DynamicContact() {
         rel="nofollow noopener noreferrer"
         className="text-green-400 font-bold text-sm hover:underline"
       >
-        WhatsApp Live-Chat
+        Support
       </a>
     </>
   );

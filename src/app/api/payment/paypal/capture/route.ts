@@ -9,6 +9,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { logger } from '@/lib/logger';
 import { capturePayPalOrder } from '@/lib/paypal';
 import { triggerInvoiceEmail } from '@/lib/trigger-invoice';
 
@@ -53,9 +54,7 @@ export async function GET(request: NextRequest) {
     // Capture the PayPal order
     const captureResult = await capturePayPalOrder(payment.transactionId);
 
-    console.log(
-      `[paypal-capture] Order #${order.orderNumber}: status=${captureResult.status}, captureId=${captureResult.captureId}`,
-    );
+    logger.info('PayPal capture completed', { orderNumber: order.orderNumber, status: captureResult.status, captureId: captureResult.captureId });
 
     if (captureResult.status === 'COMPLETED') {
       // Update order, payment, and invoice — all in parallel

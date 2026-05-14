@@ -4,6 +4,7 @@
  */
 
 import prisma from '@/lib/prisma';
+import { logger } from '@/lib/logger';
 import { type InvoiceData } from '@/lib/invoice-template';
 
 const SITE_URL = process.env.SITE_URL || process.env.NEXT_PUBLIC_SITE_URL || 'https://onlineautoabmelden.com';
@@ -236,7 +237,7 @@ export async function sendInvoiceEmail(opts: {
     return { success: false, error: 'SMTP not configured' };
   }
 
-  console.log(`[email] SMTP config: host=${smtpHost}, port=${smtpPort}, user=${smtpUser}, passSource=${process.env.SMTP_PASS_B64 ? 'B64' : 'RAW'}, passLen=${smtpPass.length}`);
+  logger.debug('SMTP config', { host: smtpHost, port: smtpPort, user: smtpUser, passSource: process.env.SMTP_PASS_B64 ? 'B64' : 'RAW', passLen: smtpPass.length });
 
   const transporter = nodemailer.default.createTransport({
     host: smtpHost, port: smtpPort, secure: smtpPort === 465,
@@ -249,7 +250,7 @@ export async function sendInvoiceEmail(opts: {
   // Verify SMTP connection before sending
   try {
     await transporter.verify();
-    console.log('[email] SMTP connection verified successfully');
+    logger.debug('SMTP connection verified successfully');
   } catch (verifyErr) {
     const verifyMsg = verifyErr instanceof Error ? verifyErr.message : String(verifyErr);
     console.error('[email] SMTP connection FAILED:', verifyMsg);
@@ -294,7 +295,7 @@ E-Mail: <a href="mailto:info@onlineautoabmelden.com" style="color:#0D5581;font-w
         html: emailHTML,
         attachments: [{ filename: fileName, content: opts.pdfBuffer, contentType: 'application/pdf' }],
       });
-      console.log('[email] Invoice email sent to ' + opts.to + ' for order #' + opts.orderNumber);
+      logger.info('Invoice email sent', { to: opts.to, orderNumber: opts.orderNumber });
 
       // Send admin notification with direct link to order in dashboard
       if (opts.sendAdminCopy !== false && adminEmail) {
@@ -331,7 +332,7 @@ E-Mail: <a href="mailto:info@onlineautoabmelden.com" style="color:#0D5581;font-w
             html: adminHTML,
             attachments: [{ filename: fileName, content: opts.pdfBuffer, contentType: 'application/pdf' }],
           });
-          console.log('[email] Admin copy sent to ' + adminEmail);
+          logger.info('Admin copy sent', { to: adminEmail });
         } catch (adminErr) {
           console.error('[email] ADMIN_EMAIL_FAILED to ' + adminEmail + ':', adminErr instanceof Error ? adminErr.message : adminErr);
           // Don't fail the whole operation for admin copy failure
@@ -351,9 +352,9 @@ export async function generateAndSendInvoice(orderId: string): Promise<{
   success: boolean; invoiceNumber?: string; emailSent?: boolean; error?: string;
 }> {
   try {
-    console.log('[invoice] Generating invoice for order: ' + orderId);
+    logger.info('Generating invoice for order', { orderId });
     const { pdfBuffer, invoiceData, invoiceNumber } = await generateInvoicePDF(orderId);
-    console.log('[invoice] PDF generated: ' + invoiceNumber + ' (' + pdfBuffer.length + ' bytes)');
+    logger.info('PDF generated', { invoiceNumber, bytes: pdfBuffer.length });
 
     const emailResult = await sendInvoiceEmail({
       to: invoiceData.customerEmail,

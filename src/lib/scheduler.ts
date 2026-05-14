@@ -4,6 +4,7 @@
  * Replaces external cron job (not available on Hostinger shared hosting).
  */
 import prisma from '@/lib/prisma';
+import { logger } from '@/lib/logger';
 
 const INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
 let started = false;
@@ -40,10 +41,10 @@ async function publishScheduledPosts() {
     const failed = results.filter((r) => r.status === 'rejected');
 
     if (published > 0) {
-      console.log(
-        `[scheduler] Published ${published} scheduled post(s):`,
-        postsToPublish.slice(0, published).map((p) => p.title)
-      );
+      logger.info('Scheduler published scheduled posts', {
+        count: published,
+        titles: postsToPublish.slice(0, published).map((p) => p.title)
+      });
     }
 
     if (failed.length > 0) {
@@ -61,7 +62,7 @@ export function startScheduler() {
   if (started) return;
   started = true;
 
-  console.log('[scheduler] Blog post scheduler started (every 5 min)');
+  logger.info('Blog post scheduler started (every 5 min)');
 
   // Run once immediately on startup
   publishScheduledPosts();

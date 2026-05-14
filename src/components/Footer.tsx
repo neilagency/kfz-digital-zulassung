@@ -229,7 +229,7 @@ export default async function Footer() {
                 className="flex items-center gap-2 text-sm text-gray-400 transition-colors hover:text-accent"
               >
                 <MessageCircle className="h-4 w-4 text-green-400" />
-                WhatsApp Live-Chat
+                Support
               </a>
 
               <a

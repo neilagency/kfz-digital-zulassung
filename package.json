@@ -15,7 +15,9 @@
     "seo-similarity-audit": "tsx scripts/seo-similarity-audit.ts",
     "test-intro-diversity": "tsx scripts/test-intro-diversity.ts",
     "test-seo-gates": "npm run test-intro-diversity && npm run seo-similarity-audit",
-    "seo-live-10": "tsx scripts/live-main-seo-audit-10.ts"
+    "seo-live-10": "tsx scripts/live-main-seo-audit-10.ts",
+    "validate-env": "tsx scripts/validate-production-env.ts",
+    "pre-deploy": "npm run validate-env && npx tsc --noEmit"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",

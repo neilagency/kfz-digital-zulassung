@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { revalidatePath, revalidateTag } from 'next/cache';
 import prisma from '@/lib/prisma';
+import { logger } from '@/lib/logger';
 
 export const dynamic = 'force-dynamic';
 
@@ -69,9 +70,9 @@ export async function GET(request: NextRequest) {
       console.warn('Revalidation warning:', e);
     }
 
-    console.log(`[cron] Published ${published.length} scheduled posts:`, published.map(p => p.title));
+    logger.info('Cron published scheduled posts', { count: published.length, titles: published.map(p => p.title) });
     if (failed.length > 0) {
-      console.error(`[cron] Failed to publish ${failed.length} posts:`, failed);
+      logger.error('Cron failed to publish posts', { count: failed.length, errors: failed });
     }
 
     return NextResponse.json({

@@ -13,6 +13,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { rateLimit, getClientIP } from '@/lib/rate-limit';
+import { logger } from '@/lib/logger';
 import path from 'path';
 import { writeFile, mkdir } from 'fs/promises';
 import crypto from 'crypto';
@@ -117,7 +118,7 @@ export async function POST(request: NextRequest) {
       fileUrl = await uploadToLocal(foundFile, fieldName);
     }
 
-    console.log(`[upload] Document uploaded: ${fileUrl}`);
+    logger.info('Document uploaded', { fileUrl });
 
     return NextResponse.json({
       files: [{

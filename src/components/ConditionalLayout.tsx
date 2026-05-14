@@ -5,8 +5,7 @@ import dynamic from 'next/dynamic';
 import Navbar from '@/components/Navbar';
 import { CustomerAuthProvider } from '@/components/CustomerAuthProvider';
 import { CookieConsentProvider } from '@/lib/cookie-consent';
-import { WHATSAPP_LINK } from '@/lib/constants';
-import { MessageCircle } from 'lucide-react';
+import { PageViewTracker } from '@/lib/analytics/pageview';
 
 const CookieBanner = dynamic(() => import('@/components/CookieBanner'), {
   ssr: false,
@@ -47,19 +46,12 @@ export default function ConditionalLayout({
         {children}
         {footer}
 
-        {/* WhatsApp floating button */}
-        <a
-          href={navProps?.whatsapp || WHATSAPP_LINK}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="fixed bottom-6 right-6 z-50 bg-green-700 hover:bg-green-800 text-white w-14 h-14 rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all hover:-translate-y-1"
-          aria-label="WhatsApp Live-Chat"
-        >
-          <MessageCircle className="w-7 h-7" />
-        </a>
 
         {/* Cookie Consent Banner — lazy loaded */}
         <CookieBanner />
+
+        {/* SPA page view tracking — fires on every route change */}
+        <PageViewTracker />
       </CookieConsentProvider>
     </CustomerAuthProvider>
   );

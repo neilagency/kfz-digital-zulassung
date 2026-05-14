@@ -16,6 +16,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { logger } from '@/lib/logger';
 import { createMolliePayment, createMollieOrder, getMollieMethod } from '@/lib/payments';
 import { createPayPalOrder } from '@/lib/paypal';
 import { triggerInvoiceEmail } from '@/lib/trigger-invoice';
@@ -273,9 +274,7 @@ export async function POST(request: NextRequest) {
     const orderTotal = Math.max(productPrice - discountAmount + paymentFee, 0);
     const totalFormatted = orderTotal.toFixed(2);
 
-    console.log(
-      `[checkout] Price breakdown: product=${productPrice}, discount=${discountAmount}, fee=${paymentFee}, total=${totalFormatted}, coupon=${couponCode || 'none'}`,
-    );
+    logger.info('Checkout price breakdown', { productPrice, discountAmount, paymentFee, total: totalFormatted, coupon: couponCode || 'none' });
 
     const serviceLabel = body.serviceData?.serviceLabel || '';
     const productName = isAnmeldung
@@ -469,7 +468,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    console.log(`[checkout] Order #${nextOrderNum} + invoice ${currentInvNumber} created`);
+    logger.info('Checkout order and invoice created', { orderNumber: nextOrderNum, invoiceNumber: currentInvNumber });
 
     paymentLog.orderCreated({
       orderId: localOrder.id,
@@ -481,9 +480,7 @@ export async function POST(request: NextRequest) {
 
     // ── FREE ORDER (coupon covers full amount) — skip all payment gateways ──
     if (orderTotal <= 0) {
-      console.log(
-        `[checkout] Order #${nextOrderNum} is free (coupon: ${couponCode}), skipping payment gateway`,
-      );
+      logger.info('Checkout free order, skipping payment gateway', { orderNumber: nextOrderNum, coupon: couponCode });
 
       await Promise.all([
         prisma.order.update({
@@ -575,9 +572,7 @@ export async function POST(request: NextRequest) {
           },
         });
 
-        console.log(
-          `[checkout] PayPal order ${paypalResult.paypalOrderId} created for Order #${nextOrderNum}`,
-        );
+        logger.info('Checkout PayPal order created', { paypalOrderId: paypalResult.paypalOrderId, orderNumber: nextOrderNum });
 
         paymentLog.paypalCreate({
           orderId: localOrder.id,

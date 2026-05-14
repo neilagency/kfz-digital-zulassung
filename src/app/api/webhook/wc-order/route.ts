@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { logger } from '@/lib/logger';
 
 export const dynamic = 'force-dynamic';
 
@@ -30,7 +31,7 @@ export async function POST(request: NextRequest) {
     const datePaid = body.date_paid ? new Date(body.date_paid) : undefined;
     const dateCompleted = body.date_completed ? new Date(body.date_completed) : undefined;
 
-    console.log(`🔔 WC Webhook: Order #${wpOrderId} → ${newStatus}`);
+    logger.info('WooCommerce webhook received', { wpOrderId, newStatus });
 
     // Find the local order by WP order ID
     const localOrder = await prisma.order.findFirst({
@@ -39,7 +40,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (!localOrder) {
-      console.log(`  ⚠️ WP Order #${wpOrderId} not found in local DB`);
+      logger.warn('WooCommerce order not found in local DB', { wpOrderId });
       return NextResponse.json({ message: 'Order not found locally' }, { status: 200 });
     }
 
@@ -86,7 +87,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    console.log(`  ✅ Local order #${localOrder.orderNumber} updated to ${newStatus}`);
+    logger.info('WooCommerce order updated', { orderNumber: localOrder.orderNumber, newStatus });
 
     return NextResponse.json({ success: true, orderNumber: localOrder.orderNumber });
   } catch (error) {

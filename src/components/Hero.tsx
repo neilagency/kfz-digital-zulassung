@@ -15,7 +15,7 @@ const DynamicContact = dynamic(() => import('./DynamicContact'), {
   loading: () => (
     <>
       <span className="text-accent font-bold text-sm">01522 4999190</span>
-      <span className="text-green-400 font-bold text-sm">WhatsApp Live-Chat</span>
+      <span className="text-green-400 font-bold text-sm">Support</span>
     </>
   ),
 });

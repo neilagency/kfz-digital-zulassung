@@ -12,6 +12,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { triggerInvoiceEmail } from '@/lib/trigger-invoice';
+import { logger } from '@/lib/logger';
 
 export const runtime = 'nodejs';
 
@@ -22,7 +23,7 @@ export async function POST(request: NextRequest) {
     const eventType = body.event_type as string;
     const resource = body.resource;
 
-    console.log(`[paypal-webhook] Event: ${eventType}, Resource ID: ${resource?.id}`);
+    logger.info('PayPal webhook event', { eventType, resourceId: resource?.id });
 
     // Find the order by PayPal capture ID or custom_id
     const captureId = resource?.id;
@@ -84,7 +85,7 @@ export async function POST(request: NextRequest) {
               },
             }),
           ]);
-          console.log(`[paypal-webhook] Order #${order.orderNumber} marked as paid`);
+          logger.info('PayPal webhook order marked as paid', { orderNumber: order.orderNumber });
 
           // Trigger invoice email — await to ensure it runs
           const emailResult = await triggerInvoiceEmail(order.id);
@@ -115,12 +116,12 @@ export async function POST(request: NextRequest) {
             },
           }),
         ]);
-        console.log(`[paypal-webhook] Order #${order.orderNumber} → ${newStatus}`);
+        logger.info('PayPal webhook order status updated', { orderNumber: order.orderNumber, newStatus });
         break;
       }
 
       default:
-        console.log(`[paypal-webhook] Unhandled event type: ${eventType}`);
+        logger.warn('PayPal webhook unhandled event type', { eventType });
     }
 
     return NextResponse.json({ received: true }, { status: 200 });

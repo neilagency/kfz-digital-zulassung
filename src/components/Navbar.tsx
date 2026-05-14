@@ -8,7 +8,7 @@ import {
   Menu,
   X,
   Phone,
-  MessageCircle,
+
   UserCircle,
   LogIn,
   ChevronDown,
@@ -202,16 +202,6 @@ export default function Navbar({ navProps }: { navProps?: NavProps }) {
                 <Phone className="w-4 h-4" />
               </a>
 
-              {/* WhatsApp */}
-              <a
-                href={navProps?.whatsapp || 'https://wa.me/4915224999190'}
-                target="_blank"
-                rel="nofollow noopener noreferrer"
-                className="flex items-center gap-1.5 bg-green-700 hover:bg-green-800 text-white px-3.5 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap"
-              >
-                <MessageCircle className="w-4 h-4" />
-                WhatsApp
-              </a>
 
               {/* CTA */}
               <Link
@@ -368,15 +358,6 @@ export default function Navbar({ navProps }: { navProps?: NavProps }) {
                 {navProps?.phone || '01522 4999190'}
               </a>
 
-              <a
-                href={navProps?.whatsapp || 'https://wa.me/4915224999190'}
-                target="_blank"
-                rel="nofollow noopener noreferrer"
-                className="flex items-center justify-center gap-2 bg-green-700 hover:bg-green-800 text-white py-3 px-4 rounded-full font-medium transition-colors"
-              >
-                <MessageCircle className="w-4 h-4" />
-                WhatsApp Chat starten
-              </a>
 
               <Link
                 href="/product/fahrzeugabmeldung"

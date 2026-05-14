@@ -6,6 +6,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { logger } from '@/lib/logger';
 import path from 'path';
 import { writeFile, mkdir } from 'fs/promises';
 import crypto from 'crypto';
@@ -177,9 +178,9 @@ export async function POST(
     })
       .then((result: { success: boolean; error?: string }) => {
         if (result.success) {
-          console.log(`[order-messages] Email sent for order #${order.orderNumber} → ${order.billingEmail}`);
+          logger.info('Order message email sent', { orderNumber: order.orderNumber, to: order.billingEmail });
         } else {
-          console.error(`[order-messages] Email failed for order #${order.orderNumber}: ${result.error}`);
+          logger.error('Order message email failed', { orderNumber: order.orderNumber, error: result.error });
         }
       })
       .catch((err: unknown) => {

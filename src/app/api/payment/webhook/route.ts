@@ -7,6 +7,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { logger } from '@/lib/logger';
 import { getMolliePaymentStatus, getMollieOrderStatus } from '@/lib/payments';
 import { triggerInvoiceEmail } from '@/lib/trigger-invoice';
 import { paymentLog } from '@/lib/payment-logger';
@@ -158,7 +159,7 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    console.log(`[webhook] Order ${orderId} updated to ${orderStatus} (payment: ${paymentStatus})`);
+    logger.info('Webhook order updated', { orderId, orderStatus, paymentStatus });
 
     paymentLog.webhookUpdated({
       orderId,

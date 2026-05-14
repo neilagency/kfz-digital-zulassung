@@ -3,6 +3,8 @@
  * Sends a branded email when a PDF document is uploaded for an order.
  */
 
+import { logger } from '@/lib/logger';
+
 const SITE_URL = process.env.SITE_URL || process.env.NEXT_PUBLIC_SITE_URL || 'https://onlineautoabmelden.com';
 
 function escapeHtml(str: string): string {
@@ -136,7 +138,7 @@ export async function sendDocumentEmail(opts: {
         html: emailHTML,
         attachments,
       });
-      console.log(`[document-email] Sent to ${opts.to} for order #${opts.orderNumber}`);
+      logger.info('Document email sent', { to: opts.to, orderNumber: opts.orderNumber });
       return { success: true };
     } catch (err) {
       lastError = err instanceof Error ? err.message : String(err);

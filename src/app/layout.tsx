@@ -1,8 +1,10 @@
 import type { Metadata } from 'next';
+import Script from 'next/script';
 import { Inter } from 'next/font/google';
 import ConditionalLayout from '@/components/ConditionalLayout';
 import Footer from '@/components/Footer';
 import { getSiteSettings } from '@/lib/db';
+import { GTMConsentInit, GTMScript, GTMNoscript } from '@/lib/analytics/gtm';
 import './globals.css';
 
 const inter = Inter({
@@ -248,7 +250,13 @@ export default async function RootLayout({
 
   return (
     <html lang="de" className={inter.variable} suppressHydrationWarning translate="no">
+      <head>
+        {/* Google Consent Mode v2 defaults — must run before GTM */}
+        <GTMConsentInit />
+      </head>
       <body className={inter.className} suppressHydrationWarning>
+        {/* GTM noscript fallback — as close to opening <body> as possible */}
+        <GTMNoscript />
         <ConditionalLayout
           footer={<Footer />}
           navProps={{
@@ -259,6 +267,12 @@ export default async function RootLayout({
         >
           {children}
         </ConditionalLayout>
+
+        {/* Google Tag Manager */}
+        <GTMScript />
+
+        <script dangerouslySetInnerHTML={{ __html: `window.tidioChatLang="de";window.tidioChatColor="#8BC34A";` }} />
+        <Script src="//code.tidio.co/4yyybrqvm02lhxkpgcemrjqiesnpkcv3.js" strategy="afterInteractive" />
 
         <script
           type="application/ld+json"

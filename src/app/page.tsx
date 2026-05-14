@@ -876,11 +876,11 @@ export default async function HomePage() {
                 href={settings.whatsapp}
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label="WhatsApp Live-Chat öffnen"
+                aria-label="Support Chat öffnen"
                 className="inline-flex items-center gap-2 rounded-full bg-green-700 px-6 py-3 font-bold text-white transition-colors hover:bg-green-800"
               >
                 <MessageCircle className="h-5 w-5" />
-                WhatsApp Live-Chat
+                Support
               </a>
             </div>
           </div>

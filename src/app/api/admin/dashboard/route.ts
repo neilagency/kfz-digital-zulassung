@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { logger } from '@/lib/logger';
 
 export const dynamic = 'force-dynamic';
 
@@ -8,18 +9,18 @@ let dashCache: { data: any; ts: number } | null = null;
 const CACHE_TTL = 60_000;
 
 export async function GET() {
-  console.log('[dashboard GET] Request received');
+  logger.debug('Dashboard GET request received');
 
   // Return cached if fresh
   if (dashCache && Date.now() - dashCache.ts < CACHE_TTL) {
-    console.log('[dashboard GET] Cache HIT');
+    logger.debug('Dashboard cache HIT');
     return new NextResponse(JSON.stringify(dashCache.data), {
       status: 200,
       headers: { 'Content-Type': 'application/json', 'X-Cache': 'HIT' },
     });
   }
 
-  console.log('[dashboard GET] Cache MISS, fetching data');
+  logger.debug('Dashboard cache MISS, fetching data');
   try {
     // Three parallel queries — safe for Turso/libsql
     const [aggregateStats, recentOrders, monthlyRevenue] = await Promise.all([
@@ -71,7 +72,7 @@ export async function GET() {
     ]);
 
     const s = aggregateStats[0];
-    console.log('[dashboard GET] Aggregate stats:', s);
+    logger.debug('Dashboard aggregate stats', { stats: s });
 
     const result = {
       stats: {
@@ -91,7 +92,7 @@ export async function GET() {
       })),
     };
 
-    console.log('[dashboard GET] Result:', { stats: result.stats, recentOrdersCount: result.recentOrders.length, monthlyRevenueCount: result.monthlyRevenue.length });
+    logger.debug('Dashboard result', { stats: result.stats, recentOrdersCount: result.recentOrders.length, monthlyRevenueCount: result.monthlyRevenue.length });
 
     // Cache the result
     dashCache = { data: result, ts: Date.now() };

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { logger } from '@/lib/logger';
 import { buildCampaignHtml, sendCampaignBatch } from '@/lib/campaign-email';
 import { resolveRecipients } from '@/lib/campaign-recipients';
 
@@ -96,9 +97,7 @@ export async function POST(_req: NextRequest, ctx: RouteCtx) {
             sentAt: new Date(),
           },
         });
-        console.log(
-          `[campaign] ${id} completed: ${result.sent} sent, ${result.failed} failed`
-        );
+        logger.info('Email campaign completed', { campaignId: id, sent: result.sent, failed: result.failed });
       })
       .catch(async (err) => {
         console.error(`[campaign] ${id} critical error:`, err);

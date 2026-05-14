@@ -8,6 +8,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/lib/logger';
 import { generateAndSendInvoice } from '@/lib/invoice';
 import prisma from '@/lib/prisma';
 
@@ -35,7 +36,7 @@ export async function POST(
       return NextResponse.json({ error: 'Order has no billing email' }, { status: 400 });
     }
 
-    console.log(`[resend-invoice] Resending invoice for Order #${order.orderNumber} to ${order.billingEmail}`);
+    logger.info('Resending invoice', { orderNumber: order.orderNumber, to: order.billingEmail });
 
     // Generate PDF + send email
     const result = await generateAndSendInvoice(orderId);

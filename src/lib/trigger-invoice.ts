@@ -10,6 +10,7 @@
  */
 
 import { generateAndSendInvoice } from '@/lib/invoice';
+import { logger } from '@/lib/logger';
 
 // Track which orders have already been triggered (prevent duplicate emails)
 const triggeredOrders = new Set<string>();
@@ -22,7 +23,7 @@ const triggeredOrders = new Set<string>();
 export async function triggerInvoiceEmail(orderId: string): Promise<{ success: boolean; error?: string }> {
   // Deduplication: if this orderId was already triggered recently, skip
   if (triggeredOrders.has(orderId)) {
-    console.log(`[triggerInvoice] Already triggered for order ${orderId} — skipping duplicate`);
+    logger.debug('Invoice already triggered, skipping duplicate', { orderId });
     return { success: true };
   }
 
@@ -30,13 +31,13 @@ export async function triggerInvoiceEmail(orderId: string): Promise<{ success: b
   triggeredOrders.add(orderId);
   setTimeout(() => triggeredOrders.delete(orderId), 5 * 60 * 1000);
 
-  console.log(`[triggerInvoice] EMAIL_TRIGGERED for order ${orderId}`);
+  logger.info('Invoice email triggered', { orderId });
 
   try {
     const result = await generateAndSendInvoice(orderId);
 
     if (result.success && result.emailSent) {
-      console.log(`[triggerInvoice] EMAIL_SENT_SUCCESS for order ${orderId}: invoice=${result.invoiceNumber}`);
+      logger.info('Invoice email sent successfully', { orderId, invoiceNumber: result.invoiceNumber });
       return { success: true };
     } else if (result.success && !result.emailSent) {
       console.error(`[triggerInvoice] PDF generated but EMAIL_FAILED for order ${orderId}: ${result.error}`);
