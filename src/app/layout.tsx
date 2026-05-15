@@ -5,6 +5,7 @@ import ConditionalLayout from '@/components/ConditionalLayout';
 import Footer from '@/components/Footer';
 import { getSiteSettings } from '@/lib/db';
 import { GTMConsentInit, GTMScript, GTMNoscript } from '@/lib/analytics/gtm';
+import WhatsAppFloatingButton from '@/components/WhatsAppFloatingButton';
 import './globals.css';
 
 const inter = Inter({
@@ -270,8 +271,8 @@ export default async function RootLayout({
           {children}
         </ConditionalLayout>
 
-        <script dangerouslySetInnerHTML={{ __html: `window.tidioChatLang="de";window.tidioChatColor="#8BC34A";` }} />
-        <Script src="//code.tidio.co/4yyybrqvm02lhxkpgcemrjqiesnpkcv3.js" strategy="afterInteractive" />
+        {/* WhatsApp floating contact button — replaces Tidio chat widget */}
+        <WhatsAppFloatingButton whatsappUrl={settings.whatsapp} />
 
         <script
           type="application/ld+json"
