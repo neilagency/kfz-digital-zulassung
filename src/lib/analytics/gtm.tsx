@@ -89,21 +89,28 @@ export function GTMScript() {
   return (
     <Script
       id="gtm-script"
+      src={`https://www.googletagmanager.com/gtm.js?id=${GTM_ID}`}
       strategy="afterInteractive"
-      dangerouslySetInnerHTML={{
-        __html: `
-(function(w,d,s,l,i){
-  w[l]=w[l]||[];
-  w[l].push({'gtm.start': new Date().getTime(), event:'gtm.js'});
-  var f=d.getElementsByTagName(s)[0],
-      j=d.createElement(s),
-      dl=l!='dataLayer'?'&l='+l:'';
-  j.async=true;
-  j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;
-  f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','${GTM_ID}');
-        `.trim(),
-      }}
     />
+  );
+}
+
+/**
+ * GTM <noscript> iframe fallback — must be placed as close to the opening
+ * <body> tag as possible.  Renders nothing when GTM_ID is not configured.
+ */
+export function GTMNoscript() {
+  if (!GTM_ID) return null;
+
+  return (
+    <noscript>
+      {/* eslint-disable-next-line jsx-a11y/iframe-has-title */}
+      <iframe
+        src={`https://www.googletagmanager.com/ns.html?id=${GTM_ID}`}
+        height="0"
+        width="0"
+        style={{ display: 'none', visibility: 'hidden' }}
+      />
+    </noscript>
   );
 }
