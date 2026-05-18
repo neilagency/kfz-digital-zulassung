@@ -95,6 +95,7 @@ export default function TrackingSettingsPage() {
   const [changed, setChanged] = useState(false);
   const [envOpen, setEnvOpen] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+  const [envLabel, setEnvLabel] = useState('Entwicklung');
 
   useEffect(() => {
     fetch('/api/admin/tracking-settings')
@@ -107,6 +108,16 @@ export default function TrackingSettingsPage() {
         setLoading(false);
         setToast({ message: 'Fehler beim Laden der Tracking-Einstellungen', type: 'error' });
       });
+  }, []);
+
+  useEffect(() => {
+    setEnvLabel(
+      process.env.NODE_ENV === 'production'
+        ? 'Produktion'
+        : process.env.NODE_ENV === 'test'
+        ? 'Staging'
+        : 'Entwicklung'
+    );
   }, []);
 
   const update = <K extends keyof TrackingSettings>(key: K, value: TrackingSettings[K]) => {
@@ -157,18 +168,6 @@ export default function TrackingSettingsPage() {
     return <p className="text-red-500">Fehler beim Laden der Tracking-Einstellungen</p>;
   }
 
-  const [envLabel, setEnvLabel] = useState('Entwicklung');
-
-  useEffect(() => {
-    // Client-side only to avoid hydration mismatch
-    setEnvLabel(
-      process.env.NODE_ENV === 'production'
-        ? 'Produktion'
-        : process.env.NODE_ENV === 'test'
-        ? 'Staging'
-        : 'Entwicklung'
-    );
-  }, []);
   const isAnyActive = settings.gtm_enabled || settings.ga4_enabled;
 
   return (
