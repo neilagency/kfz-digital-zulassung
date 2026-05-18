@@ -25,6 +25,7 @@ import {
   MoreHorizontal,
   Mail,
   Tag,
+  BarChart3,
 } from 'lucide-react';
 
 const navItems = [
@@ -41,6 +42,7 @@ const navItems = [
   { label: 'Zahlungen', href: '/admin/payments', icon: CreditCard },
   { label: 'Performance', href: '/admin/performance', icon: Activity },
   { label: 'Einstellungen', href: '/admin/settings', icon: Settings },
+  { label: 'Tracking', href: '/admin/settings/tracking', icon: BarChart3 },
 ];
 
 // Bottom nav shows first 4 + "More" drawer
@@ -69,6 +71,7 @@ export default function AdminSidebar() {
 
   const isActive = (href: string) => {
     if (href === '/admin') return pathname === '/admin';
+    if (href === '/admin/settings') return pathname === '/admin/settings';
     return pathname.startsWith(href);
   };
 

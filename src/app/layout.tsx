@@ -4,7 +4,11 @@ import { Inter } from 'next/font/google';
 import ConditionalLayout from '@/components/ConditionalLayout';
 import Footer from '@/components/Footer';
 import { getSiteSettings } from '@/lib/db';
-import { GTMConsentInit, GTMScript, GTMNoscript } from '@/lib/analytics/gtm';
+import { getTrackingConfig } from '@/lib/tracking-config';
+import { GTMConsentInit } from '@/lib/analytics/gtm';
+import GTMScript from '@/components/tracking/GTMScript';
+import GA4Script from '@/components/tracking/GA4Script';
+import CookieConsentGate from '@/components/tracking/CookieConsentGate';
 import WhatsAppFloatingButton from '@/components/WhatsAppFloatingButton';
 import './globals.css';
 
@@ -107,7 +111,10 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const settings = await getSiteSettings();
+  const [settings, tracking] = await Promise.all([
+    getSiteSettings(),
+    getTrackingConfig(),
+  ]);
 
   const siteUrl = stripTrailingSlash(settings.siteUrl);
   const companyName =
@@ -254,12 +261,18 @@ export default async function RootLayout({
       <head>
         {/* Google Consent Mode v2 defaults — must run before GTM */}
         <GTMConsentInit />
-        {/* Google Tag Manager — afterInteractive, positioned in <head> */}
-        <GTMScript />
+        {/* Dynamic tracking scripts — admin-controlled, gated by consent */}
+        <CookieConsentGate required={tracking.flags.cookie_consent_required}>
+          <GTMScript id={tracking.gtm_id} enabled={tracking.flags.gtm_enabled} />
+          <GA4Script
+            id={tracking.ga4_id}
+            enabled={tracking.flags.ga4_enabled}
+            sendPageView={tracking.flags.ga4_send_page_view}
+            anonymizeIp={tracking.flags.anonymize_ip}
+          />
+        </CookieConsentGate>
       </head>
       <body className={inter.className} suppressHydrationWarning>
-        {/* GTM noscript fallback — as close to opening <body> as possible */}
-        <GTMNoscript />
         <ConditionalLayout
           footer={<Footer />}
           navProps={{

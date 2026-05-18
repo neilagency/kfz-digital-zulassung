@@ -554,3 +554,41 @@ model CouponUsage {
   @@index([email])
   @@index([couponId])
 }
+
+// ──────────────────────────────────────────────
+// Tracking Settings (singleton — one row only)
+// ──────────────────────────────────────────────
+model TrackingSettings {
+  id                      String   @id @default("default")
+  gtmEnabled              Boolean  @default(false) @map("gtm_enabled")
+  gtmContainerId          String   @default("") @map("gtm_container_id")
+  ga4Enabled              Boolean  @default(false) @map("ga4_enabled")
+  ga4MeasurementId        String   @default("") @map("ga4_measurement_id")
+  ga4SendPageView         Boolean  @default(true) @map("ga4_send_page_view")
+  anonymizeIp             Boolean  @default(true) @map("anonymize_ip")
+  cookieConsentRequired   Boolean  @default(true) @map("cookie_consent_required")
+  environments            String   @default("{}")
+  updatedAt               DateTime @updatedAt @map("updated_at")
+  updatedById             String?  @map("updated_by_id")
+
+  @@map("tracking_settings")
+}
+
+// ──────────────────────────────────────────────
+// Audit Log
+// ──────────────────────────────────────────────
+model AuditLog {
+  id        String   @id @default(cuid())
+  adminId   String   @map("admin_id")
+  action    String
+  resource  String   @default("")
+  diff      String   @default("{}")
+  ipAddress String   @default("") @map("ip_address")
+  userAgent String   @default("") @map("user_agent")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([adminId])
+  @@index([action])
+  @@index([createdAt])
+  @@map("audit_log")
+}
